@@ -2,13 +2,10 @@
 
 ## Data
 
-### Overall - speed, distance, time
+### Overall
 
-- Date
-  - start
-  - end
-- Duration
-  - hh:mm:ss
+- Date - from name of the csv file - e.g. DCM62v2_20250328.csv
+  - date
 - Speed
   - avg
   - max
@@ -20,6 +17,8 @@
   - avg
 
 Calculate:
+- Duration
+  - hh:mm:ss
 - Idle time, driving time (depending on revs & speed)
   - hh:mm:ss
 
@@ -65,7 +64,9 @@ Calculate:
   - max
 
 Calculate:
-- Engine warmup time
+- Engine warmup time (if initial coolant and oil was < 50)
+  - Coolant warmup time
+  - Oil warmup time
 
 ### FAP
 
@@ -75,7 +76,7 @@ Calculate:
   - avg
 - FAP addative values
   - avg
-- Fap pressure - min, max, avg
+- Fap pressure
   - min
   - max
   - avg
@@ -96,6 +97,42 @@ Calculate:
   - avg
 
 ### FAP Regen
+
+- Do the calculations only when the REGEN hapened (REGEN=1)
+- Regen duration
+  - mm:ss
+- Distance traveled
+  - km
+- Speed
+  - min
+  - max
+  - avg
+- FAPtemp
+  - min
+  - max
+  - avg
+- Fap pressure
+  - min
+  - max
+  - avg
+- rev
+  - min
+  - max
+  - avg
+- Fuel consumption
+  - l/100km (calculate seperately when regen was on and off)
+
+## How to structure the code (python PoC)
+
+Take a deep breath. Provide python application that will analyse logs from FAP application that gets data from a car. Use added files as a reference points of data analysis implementation.
+Follow python coding best practicies.
+Main class should be FapLogAnalyzer, which reads the csv file and runs underlying classes to trigger data analysis:
+  - OverallParameters class - which should cover the aspects in the "### Overall" section
+  - DrivingParameters class - which should cover the aspects in the "### Driving" section
+  - EngineParameters class - which should cover the aspects in the "### Engine parameters" section
+  - FapParameters class - which should cover the aspects in the "### FAP" section
+  - FapRegenParameters class - which should cover the aspects in the "### FAP Regen" section
+- Do not want to have plots, only data analysis for now
 
 - 
 ### Plot
