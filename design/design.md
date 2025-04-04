@@ -4,7 +4,7 @@
 
 ### Overall
 
-- Date - from name of the csv file - e.g. DCM62v2_20250328.csv
+- Date
   - date
 - Speed
   - avg
@@ -134,7 +134,6 @@ Main class should be FapLogAnalyzer, which reads the csv file and runs underlyin
   - FapRegenParameters class - which should cover the aspects in the "### FAP Regen" section
 - Do not want to have plots, only data analysis for now
 
-- 
 ### Plot
 
 - fuel consumption vs speed
