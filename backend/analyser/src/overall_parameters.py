@@ -94,4 +94,4 @@ class OverallParameters:
 
 
 if __name__ == "__main__":
-    analyzer = OverallParameters("backend/analyzer/data/DCM62v2_20250328.csv")
+    analyser = OverallParameters("backend/analyser/data/DCM62v2_20250328.csv")
