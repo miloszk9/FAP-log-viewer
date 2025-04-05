@@ -1,29 +1,36 @@
 import pandas as pd
 from datetime import timedelta
+from json import dumps
 
 
 class OverallParameters:
     def __init__(self, file_path):
         self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        self.process_data()
+        self._process_data()
         idle_time_str, driving_time_str, overall_duration_str = (
-            self.calculate_idle_driving_duration()
+            self._calculate_idle_driving_duration()
         )
         self.result = {
-            "date": self.calculate_date(),
-            "distance": self.calculate_distance(),
+            "date": self._calculate_date(),
+            "distance": self._calculate_distance(),
             "duration": {
                 "overall": overall_duration_str,
                 "idle": idle_time_str,
                 "driving": driving_time_str,
             },
-            "externalTemp": self.calculate_temp(),
+            "externalTemp": self._calculate_temp(),
             "speed": self.calculate_speed(),
         }
-        print(self.result)  # Optional: view result
+        # print(self.result)  # Optional: view result
         # return self.result  # No need to return from __init__
 
-    def process_data(self):
+    def __str__(self):
+        return str(self.to_json())
+
+    def to_json(self):
+        return dumps(self.result)
+
+    def _process_data(self):
         """Convert necessary columns and compute time differences."""
         self.csv["Datetime"] = pd.to_datetime(
             self.csv["Date"] + " " + self.csv["Time"], errors="coerce"
@@ -38,7 +45,7 @@ class OverallParameters:
             self.csv["ExternalTemp"], errors="coerce"
         )
 
-    def calculate_date(self):
+    def _calculate_date(self):
         """Return the earliest date from the dataset."""
         return self.csv["Datetime"].min().strftime("%Y-%m-%d")
 
@@ -48,7 +55,7 @@ class OverallParameters:
         max_speed = self.csv["Speed"].max()
         return {"avg": float(round(avg_speed, 2)), "max": float(round(max_speed, 2))}
 
-    def calculate_distance(self):
+    def _calculate_distance(self):
         """
         Approximate distance by summing Speed * Time_Diff.
         Speed is in km/h, Time_Diff is in seconds -> convert to hours.
@@ -57,7 +64,7 @@ class OverallParameters:
         total_distance = self.csv["Distance"].sum()
         return float(round(total_distance, 2))
 
-    def calculate_temp(self):
+    def _calculate_temp(self):
         """Return min, max, and average of External Temp column."""
         min_temp = self.csv["External Temp"].min()
         max_temp = self.csv["External Temp"].max()
@@ -68,7 +75,7 @@ class OverallParameters:
             "min": float(round(min_temp, 1)),
         }
 
-    def calculate_idle_driving_duration(self):
+    def _calculate_idle_driving_duration(self):
         """Calculate total idle time, driving time, and overall duration."""
         self.csv["Idle_Time"] = (
             (self.csv["Speed"] == 0) & (self.csv["Revs"] > 0)
@@ -94,4 +101,5 @@ class OverallParameters:
 
 
 if __name__ == "__main__":
-    analyser = OverallParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    overallParameters = OverallParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    print(overallParameters)
