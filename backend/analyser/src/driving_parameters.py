@@ -39,8 +39,8 @@ class DrivingParameters:
 
     def _calculate_fuel(self):
         # Constants
-        diesel_density = 0.835  # kg/L for diesel fuel
-        cylinders = 4  # BlueHDi 2.0 engine
+        diesel_density = 0.8375  # kg/L for diesel fuel
+        cylinders = 4  # TODO: calculate from number of injectors
 
         # Calculate fuel flow rate in mg/min
         self.csv["FuelFlow_mg_per_min"] = (
@@ -99,5 +99,5 @@ class DrivingParameters:
 
 
 if __name__ == "__main__":
-    driving = DrivingParameters("backend/analyser/data/DCM62v2_20250328.csv")
-    print(driving)
+    drivingParameters = DrivingParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    print(drivingParameters)
