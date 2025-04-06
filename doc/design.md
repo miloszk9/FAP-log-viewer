@@ -33,9 +33,9 @@ Calculate:
   - min
   - max
   - avg
-- acceleration pedal position (excluding 0)
+- acceleration pedal position
   - max
-  - avg
+  - avg (excluding 0)
 - fuel consumption
   - avg
 
@@ -45,10 +45,12 @@ Calculate:
   - min
   - max
   - avg
+  - warmup time
 - Oil temp
   - min
   - max
   - avg
+  - warmup time
 - Oil dilution, carbonate
   - avg
 - Acu voltage
@@ -70,25 +72,33 @@ Calculate:
 
 ### FAP
 
-- FAP regen last 10
-  - avg
-- FAP deposits, cinder
-  - avg
-- FAP addative values
-  - avg
-- Fap pressure
+- FAP regen last - "LastRegen" column
+  - min
+  - max
+- FAP regen last 10 - "Avg10regen" column
+  - min
+  - max
+- FAP deposits, cinder - "FAPdeposits", "FAPcinder" column
+  - avg of both seperately
+- FAP addative values - "FAPAdditiveVol", "FAPAdditiveRemain" column
+  - max of "FAPAdditiveVol"
+  - avg of "FAPAdditiveRemain"
+- Fap pressure - "FAPpressure" column
   - min
   - max
   - avg
-- FAPSoot - min, max, diff
+- Fap temp - "FAPtemp" column
+  - min
+  - max
+  - avg
+- FAPSoot - "FAPsoot" column
   - start
   - end
   - diff (start - end)
-- Last Regen
+- Last Regen - "" column
   - end
-- FAP Life, Life left
-  - avg
-  - avg
+- FAP Life, Life left - "FAP life", "FAPlifeLeft" column
+  - avg of both seperately
 
 Calculate:
 - Idle FAP pressure
@@ -99,9 +109,9 @@ Calculate:
 ### FAP Regen
 
 - Do the calculations only when the REGEN hapened (REGEN=1)
-- Regen duration
+- Duration
   - mm:ss
-- Distance traveled
+- Distance
   - km
 - Speed
   - min
@@ -126,7 +136,7 @@ Calculate:
 
 Take a deep breath. Provide python application that will analyse logs from FAP application that gets data from a car. Use added files as a reference points of data analysis implementation.
 Follow python coding best practicies.
-Main class should be FapLogAnalyzer, which reads the csv file and runs underlying classes to trigger data analysis:
+Main class should be FapLogAnalyser, which reads the csv file and runs underlying classes to trigger data analysis:
   - OverallParameters class - which should cover the aspects in the "### Overall" section
   - DrivingParameters class - which should cover the aspects in the "### Driving" section
   - EngineParameters class - which should cover the aspects in the "### Engine parameters" section
