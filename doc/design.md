@@ -108,27 +108,33 @@ Calculate:
 
 ### FAP Regen
 
-- Do the calculations only when the REGEN hapened (REGEN=1)
-- Duration
-  - mm:ss
-- Distance
+- Do the calculations only when the REGEN hapened (REGEN=1), if not, return None
+- Last regen (last value before REGEN change to 1)
   - km
-- Speed
+- Duration (when REGEN = 1)
+  - seconds
+- Distance (when REGEN = 1)
+  - km
+- Speed (when REGEN = 1)
   - min
   - max
   - avg
-- FAPtemp
+- FAPtemp (when REGEN = 1)
   - min
   - max
   - avg
-- Fap pressure
+- Fap pressure (when REGEN = 1)
   - min
   - max
   - avg
-- rev
+- rev (when REGEN = 1)
   - min
   - max
   - avg
+- Fap soot (when REGEN = 1)
+  - start
+  - end
+  - diff
 - Fuel consumption
   - l/100km (calculate seperately when regen was on and off)
 
