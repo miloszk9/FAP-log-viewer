@@ -19,7 +19,7 @@ class OverallParameters:
                 "driving": driving_time_str,
             },
             "externalTemp": self._calculate_temp(),
-            "speed": self.calculate_speed(),
+            "speed": self._calculate_speed(),
         }
         # print(self.result)  # Optional: view result
         # return self.result  # No need to return from __init__
@@ -38,18 +38,11 @@ class OverallParameters:
         self.csv = self.csv.sort_values("Datetime")
         self.csv["Time_Diff"] = self.csv["Datetime"].diff().dt.total_seconds().fillna(0)
 
-        # Convert relevant columns to numeric
-        self.csv["Revs"] = pd.to_numeric(self.csv["Revs"], errors="coerce")
-        self.csv["Speed"] = pd.to_numeric(self.csv["Speed"], errors="coerce")
-        self.csv["External Temp"] = pd.to_numeric(
-            self.csv["ExternalTemp"], errors="coerce"
-        )
-
     def _calculate_date(self):
         """Return the earliest date from the dataset."""
         return self.csv["Datetime"].min().strftime("%Y-%m-%d")
 
-    def calculate_speed(self):
+    def _calculate_speed(self):
         """Calculate average and max speed."""
         avg_speed = self.csv["Speed"].mean()
         max_speed = self.csv["Speed"].max()
@@ -65,10 +58,10 @@ class OverallParameters:
         return float(round(total_distance, 2))
 
     def _calculate_temp(self):
-        """Return min, max, and average of External Temp column."""
-        min_temp = self.csv["External Temp"].min()
-        max_temp = self.csv["External Temp"].max()
-        avg_temp = self.csv["External Temp"].mean()
+        """Return min, max, and average of ExternalTemp column."""
+        min_temp = self.csv["ExternalTemp"].min()
+        max_temp = self.csv["ExternalTemp"].max()
+        avg_temp = self.csv["ExternalTemp"].mean()
         return {
             "avg": float(round(avg_temp, 1)),
             "max": float(round(max_temp, 1)),
