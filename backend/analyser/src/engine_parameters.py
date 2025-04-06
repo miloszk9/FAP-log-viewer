@@ -15,7 +15,7 @@ class EngineParameters:
             "oilDilution": self._calculate_oil_dilution(),
             "oilTemp": self._calculate_oil_temp(),
         }
-        print(self.result)
+        # print(self.result)
 
     def __str__(self):
         return str(self.to_json())
@@ -86,9 +86,9 @@ class EngineParameters:
             before_drive = self.csv[self.csv["Revs"] == 0]["Battery"].dropna()
             return {
                 "beforeDrive": {
-                    "min": round(before_drive.min(), 2),
-                    "max": round(before_drive.max(), 2),
-                    "avg": round(before_drive.mean(), 2),
+                    "min": float(round(before_drive.min(), 2)),
+                    "max": float(round(before_drive.max(), 2)),
+                    "avg": float(round(before_drive.mean(), 2)),
                 },
                 "engineRunning": None,
             }
@@ -102,21 +102,35 @@ class EngineParameters:
 
         return {
             "beforeDrive": {
-                "min": round(before_drive.min(), 2) if not before_drive.empty else None,
-                "max": round(before_drive.max(), 2) if not before_drive.empty else None,
+                "min": (
+                    float(round(before_drive.min(), 2))
+                    if not before_drive.empty
+                    else None
+                ),
+                "max": (
+                    float(round(before_drive.max(), 2))
+                    if not before_drive.empty
+                    else None
+                ),
                 "avg": (
-                    round(before_drive.mean(), 2) if not before_drive.empty else None
+                    float(round(before_drive.mean(), 2))
+                    if not before_drive.empty
+                    else None
                 ),
             },
             "engineRunning": {
                 "min": (
-                    round(engine_running.min(), 2) if not engine_running.empty else None
+                    float(round(engine_running.min(), 2))
+                    if not engine_running.empty
+                    else None
                 ),
                 "max": (
-                    round(engine_running.max(), 2) if not engine_running.empty else None
+                    float(round(engine_running.max(), 2))
+                    if not engine_running.empty
+                    else None
                 ),
                 "avg": (
-                    round(engine_running.mean(), 2)
+                    float(round(engine_running.mean(), 2))
                     if not engine_running.empty
                     else None
                 ),
@@ -135,11 +149,11 @@ class EngineParameters:
         )
 
         if initial_state.empty:
-            print("⚠️ No cold start found.")
+            # print("⚠️ No cold start found.")
             return {"coolant": None, "oil": None}
 
         start_time = initial_state["Time"].iloc[0]
-        print(f"🚗 Cold start detected at time: {start_time}s")
+        # print(f"🚗 Cold start detected at time: {start_time}s")
 
         # Look for warmup *after* cold start
         after_start = csv_valid[csv_valid["Time"] >= start_time]

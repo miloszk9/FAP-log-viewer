@@ -13,7 +13,7 @@ class FapRegenParameters:
         self._process_data()
         self.csv_regen = self.csv[self.csv["REGEN"] == 1]
         self.result = {
-            "lastRegen": self._calculate_last_regen(),
+            "previousRegen": self._calculate_previous_regen(),
             "duration": self._calculate_duration_sec(),
             "distance": self._calculate_distance(),
             "speed": self._calculate_speed(),
@@ -55,7 +55,7 @@ class FapRegenParameters:
         # Identify distinct REGEN events
         self.csv["Regen_Change"] = self.csv["REGEN"].diff().fillna(0)
 
-    def _calculate_last_regen(self):
+    def _calculate_previous_regen(self):
         # Find index where REGEN changes from 0 → 1
         regen_start_idx = self.csv.index[self.csv["Regen_Change"] == 1]
 
