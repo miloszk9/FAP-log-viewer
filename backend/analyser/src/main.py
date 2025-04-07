@@ -1,6 +1,6 @@
 import pandas as pd
 from json import dumps
-from datetime import timedelta
+from time import time
 from overall_parameters import OverallParameters
 from driving_parameters import DrivingParameters
 from engine_parameters import EngineParameters
@@ -10,15 +10,9 @@ from fap_regen_parameters import FapRegenParameters
 
 class FapLogAnalyser:
     def __init__(self, file_path):
-        # self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
         self._process_data()
-        self.result = {
-            "Overall": OverallParameters(file_path).result,
-            "Driving": DrivingParameters(file_path).result,
-            "Engine": EngineParameters(file_path).result,
-            "Fap": FapParameters(file_path).result,
-            "FapRegen": FapRegenParameters(file_path).result,
-        }
+        self.result = self._analyse_parameters()
 
     def __str__(self):
         return str(self.to_json())
@@ -28,25 +22,86 @@ class FapLogAnalyser:
 
     def _process_data(self):
         """Preprocess the data."""
-        pass
+        numeric_columns = [
+            "Revs",
+            "Speed",
+            "InjFlow",
+            "AccelPedalPos",
+            "ExternalTemp",
+            "Coolant",
+            "OilTemp",
+            "OilDilution",
+            "OilCarbonate",
+            "Battery",
+            "Errors",
+            "Revs",
+        ]
+        for col in numeric_columns:
+            if col in self.csv.columns:
+                self.csv[col] = pd.to_numeric(self.csv[col], errors="coerce")
 
-    # def analyze(self):
-    #     """Run all analyses."""
-    #     overall = IdleTimeAnalyser(self.df).calculate_idle_and_driving_time()
-    #     fuel = FuelConsumptionAnalyser(self.df).calculate_average_fuel_consumption()
-    #     fap = IdleFAPPressureAnalyser(self.df).analyze_idle_fap_pressure()
-    #     engine = EngineWarmupAnalyser(self.df).calculate_warmup_time()
+        self.csv["Datetime"] = pd.to_datetime(
+            self.csv["Date"] + " " + self.csv["Time"], errors="coerce"
+        )
+        self.csv = self.csv.sort_values("Datetime")
+        self.csv["Time_Diff"] = self.csv["Datetime"].diff().dt.total_seconds().fillna(0)
 
-    #     results = {
-    #         "Overall": overall,
-    #         "Fuel Consumption": fuel,
-    #         "FAP Pressure": fap,
-    #         "Engine Warmup": engine,
-    #     }
-    #     return results
+    def _analyse_parameters(self):
+        """Preprocess the data."""
+        overall_parameters = ["Revs", "Speed", "ExternalTemp", "Datetime", "Time_Diff"]
+        driving_parameters = ["Revs", "Speed", "InjFlow", "AccelPedalPos"]
+        engine_parameters = [
+            "Battery",
+            "Coolant",
+            "Datetime",
+            "Errors",
+            "OilCarbon",
+            "OilDilution",
+            "OilTemp",
+            "Revs",
+        ]
+        fap_parameters = [
+            "Avg10regen",
+            "FAP life",
+            "FAPAdditiveRemain",
+            "FAPAdditiveVol",
+            "FAPcinder",
+            "FAPdeposits",
+            "FAPlifeLeft",
+            "FAPpressure",
+            "FAPsoot",
+            "FAPtemp",
+            "LastRegen",
+            "Revs",
+            "Speed",
+        ]
+        fap_regen_parameters = [
+            "FAPpressure",
+            "FAPtemp",
+            "FAPsoot",
+            "Revs",
+            "Speed",
+            "InjFlow",
+            "REGEN",
+            "LastRegen",
+            "Datetime",
+            "Time_Diff",
+        ]
+        return {
+            "overall": OverallParameters(self.csv[overall_parameters].copy()).result,
+            "driving": DrivingParameters(self.csv[driving_parameters].copy()).result,
+            "engine": EngineParameters(self.csv[engine_parameters].copy()).result,
+            "fap": FapParameters(self.csv[fap_parameters].copy()).result,
+            "fapRegen": FapRegenParameters(
+                self.csv[fap_regen_parameters].copy()
+            ).result,
+        }
 
 
-# Example usage
 if __name__ == "__main__":
-    fapLogAnalyse = FapLogAnalyser("backend/analyser/data/DCM62v2_20240720.csv")
+    start = time()
+    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    fapLogAnalyse = FapLogAnalyser(file_path)
+    end = time()
+    print(end - start)
     print(fapLogAnalyse)

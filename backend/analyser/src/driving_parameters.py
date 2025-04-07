@@ -1,11 +1,11 @@
 import pandas as pd
 from json import dumps
+from time import time
 
 
 class DrivingParameters:
-    def __init__(self, file_path):
-        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        self._process_data()
+    def __init__(self, csv):
+        self.csv = csv
         self.result = {
             "acceleration": self._calculate_acceleration(),
             "fuelConsumption": self._calculate_fuel(),
@@ -18,14 +18,6 @@ class DrivingParameters:
 
     def to_json(self):
         return dumps(self.result)
-
-    def _process_data(self):
-        """Convert necessary columns."""
-
-        # Convert relevant columns to numeric
-        self.csv["Revs"] = pd.to_numeric(self.csv["Revs"], errors="coerce")
-        self.csv["Speed"] = pd.to_numeric(self.csv["Speed"], errors="coerce")
-        self.csv["InjFlow"] = pd.to_numeric(self.csv["InjFlow"], errors="coerce")
 
     def _calculate_acceleration(self):
         """Calculate acceleration pedal position statistics."""
@@ -99,5 +91,17 @@ class DrivingParameters:
 
 
 if __name__ == "__main__":
-    drivingParameters = DrivingParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+
+    numeric_columns = ["Revs", "Speed", "InjFlow", "AccelPedalPos"]
+    for col in numeric_columns:
+        if col in csv.columns:
+            csv[col] = pd.to_numeric(csv[col], errors="coerce")
+    filtered_csv = csv[numeric_columns].copy()
+
+    start = time()
+    drivingParameters = DrivingParameters(filtered_csv)
+    end = time()
+    # print(end - start)
     print(drivingParameters)

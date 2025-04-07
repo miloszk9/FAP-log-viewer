@@ -3,14 +3,11 @@ from json import dumps
 
 
 class FapRegenParameters:
-    def __init__(self, file_path):
-        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        if "REGEN" not in self.csv.columns:
+    def __init__(self, csv):
+        self.csv = csv
+        if "REGEN" not in self.csv.columns or self.csv[self.csv["REGEN"] == 1].empty:
             return None
-        if self.csv[self.csv["REGEN"] == 1].empty:
-            return None
-        
-        self._process_data()
+
         self.csv_regen = self.csv[self.csv["REGEN"] == 1]
         self.result = {
             "previousRegen": self._calculate_previous_regen(),
@@ -30,38 +27,14 @@ class FapRegenParameters:
     def to_json(self):
         return dumps(self.result)
 
-    def _process_data(self):
-        numeric_columns = [
-            "FAPpressure",
-            "FAPtemp",
-            "FAPsoot",
-            "Revs",
-            "Speed",
-            "InjFlow",
-            "REGEN",
-            "LastRegen"
-        ]
-        for col in numeric_columns:
-            if col in self.csv.columns:
-                self.csv[col] = pd.to_numeric(self.csv[col], errors="coerce")
-
-        # Compute time differences
-        self.csv["Datetime"] = pd.to_datetime(
-            self.csv["Date"] + " " + self.csv["Time"], errors="coerce"
-        )
-        self.csv = self.csv.sort_values("Datetime")
-        self.csv["Time_Diff"] = self.csv["Datetime"].diff().dt.total_seconds().fillna(0)
-
-        # Identify distinct REGEN events
-        self.csv["Regen_Change"] = self.csv["REGEN"].diff().fillna(0)
-
     def _calculate_previous_regen(self):
         # Find index where REGEN changes from 0 → 1
-        regen_start_idx = self.csv.index[self.csv["Regen_Change"] == 1]
+        csv_regen_change = self.csv["REGEN"].diff().fillna(0)
+        regen_start_idx = self.csv.index[csv_regen_change == 1]
 
         if regen_start_idx.empty:
             return None
-    
+
         first_regen_idx = regen_start_idx[0]
         prev_idx = first_regen_idx - 1
 
@@ -71,7 +44,7 @@ class FapRegenParameters:
                 return int(value)
 
     def _calculate_duration_sec(self):
-        # TODO: Address multiple FAP regens scenario - will produce wrong duration time 
+        # TODO: Address multiple FAP regens scenario - will produce wrong duration time
         if self.csv_regen is None or "Datetime" not in self.csv_regen.columns:
             return None
 
@@ -89,7 +62,9 @@ class FapRegenParameters:
         Approximate distance (km) by summing Speed * Time_Diff.
         Speed is in km/h, Time_Diff is in seconds -> convert to hours.
         """
-        regen_distance = (self.csv_regen["Speed"] * self.csv_regen["Time_Diff"]) / 3600.0
+        regen_distance = (
+            self.csv_regen["Speed"] * self.csv_regen["Time_Diff"]
+        ) / 3600.0
         regen_distance_sum = regen_distance.sum()
         return float(round(regen_distance_sum, 1))
 
@@ -187,7 +162,29 @@ class FapRegenParameters:
 
 
 if __name__ == "__main__":
-    fapRegenParameters = FapRegenParameters(
-        "backend/analyser/data/DCM62v2_20250328.csv"
-    )
+    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+
+    numeric_columns = [
+        "FAPpressure",
+        "FAPtemp",
+        "FAPsoot",
+        "Revs",
+        "Speed",
+        "InjFlow",
+        "REGEN",
+        "LastRegen",
+    ]
+    for col in numeric_columns:
+        if col in csv.columns:
+            csv[col] = pd.to_numeric(csv[col], errors="coerce")
+
+    csv["Datetime"] = pd.to_datetime(csv["Date"] + " " + csv["Time"], errors="coerce")
+    csv = csv.sort_values("Datetime")
+    csv["Time_Diff"] = csv["Datetime"].diff().dt.total_seconds().fillna(0)
+
+    fap_regen_parameters = numeric_columns + ["Datetime", "Time_Diff"]
+    filtered_csv = csv[fap_regen_parameters].copy()
+
+    fapRegenParameters = FapRegenParameters(filtered_csv)
     print(fapRegenParameters)

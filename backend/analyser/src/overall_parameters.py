@@ -4,9 +4,8 @@ from json import dumps
 
 
 class OverallParameters:
-    def __init__(self, file_path):
-        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        self._process_data()
+    def __init__(self, csv):
+        self.csv = csv
         idle_time_str, driving_time_str, overall_duration_str = (
             self._calculate_idle_driving_duration()
         )
@@ -21,22 +20,12 @@ class OverallParameters:
             "externalTemp": self._calculate_temp(),
             "speed": self._calculate_speed(),
         }
-        # print(self.result)  # Optional: view result
-        # return self.result  # No need to return from __init__
 
     def __str__(self):
         return str(self.to_json())
 
     def to_json(self):
         return dumps(self.result)
-
-    def _process_data(self):
-        """Convert necessary columns and compute time differences."""
-        self.csv["Datetime"] = pd.to_datetime(
-            self.csv["Date"] + " " + self.csv["Time"], errors="coerce"
-        )
-        self.csv = self.csv.sort_values("Datetime")
-        self.csv["Time_Diff"] = self.csv["Datetime"].diff().dt.total_seconds().fillna(0)
 
     def _calculate_date(self):
         """Return the earliest date from the dataset."""
@@ -86,13 +75,24 @@ class OverallParameters:
         ).total_seconds()
         overall_duration_str = str(timedelta(seconds=int(overall_duration_sec)))
 
-        # print(f"Total Idle Time: {idle_time_str} (hh:mm:ss)")
-        # print(f"Total Driving Time: {driving_time_str} (hh:mm:ss)")
-        # print(f"Overall Log Duration: {overall_duration_str} (hh:mm:ss)")
-
         return idle_time_str, driving_time_str, overall_duration_str
 
 
 if __name__ == "__main__":
-    overallParameters = OverallParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+
+    numeric_columns = ["Revs", "Speed", "ExternalTemp"]
+    for col in numeric_columns:
+        if col in csv.columns:
+            csv[col] = pd.to_numeric(csv[col], errors="coerce")
+
+    csv["Datetime"] = pd.to_datetime(csv["Date"] + " " + csv["Time"], errors="coerce")
+    csv = csv.sort_values("Datetime")
+    csv["Time_Diff"] = csv["Datetime"].diff().dt.total_seconds().fillna(0)
+
+    overall_parameters = ["Revs", "Speed", "ExternalTemp", "Datetime", "Time_Diff"]
+    filtered_csv = csv[overall_parameters].copy()
+
+    overallParameters = OverallParameters(filtered_csv)
     print(overallParameters)

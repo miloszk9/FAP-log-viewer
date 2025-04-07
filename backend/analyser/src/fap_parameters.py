@@ -3,9 +3,8 @@ from json import dumps
 
 
 class FapParameters:
-    def __init__(self, file_path):
-        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        self._process_data()
+    def __init__(self, csv):
+        self.csv = csv
         self.result = {
             "additive": self._calculate_additive(),
             "deposits": self._calculate_deposits(),
@@ -24,21 +23,10 @@ class FapParameters:
     def to_json(self):
         return dumps(self.result)
 
-    def _process_data(self):
-        """Convert necessary columns to numeric where applicable."""
-        numeric_columns = [
-            "FAPpressure", "FAPAdditiveVol", "FAPAdditiveRemain", "FAPdeposits",
-            "FAPcinder", "FAPtemp", "FAPsoot", "FAP life", "FAPlifeLeft", 
-            "LastRegen", "Avg10regen"
-        ]
-        for col in numeric_columns:
-            if col in self.csv.columns:
-                self.csv[col] = pd.to_numeric(self.csv[col], errors="coerce")
-
     def _calculate_additive(self):
         return {
             "vol": float(round(self.csv["FAPAdditiveVol"].max(), 2)),
-            "remain": float(round(self.csv["FAPAdditiveRemain"].mean(), 2))
+            "remain": float(round(self.csv["FAPAdditiveRemain"].mean(), 2)),
         }
 
     def _calculate_deposits(self):
@@ -52,7 +40,7 @@ class FapParameters:
 
         if last_regen_values.empty:
             return None
-        
+
         last_regen = last_regen_values.iloc[-1]
         return int(last_regen)
 
@@ -61,20 +49,18 @@ class FapParameters:
 
         if last_10_regen_values.empty:
             return None
-        
+
         last_10_regen = last_10_regen_values.iloc[-1]
         return int(last_10_regen)
 
     def _calculate_life(self):
         return {
             "life_avg": int(round(self.csv["FAP life"].mean())),
-            "left_avg": int(round(self.csv["FAPlifeLeft"].mean()))
+            "left_avg": int(round(self.csv["FAPlifeLeft"].mean())),
         }
 
     def _calculate_pressure_idle(self):
-        idle_csv = self.csv[
-            (self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)
-        ]
+        idle_csv = self.csv[(self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)]
         min_pressure = idle_csv["FAPpressure"].min()
         max_pressure = idle_csv["FAPpressure"].max()
         avg_pressure = idle_csv["FAPpressure"].mean()
@@ -89,7 +75,7 @@ class FapParameters:
         return {
             "min": float(round(self.csv["FAPpressure"].min(), 1)),
             "max": float(round(self.csv["FAPpressure"].max(), 1)),
-            "avg": float(round(self.csv["FAPpressure"].mean(), 1))
+            "avg": float(round(self.csv["FAPpressure"].mean(), 1)),
         }
 
     def _calculate_soot(self):
@@ -105,17 +91,42 @@ class FapParameters:
         return {
             "start": float(round(start, 2)),
             "end": float(round(end, 2)),
-            "diff": diff
+            "diff": diff,
         }
 
     def _calculate_temp(self):
         return {
             "min": int(round(self.csv["FAPtemp"].min())),
             "max": int(round(self.csv["FAPtemp"].max())),
-            "avg": int(round(self.csv["FAPtemp"].mean()))
+            "avg": int(round(self.csv["FAPtemp"].mean())),
         }
 
 
 if __name__ == "__main__":
-    fapParameters = FapParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+
+    numeric_columns = [
+        "Avg10regen",
+        "FAP life",
+        "FAPAdditiveRemain",
+        "FAPAdditiveVol",
+        "FAPcinder",
+        "FAPdeposits",
+        "FAPlifeLeft",
+        "FAPpressure",
+        "FAPsoot",
+        "FAPtemp",
+        "LastRegen",
+        "Revs",
+        "Speed",
+    ]
+    for col in numeric_columns:
+        if col in csv.columns:
+            csv[col] = pd.to_numeric(csv[col], errors="coerce")
+
+    fap_parameters = numeric_columns
+    filtered_csv = csv[fap_parameters].copy()
+
+    fapParameters = FapParameters(filtered_csv)
     print(fapParameters)

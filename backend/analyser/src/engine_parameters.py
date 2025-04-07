@@ -3,9 +3,8 @@ from json import dumps
 
 
 class EngineParameters:
-    def __init__(self, file_path):
-        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        self._process_data()
+    def __init__(self, csv):
+        self.csv = csv
         self.result = {
             "battery": self._calculate_battery(),
             "coolantTemp": self._calculate_coolant_temp(),
@@ -15,38 +14,12 @@ class EngineParameters:
             "oilDilution": self._calculate_oil_dilution(),
             "oilTemp": self._calculate_oil_temp(),
         }
-        # print(self.result)
 
     def __str__(self):
         return str(self.to_json())
 
     def to_json(self):
         return dumps(self.result)
-
-    def _process_data(self):
-        """Convert relevant columns to numeric. Parse Time as seconds since start."""
-        cols = [
-            "Coolant",
-            "OilTemp",
-            "OilDilution",
-            "OilCarbonate",
-            "Battery",
-            "Errors",
-            "EngineStatus",
-            "Revs",
-        ]
-
-        for col in cols:
-            if col in self.csv.columns:
-                self.csv[col] = pd.to_numeric(self.csv[col], errors="coerce")
-
-        # Parse Time column
-        if "Time" in self.csv.columns:
-            self.csv["TimeParsed"] = pd.to_datetime(
-                self.csv["Time"], format="%H:%M:%S.%f", errors="coerce"
-            )
-            first_time = self.csv["TimeParsed"].dropna().iloc[0]
-            self.csv["Time"] = (self.csv["TimeParsed"] - first_time).dt.total_seconds()
 
     def _calculate_coolant_temp(self):
         csv = self.csv.dropna(subset=["Coolant"])
@@ -139,33 +112,35 @@ class EngineParameters:
 
     def _calculate_warmup_time(self):
         """Calculate warmup time (minutes) for coolant and oil after cold start."""
-        csv_valid = self.csv.dropna(subset=["Time", "Coolant", "OilTemp"])
+        csv_valid = self.csv.dropna(subset=["Datetime", "Coolant", "OilTemp"])
 
         # Detect first cold start: either Coolant or OilTemp is below 50°C
         initial_state = (
             csv_valid[(csv_valid["Coolant"] < 50) | (csv_valid["OilTemp"] < 50)]
-            .sort_values("Time")
+            .sort_values("Datetime")
             .head(1)
         )
 
         if initial_state.empty:
-            # print("⚠️ No cold start found.")
             return {"coolant": None, "oil": None}
 
-        start_time = initial_state["Time"].iloc[0]
-        # print(f"🚗 Cold start detected at time: {start_time}s")
+        start_time = initial_state["Datetime"].iloc[0]
 
         # Look for warmup *after* cold start
-        after_start = csv_valid[csv_valid["Time"] >= start_time]
+        after_start = csv_valid[csv_valid["Datetime"] >= start_time]
 
-        coolant_warm_time = after_start[after_start["Coolant"] >= 80]["Time"].min()
-        oil_warm_time = after_start[after_start["OilTemp"] >= 90]["Time"].min()
+        coolant_warm_time = after_start[after_start["Coolant"] >= 80]["Datetime"].min()
+        oil_warm_time = after_start[after_start["OilTemp"] >= 90]["Datetime"].min()
 
         coolant_warmup_duration = (
-            coolant_warm_time - start_time if pd.notna(coolant_warm_time) else None
+            (coolant_warm_time - start_time).total_seconds()
+            if pd.notna(coolant_warm_time)
+            else None
         )
         oil_warmup_duration = (
-            oil_warm_time - start_time if pd.notna(oil_warm_time) else None
+            (oil_warm_time - start_time).total_seconds()
+            if pd.notna(oil_warm_time)
+            else None
         )
 
         return {
@@ -188,5 +163,27 @@ class EngineParameters:
 
 
 if __name__ == "__main__":
-    engineParameters = EngineParameters("backend/analyser/data/DCM62v2_20250328.csv")
+    file_path = "backend/analyser/data/DCM62v2_20250205.csv"
+    csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+
+    numeric_columns = [
+        "Battery",
+        "Coolant",
+        "Errors",
+        "OilCarbon",
+        "OilDilution",
+        "OilTemp",
+        "Revs",
+    ]
+    for col in numeric_columns:
+        if col in csv.columns:
+            csv[col] = pd.to_numeric(csv[col], errors="coerce")
+
+    csv["Datetime"] = pd.to_datetime(csv["Date"] + " " + csv["Time"], errors="coerce")
+    csv = csv.sort_values("Datetime")
+
+    engine_parameters = numeric_columns + ["Datetime"]
+    filtered_csv = csv[engine_parameters].copy()
+
+    engineParameters = EngineParameters(filtered_csv)
     print(engineParameters)
