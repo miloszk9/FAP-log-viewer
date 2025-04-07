@@ -6,7 +6,8 @@ class FapRegenParameters:
     def __init__(self, csv):
         self.csv = csv
         if "REGEN" not in self.csv.columns or self.csv[self.csv["REGEN"] == 1].empty:
-            return None
+            self.result = None
+            return
 
         self.csv_regen = self.csv[self.csv["REGEN"] == 1]
         self.result = {

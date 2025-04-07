@@ -163,7 +163,7 @@ class EngineParameters:
 
 
 if __name__ == "__main__":
-    file_path = "backend/analyser/data/DCM62v2_20250205.csv"
+    file_path = "backend/analyser/data/DCM62v2_20240720.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = [

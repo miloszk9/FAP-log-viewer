@@ -23,18 +23,29 @@ class FapLogAnalyser:
     def _process_data(self):
         """Preprocess the data."""
         numeric_columns = [
+            "AccelPedalPos",
+            "Avg10regen",
+            "Battery",
+            "Coolant",
+            "Errors",
+            "ExternalTemp",
+            "FAP life",
+            "FAPAdditiveRemain",
+            "FAPAdditiveVol",
+            "FAPcinder",
+            "FAPdeposits",
+            "FAPlifeLeft",
+            "FAPpressure",
+            "FAPsoot",
+            "FAPtemp",
+            "InjFlow",
+            "LastRegen",
+            "OilCarbon",
+            "OilDilution",
+            "OilTemp",
+            "REGEN",
             "Revs",
             "Speed",
-            "InjFlow",
-            "AccelPedalPos",
-            "ExternalTemp",
-            "Coolant",
-            "OilTemp",
-            "OilDilution",
-            "OilCarbonate",
-            "Battery",
-            "Errors",
-            "Revs",
         ]
         for col in numeric_columns:
             if col in self.csv.columns:
@@ -100,8 +111,8 @@ class FapLogAnalyser:
 
 if __name__ == "__main__":
     start = time()
-    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    file_path = "backend/analyser/data/DCM62v2_20240720.csv"
     fapLogAnalyse = FapLogAnalyser(file_path)
     end = time()
-    print(end - start)
+    # print(end - start)
     print(fapLogAnalyse)

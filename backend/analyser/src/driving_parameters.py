@@ -100,8 +100,5 @@ if __name__ == "__main__":
             csv[col] = pd.to_numeric(csv[col], errors="coerce")
     filtered_csv = csv[numeric_columns].copy()
 
-    start = time()
     drivingParameters = DrivingParameters(filtered_csv)
-    end = time()
-    # print(end - start)
     print(drivingParameters)
