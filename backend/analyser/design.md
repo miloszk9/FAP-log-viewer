@@ -138,18 +138,6 @@ Calculate:
 - Fuel consumption
   - l/100km (calculate seperately when regen was on and off)
 
-## How to structure the code (python PoC)
-
-Take a deep breath. Provide python application that will analyse logs from FAP application that gets data from a car. Use added files as a reference points of data analysis implementation.
-Follow python coding best practicies.
-Main class should be FapLogAnalyser, which reads the csv file and runs underlying classes to trigger data analysis:
-  - OverallParameters class - which should cover the aspects in the "### Overall" section
-  - DrivingParameters class - which should cover the aspects in the "### Driving" section
-  - EngineParameters class - which should cover the aspects in the "### Engine parameters" section
-  - FapParameters class - which should cover the aspects in the "### FAP" section
-  - FapRegenParameters class - which should cover the aspects in the "### FAP Regen" section
-- Do not want to have plots, only data analysis for now
-
 ### Plot
 
 - fuel consumption vs speed
