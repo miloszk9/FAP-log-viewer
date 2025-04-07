@@ -1,11 +1,12 @@
-import pandas as pd
 from json import dumps
 from time import time
-from overall_parameters import OverallParameters
+
+import pandas as pd
 from driving_parameters import DrivingParameters
 from engine_parameters import EngineParameters
 from fap_parameters import FapParameters
 from fap_regen_parameters import FapRegenParameters
+from overall_parameters import OverallParameters
 
 
 class FapLogAnalyser:

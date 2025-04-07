@@ -1,5 +1,6 @@
-import pandas as pd
 from json import dumps
+
+import pandas as pd
 
 
 class FapParameters:

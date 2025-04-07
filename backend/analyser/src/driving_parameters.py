@@ -1,6 +1,7 @@
-import pandas as pd
 from json import dumps
 from time import time
+
+import pandas as pd
 
 
 class DrivingParameters:
@@ -50,9 +51,7 @@ class DrivingParameters:
         )
         self.csv["FuelConsumption_L_per_100km"] = self.csv[
             "FuelConsumption_L_per_100km"
-        ].replace(
-            [float("inf"), -float("inf")], None
-        )  # Handle infinities
+        ].replace([float("inf"), -float("inf")], None)  # Handle infinities
 
         # Compute average fuel consumption for REGEN = 0 and REGEN = 1
         avg_fuel = self.csv["FuelConsumption_L_per_100km"].mean(skipna=True)
