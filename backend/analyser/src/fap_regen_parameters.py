@@ -31,6 +31,14 @@ class FapRegenParameters:
 
     def _calculate_previous_regen(self):
         # Find index where REGEN changes from 0 → 1
+        if (
+            "REGEN" not in self.csv.columns
+            or self.csv["REGEN"].dropna().empty
+            or "LastRegen" not in self.csv.columns
+            or self.csv["LastRegen"].dropna().empty
+        ):
+            return None
+
         csv_regen_change = self.csv["REGEN"].diff().fillna(0)
         regen_start_idx = self.csv.index[csv_regen_change == 1]
 
@@ -40,18 +48,23 @@ class FapRegenParameters:
         first_regen_idx = regen_start_idx[0]
         prev_idx = first_regen_idx - 1
 
-        if prev_idx in self.csv.index and "LastRegen" in self.csv.columns:
+        if prev_idx in self.csv.index:
             value = self.csv.at[prev_idx, "LastRegen"]
             if pd.notna(value):
                 return int(value)
+        return None
 
     def _calculate_duration_sec(self):
         # TODO: Address multiple FAP regens scenario - will produce wrong duration time
         if self.csv_regen is None or "Datetime" not in self.csv_regen.columns:
             return None
 
-        start_time = self.csv_regen["Datetime"].iloc[0]
-        end_time = self.csv_regen["Datetime"].iloc[-1]
+        datetimes = self.csv_regen["Datetime"].dropna()
+        if datetimes.empty:
+            return None
+
+        start_time = datetimes.iloc[0]
+        end_time = datetimes.iloc[-1]
 
         if pd.isna(start_time) or pd.isna(end_time):
             return None
@@ -60,107 +73,138 @@ class FapRegenParameters:
         return int(duration)
 
     def _calculate_distance(self):
-        """
-        Approximate distance (km) by summing Speed * Time_Diff.
-        Speed is in km/h, Time_Diff is in seconds -> convert to hours.
-        """
-        regen_distance = (
-            self.csv_regen["Speed"] * self.csv_regen["Time_Diff"]
-        ) / 3600.0
-        regen_distance_sum = regen_distance.sum()
-        return float(round(regen_distance_sum, 1))
+        if (
+            self.csv_regen is None
+            or "Speed" not in self.csv_regen.columns
+            or "Time_Diff" not in self.csv_regen.columns
+            or self.csv["Speed"].dropna().empty
+            or self.csv["Time_Diff"].dropna().empty
+        ):
+            return None
+
+        speed = self.csv_regen["Speed"].dropna()
+        time_diff = self.csv_regen["Time_Diff"].dropna()
+        regen_distance = (speed * time_diff) / 3600.0
+        return float(round(regen_distance.sum(), 1))
 
     def _calculate_speed(self):
-        if self.csv_regen is None:
+        if (
+            self.csv_regen is None
+            or "Speed" not in self.csv_regen.columns
+            or self.csv_regen["Speed"].dropna().empty
+        ):
             return None
+
+        speed = self.csv_regen["Speed"].dropna()
         return {
-            "min": float(round(self.csv_regen["Speed"].min(), 2)),
-            "max": float(round(self.csv_regen["Speed"].max(), 2)),
-            "avg": float(round(self.csv_regen["Speed"].mean(), 2)),
+            "min": float(round(speed.min(), 2)),
+            "max": float(round(speed.max(), 2)),
+            "avg": float(round(speed.mean(), 2)),
         }
 
     def _calculate_fap_temp(self):
-        if self.csv_regen is None:
+        if (
+            self.csv_regen is None
+            or "FAPtemp" not in self.csv_regen.columns
+            or self.csv_regen["FAPtemp"].dropna().empty
+        ):
             return None
+
+        temp = self.csv_regen["FAPtemp"].dropna()
         return {
-            "min": float(round(self.csv_regen["FAPtemp"].min(), 2)),
-            "max": float(round(self.csv_regen["FAPtemp"].max(), 2)),
-            "avg": float(round(self.csv_regen["FAPtemp"].mean(), 2)),
+            "min": float(round(temp.min(), 2)),
+            "max": float(round(temp.max(), 2)),
+            "avg": float(round(temp.mean(), 2)),
         }
 
     def _calculate_fap_pressure(self):
-        if self.csv_regen is None:
+        if (
+            self.csv_regen is None
+            or "FAPpressure" not in self.csv_regen.columns
+            or self.csv_regen["FAPpressure"].dropna().empty
+        ):
             return None
+
+        pressure = self.csv_regen["FAPpressure"].dropna()
         return {
-            "min": float(round(self.csv_regen["FAPpressure"].min(), 2)),
-            "max": float(round(self.csv_regen["FAPpressure"].max(), 2)),
-            "avg": float(round(self.csv_regen["FAPpressure"].mean(), 2)),
+            "min": float(round(pressure.min(), 2)),
+            "max": float(round(pressure.max(), 2)),
+            "avg": float(round(pressure.mean(), 2)),
         }
 
     def _calculate_revs(self):
-        if self.csv_regen is None:
+        if (
+            self.csv_regen is None
+            or "Revs" not in self.csv_regen.columns
+            or self.csv_regen["Revs"].dropna().empty
+        ):
             return None
+
+        revs = self.csv_regen["Revs"].dropna()
         return {
-            "min": float(round(self.csv_regen["Revs"].min(), 2)),
-            "max": float(round(self.csv_regen["Revs"].max(), 2)),
-            "avg": float(round(self.csv_regen["Revs"].mean(), 2)),
+            "min": float(round(revs.min(), 2)),
+            "max": float(round(revs.max(), 2)),
+            "avg": float(round(revs.mean(), 2)),
         }
 
     def _calculate_fap_soot(self):
-        if self.csv_regen is None or self.csv_regen["FAPsoot"].dropna().empty:
+        if self.csv_regen is None or "FAPsoot" not in self.csv_regen.columns:
             return None
 
         soot_series = self.csv_regen["FAPsoot"].dropna()
+        if soot_series.empty:
+            return None
+
         start = soot_series.iloc[0]
         end = soot_series.iloc[-1]
-        diff = float(round(end - start, 2))
-
         return {
             "start": float(round(start, 2)),
             "end": float(round(end, 2)),
-            "diff": diff,
+            "diff": float(round(end - start, 2)),
         }
 
     def _calculate_fuel(self):
-        if (
-            "InjFlow" not in self.csv
-            or "Revs" not in self.csv
-            or "Speed" not in self.csv
-        ):
+        required_cols = {"InjFlow", "Revs", "Speed", "REGEN"}
+        if not required_cols.issubset(self.csv.columns):
             return {"regen": None, "non-regen": None}
 
         diesel_density = 0.8375
         cylinders = 4
 
-        self.csv["FuelFlow_mg_per_min"] = (
-            self.csv["InjFlow"] * self.csv["Revs"] * (cylinders / 2)
-        )
-        self.csv["FuelFlow_L_per_min"] = (
-            self.csv["FuelFlow_mg_per_min"] / 1e6 / diesel_density
-        )
+        try:
+            self.csv["FuelFlow_mg_per_min"] = (
+                self.csv["InjFlow"] * self.csv["Revs"] * (cylinders / 2)
+            )
+            self.csv["FuelFlow_L_per_min"] = (
+                self.csv["FuelFlow_mg_per_min"] / 1e6 / diesel_density
+            )
 
-        self.csv["FuelConsumption_L_per_100km"] = (
-            (self.csv["FuelFlow_L_per_min"] * 60) / self.csv["Speed"] * 100
-        )
-        self.csv["FuelConsumption_L_per_100km"] = self.csv[
-            "FuelConsumption_L_per_100km"
-        ].replace([float("inf"), -float("inf")], pd.NA)
+            self.csv["FuelConsumption_L_per_100km"] = (
+                (self.csv["FuelFlow_L_per_min"] * 60) / self.csv["Speed"]
+            ) * 100
 
-        regen_on = self.csv[self.csv["REGEN"] == 1]["FuelConsumption_L_per_100km"]
-        regen_off = self.csv[self.csv["REGEN"] == 0]["FuelConsumption_L_per_100km"]
+            self.csv["FuelConsumption_L_per_100km"] = self.csv[
+                "FuelConsumption_L_per_100km"
+            ].replace([float("inf"), -float("inf")], pd.NA)
 
-        return {
-            "regen": (
-                float(round(regen_on.mean(skipna=True), 2))
+            regen_on = self.csv[self.csv["REGEN"] == 1][
+                "FuelConsumption_L_per_100km"
+            ].dropna()
+            regen_off = self.csv[self.csv["REGEN"] == 0][
+                "FuelConsumption_L_per_100km"
+            ].dropna()
+
+            return {
+                "regen": float(round(regen_on.mean(), 2))
                 if not regen_on.empty
-                else None
-            ),
-            "non-regen": (
-                float(round(regen_off.mean(skipna=True), 2))
+                else None,
+                "non-regen": float(round(regen_off.mean(), 2))
                 if not regen_off.empty
-                else None
-            ),
-        }
+                else None,
+            }
+
+        except Exception:
+            return {"regen": None, "non-regen": None}
 
 
 if __name__ == "__main__":
