@@ -58,47 +58,26 @@ class EngineParameters:
         return round(self.csv["OilCarbon"].mean())
 
     def _calculate_battery(self):
+        result = {
+            "beforeDrive": {"min": None, "max": None, "avg": None},
+            "engineRunning": {"min": None, "max": None, "avg": None},
+        }
+
         if "Revs" not in self.csv.columns or "Battery" not in self.csv.columns:
-            return None
+            return result
 
         revs = self.csv["Revs"]
         battery = self.csv["Battery"]
 
         if revs.dropna().empty or battery.dropna().empty:
-            return {
-                "beforeDrive": {"min": None, "max": None, "avg": None},
-                "engineRunning": {"min": None, "max": None, "avg": None},
-            }
+            return result
 
         first_start_index = revs[revs > 0].first_valid_index()
 
         if first_start_index is None:
+            # Engine never started, all data is before drive
             before_drive = battery[revs == 0].dropna()
-            return {
-                "beforeDrive": {
-                    "min": float(round(before_drive.min(), 2))
-                    if not before_drive.empty
-                    else None,
-                    "max": float(round(before_drive.max(), 2))
-                    if not before_drive.empty
-                    else None,
-                    "avg": float(round(before_drive.mean(), 2))
-                    if not before_drive.empty
-                    else None,
-                },
-                "engineRunning": None,
-            }
-
-        if first_start_index != 0:
-            before_drive = self.csv.loc[: first_start_index - 1]
-            before_drive = before_drive[before_drive["Revs"] == 0]["Battery"].dropna()
-        else:
-            before_drive = pd.Series(dtype="float64")
-
-        engine_running = self.csv[self.csv["Revs"] > 0]["Battery"].dropna()
-
-        return {
-            "beforeDrive": {
+            result["beforeDrive"] = {
                 "min": float(round(before_drive.min(), 2))
                 if not before_drive.empty
                 else None,
@@ -108,19 +87,43 @@ class EngineParameters:
                 "avg": float(round(before_drive.mean(), 2))
                 if not before_drive.empty
                 else None,
-            },
-            "engineRunning": {
-                "min": float(round(engine_running.min(), 2))
-                if not engine_running.empty
-                else None,
-                "max": float(round(engine_running.max(), 2))
-                if not engine_running.empty
-                else None,
-                "avg": float(round(engine_running.mean(), 2))
-                if not engine_running.empty
-                else None,
-            },
+            }
+            return result
+
+        if first_start_index != 0:
+            # Battery readings before first engine start
+            before_drive = self.csv.loc[: first_start_index - 1]
+            before_drive = before_drive[before_drive["Revs"] == 0]["Battery"].dropna()
+        else:
+            before_drive = pd.Series(dtype="float64")
+
+        engine_running = self.csv[self.csv["Revs"] > 0]["Battery"].dropna()
+
+        result["beforeDrive"] = {
+            "min": float(round(before_drive.min(), 2))
+            if not before_drive.empty
+            else None,
+            "max": float(round(before_drive.max(), 2))
+            if not before_drive.empty
+            else None,
+            "avg": float(round(before_drive.mean(), 2))
+            if not before_drive.empty
+            else None,
         }
+
+        result["engineRunning"] = {
+            "min": float(round(engine_running.min(), 2))
+            if not engine_running.empty
+            else None,
+            "max": float(round(engine_running.max(), 2))
+            if not engine_running.empty
+            else None,
+            "avg": float(round(engine_running.mean(), 2))
+            if not engine_running.empty
+            else None,
+        }
+
+        return result
 
     def _calculate_warmup_time(self):
         required_cols = {"Datetime", "Coolant", "OilTemp"}
