@@ -25,20 +25,45 @@ class FapParameters:
         return dumps(self.result)
 
     def _calculate_additive(self):
+        vol = None
+        remain = None
+        if (
+            "FAPAdditiveVol" in self.csv.columns
+            and not self.csv["FAPAdditiveVol"].dropna().empty
+        ):
+            vol = float(round(self.csv["FAPAdditiveVol"].max(), 2))
+        if (
+            "FAPAdditiveRemain" in self.csv.columns
+            and not self.csv["FAPAdditiveRemain"].dropna().empty
+        ):
+            remain = float(round(self.csv["FAPAdditiveRemain"].mean(), 2))
+
         return {
-            "vol": float(round(self.csv["FAPAdditiveVol"].max(), 2)),
-            "remain": float(round(self.csv["FAPAdditiveRemain"].mean(), 2)),
+            "vol": vol,
+            "remain": remain,
         }
 
     def _calculate_deposits(self):
+        percentage = None
+        weight_gram = None
+        if (
+            "FAPdeposits" in self.csv.columns
+            and not self.csv["FAPdeposits"].dropna().empty
+        ):
+            percentage = float(round(self.csv["FAPdeposits"].mean(), 2))
+        if "FAPcinder" in self.csv.columns and not self.csv["FAPcinder"].dropna().empty:
+            weight_gram = float(round(self.csv["FAPcinder"].mean(), 2))
+
         return {
-            "percentage": float(round(self.csv["FAPdeposits"].mean(), 2)),
-            "weight_gram": float(round(self.csv["FAPcinder"].mean(), 2)),
+            "percentage": percentage,
+            "weight_gram": weight_gram,
         }
 
     def _calculate_last_regen(self):
-        last_regen_values = self.csv["LastRegen"].dropna()
+        if "LastRegen" not in self.csv.columns:
+            return None
 
+        last_regen_values = self.csv["LastRegen"].dropna()
         if last_regen_values.empty:
             return None
 
@@ -46,8 +71,10 @@ class FapParameters:
         return int(last_regen)
 
     def _calculate_last_regen_10(self):
-        last_10_regen_values = self.csv["Avg10regen"].dropna()
+        if "Avg10regen" not in self.csv.columns:
+            return None
 
+        last_10_regen_values = self.csv["Avg10regen"].dropna()
         if last_10_regen_values.empty:
             return None
 
@@ -55,9 +82,18 @@ class FapParameters:
         return int(last_10_regen)
 
     def _calculate_life(self):
+        life_avg = None
+        left_avg = None
+        if "FAP life" in self.csv.columns and not self.csv["FAP life"].dropna().empty:
+            life_avg = self.csv["FAP life"].mean()
+            life_avg = int(round(life_avg))
+        if "FAPlifeLeft" not in self.csv.columns:
+            left_avg = self.csv["FAPlifeLeft"].mean()
+            left_avg = int(round(left_avg))
+
         return {
-            "life_avg": int(round(self.csv["FAP life"].mean())),
-            "left_avg": int(round(self.csv["FAPlifeLeft"].mean())),
+            "life_avg": life_avg,
+            "left_avg": left_avg,
         }
 
     def _calculate_pressure_idle(self):
@@ -80,8 +116,10 @@ class FapParameters:
         }
 
     def _calculate_soot(self):
-        soot_series = self.csv["FAPsoot"].dropna()
+        if "FAPsoot" not in self.csv.columns:
+            return {"start": None, "end": None, "diff": None}
 
+        soot_series = self.csv["FAPsoot"].dropna()
         if soot_series.empty:
             return {"start": None, "end": None, "diff": None}
 
@@ -96,10 +134,18 @@ class FapParameters:
         }
 
     def _calculate_temp(self):
+        if "FAPtemp" not in self.csv.columns or self.csv["FAPtemp"].dropna().empty:
+            return {
+                "min": None,
+                "max": None,
+                "avg": None,
+            }
+
+        temp_series = self.csv["FAPtemp"].dropna()
         return {
-            "min": int(round(self.csv["FAPtemp"].min())),
-            "max": int(round(self.csv["FAPtemp"].max())),
-            "avg": int(round(self.csv["FAPtemp"].mean())),
+            "min": int(round(temp_series.min())),
+            "max": int(round(temp_series.max())),
+            "avg": int(round(temp_series.mean())),
         }
 
 
