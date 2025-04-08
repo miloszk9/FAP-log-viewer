@@ -14,10 +14,9 @@
 - Communication:
   - With UI - REST
   - With python analysis backend - NATS - https://NATS.io/
-- REST Endpoints:
+- REST Endpoints external:
   - POST /analyse - upload csv file for analysis
-    - save incomming .csv file to separate http file server, since:
-      - shared volume - requires the apps to be scheduled on the same nodes
+    - save incomming .csv file to persistant volume
     - should perform very basic validation - e.g. if valid .csv file
     - return id of the analysis
       - ideally - sth random, not incremental int
@@ -27,7 +26,10 @@
   - GET /analyse/id - get analysis of a csv file
     - read from database
     - if processing the data failed or in progress, return proper status
-    - if data processed, return processed json 
+    - if data processed, return processed json
+- REST Endpoints internal:
+  - GET /file - serve .csv files stored in persistent volume
+    - will be used by analysis container
 - Communication with Analyser - NATS
   - Publish to schedule the job
   - Listen, save analisis result json to the database
@@ -50,3 +52,15 @@
   - message - if any error occures
   - sha256 - of the .csv file
   - result - json with data payload
+
+
+## DevOps
+
+### (optional) Backup
+
+- Run on a different node as the application
+  - use cron jobs to shedule buckup action
+  - e.g. every 24h
+  - provide a way of restoring the data on a new node
+  - this way, no replicated storage or a NFS is needed
+  - ideally, do it for postgres and .csv storage
