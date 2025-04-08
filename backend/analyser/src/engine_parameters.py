@@ -23,28 +23,37 @@ class EngineParameters:
         return dumps(self.result)
 
     def _calculate_coolant_temp(self):
-        csv = self.csv.dropna(subset=["Coolant"])
+        if "Coolant" not in self.csv.columns or self.csv["Coolant"].dropna().empty:
+            return {"min": None, "max": None, "avg": None}
+
+        values = self.csv["Coolant"].dropna()
         return {
-            "min": round(csv["Coolant"].min()),
-            "max": round(csv["Coolant"].max()),
-            "avg": round(csv["Coolant"].mean()),
+            "min": round(values.min()),
+            "max": round(values.max()),
+            "avg": round(values.mean()),
         }
 
     def _calculate_oil_temp(self):
-        csv = self.csv.dropna(subset=["OilTemp"])
+        if "OilTemp" not in self.csv.columns or self.csv["OilTemp"].dropna().empty:
+            return {"min": None, "max": None, "avg": None}
+
+        values = self.csv["OilTemp"].dropna()
         return {
-            "min": round(csv["OilTemp"].min()),
-            "max": round(csv["OilTemp"].max()),
-            "avg": round(csv["OilTemp"].mean()),
+            "min": round(values.min()),
+            "max": round(values.max()),
+            "avg": round(values.mean()),
         }
 
     def _calculate_oil_dilution(self):
-        if "OilDilution" not in self.csv.columns:
+        if (
+            "OilDilution" not in self.csv.columns
+            or self.csv["OilDilution"].dropna().empty
+        ):
             return None
         return round(self.csv["OilDilution"].mean())
 
     def _calculate_oil_carbonate(self):
-        if "OilCarbon" not in self.csv.columns:
+        if "OilCarbon" not in self.csv.columns or self.csv["OilCarbon"].dropna().empty:
             return None
         return round(self.csv["OilCarbon"].mean())
 
@@ -52,70 +61,76 @@ class EngineParameters:
         if "Revs" not in self.csv.columns or "Battery" not in self.csv.columns:
             return None
 
-        # Find the index of the first engine start (Revs > 0)
-        first_start_index = self.csv[self.csv["Revs"] > 0].first_valid_index()
+        revs = self.csv["Revs"]
+        battery = self.csv["Battery"]
+
+        if revs.dropna().empty or battery.dropna().empty:
+            return {
+                "beforeDrive": {"min": None, "max": None, "avg": None},
+                "engineRunning": {"min": None, "max": None, "avg": None},
+            }
+
+        first_start_index = revs[revs > 0].first_valid_index()
 
         if first_start_index is None:
-            # Engine never started, all data is before drive
-            before_drive = self.csv[self.csv["Revs"] == 0]["Battery"].dropna()
+            before_drive = battery[revs == 0].dropna()
             return {
                 "beforeDrive": {
-                    "min": float(round(before_drive.min(), 2)),
-                    "max": float(round(before_drive.max(), 2)),
-                    "avg": float(round(before_drive.mean(), 2)),
+                    "min": float(round(before_drive.min(), 2))
+                    if not before_drive.empty
+                    else None,
+                    "max": float(round(before_drive.max(), 2))
+                    if not before_drive.empty
+                    else None,
+                    "avg": float(round(before_drive.mean(), 2))
+                    if not before_drive.empty
+                    else None,
                 },
                 "engineRunning": None,
             }
 
-        # Battery readings before first engine start
-        before_drive = self.csv.loc[: first_start_index - 1]
-        before_drive = before_drive[before_drive["Revs"] == 0]["Battery"].dropna()
+        if first_start_index != 0:
+            before_drive = self.csv.loc[: first_start_index - 1]
+            before_drive = before_drive[before_drive["Revs"] == 0]["Battery"].dropna()
+        else:
+            before_drive = pd.Series(dtype="float64")
 
-        # Battery readings while engine running (Revs > 0)
         engine_running = self.csv[self.csv["Revs"] > 0]["Battery"].dropna()
 
         return {
             "beforeDrive": {
-                "min": (
-                    float(round(before_drive.min(), 2))
-                    if not before_drive.empty
-                    else None
-                ),
-                "max": (
-                    float(round(before_drive.max(), 2))
-                    if not before_drive.empty
-                    else None
-                ),
-                "avg": (
-                    float(round(before_drive.mean(), 2))
-                    if not before_drive.empty
-                    else None
-                ),
+                "min": float(round(before_drive.min(), 2))
+                if not before_drive.empty
+                else None,
+                "max": float(round(before_drive.max(), 2))
+                if not before_drive.empty
+                else None,
+                "avg": float(round(before_drive.mean(), 2))
+                if not before_drive.empty
+                else None,
             },
             "engineRunning": {
-                "min": (
-                    float(round(engine_running.min(), 2))
-                    if not engine_running.empty
-                    else None
-                ),
-                "max": (
-                    float(round(engine_running.max(), 2))
-                    if not engine_running.empty
-                    else None
-                ),
-                "avg": (
-                    float(round(engine_running.mean(), 2))
-                    if not engine_running.empty
-                    else None
-                ),
+                "min": float(round(engine_running.min(), 2))
+                if not engine_running.empty
+                else None,
+                "max": float(round(engine_running.max(), 2))
+                if not engine_running.empty
+                else None,
+                "avg": float(round(engine_running.mean(), 2))
+                if not engine_running.empty
+                else None,
             },
         }
 
     def _calculate_warmup_time(self):
-        """Calculate warmup time (minutes) for coolant and oil after cold start."""
-        csv_valid = self.csv.dropna(subset=["Datetime", "Coolant", "OilTemp"])
+        required_cols = {"Datetime", "Coolant", "OilTemp"}
+        if not required_cols.issubset(self.csv.columns):
+            return {"coolant": None, "oil": None}
 
-        # Detect first cold start: either Coolant or OilTemp is below 50°C
+        csv_valid = self.csv.dropna(subset=list(required_cols))
+        if csv_valid.empty:
+            return {"coolant": None, "oil": None}
+
         initial_state = (
             csv_valid[(csv_valid["Coolant"] < 50) | (csv_valid["OilTemp"] < 50)]
             .sort_values("Datetime")
@@ -126,8 +141,6 @@ class EngineParameters:
             return {"coolant": None, "oil": None}
 
         start_time = initial_state["Datetime"].iloc[0]
-
-        # Look for warmup *after* cold start
         after_start = csv_valid[csv_valid["Datetime"] >= start_time]
 
         coolant_warm_time = after_start[after_start["Coolant"] >= 80]["Datetime"].min()
@@ -145,26 +158,20 @@ class EngineParameters:
         )
 
         return {
-            "coolant": (
-                round(coolant_warmup_duration / 60, 2)
-                if coolant_warmup_duration is not None
-                else None
-            ),
-            "oil": (
-                round(oil_warmup_duration / 60, 2)
-                if oil_warmup_duration is not None
-                else None
-            ),
+            "coolant": round(coolant_warmup_duration / 60, 2)
+            if coolant_warmup_duration
+            else None,
+            "oil": round(oil_warmup_duration / 60, 2) if oil_warmup_duration else None,
         }
 
     def _calculate_errors(self):
-        if "Errors" not in self.csv.columns:
+        if "Errors" not in self.csv.columns or self.csv["Errors"].dropna().empty:
             return None
         return int(self.csv["Errors"].max())
 
 
 if __name__ == "__main__":
-    file_path = "backend/analyser/data/DCM62v2_20240720.csv"
+    file_path = "backend/analyser/data/ds4/DCM62v2_20250326.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = [
