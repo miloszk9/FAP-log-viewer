@@ -1,5 +1,4 @@
 from json import dumps
-from time import time
 
 import pandas as pd
 
@@ -22,70 +21,90 @@ class DrivingParameters:
 
     def _calculate_acceleration(self):
         """Calculate acceleration pedal position statistics."""
-        # Get non-zero values for average calculation
-        non_zero_accel = self.csv["AccelPedalPos"][self.csv["AccelPedalPos"] > 0]
+        if (
+            "AccelPedalPos" not in self.csv.columns
+            or self.csv["AccelPedalPos"].dropna().empty
+        ):
+            return {"max": None, "avg": None}
 
-        max_accel = self.csv["AccelPedalPos"].max()
-        avg_accel = non_zero_accel.mean()
+        accel = self.csv["AccelPedalPos"].dropna()
+        non_zero_accel = accel[accel > 0]
 
-        return {"max": float(round(max_accel, 2)), "avg": float(round(avg_accel, 2))}
+        max_accel = accel.max() if not accel.empty else None
+        avg_accel = non_zero_accel.mean() if not non_zero_accel.empty else None
+
+        return {
+            "max": float(round(max_accel, 2)) if max_accel is not None else None,
+            "avg": float(round(avg_accel, 2)) if avg_accel is not None else None,
+        }
 
     def _calculate_fuel(self):
-        # Constants
+        """Calculate average fuel consumption in L/100 km."""
+        # Required columns
+        required_cols = {"InjFlow", "Revs", "Speed"}
+        if not required_cols.issubset(self.csv.columns):
+            return None
+
+        if self.csv[["InjFlow", "Revs", "Speed"]].dropna().empty:
+            return None
+
         diesel_density = 0.8375  # kg/L for diesel fuel
         cylinders = 4  # TODO: calculate from number of injectors
 
-        # Calculate fuel flow rate in mg/min
-        self.csv["FuelFlow_mg_per_min"] = (
-            self.csv["InjFlow"] * self.csv["Revs"] * (cylinders / 2)
-        )
+        try:
+            self.csv["FuelFlow_mg_per_min"] = (
+                self.csv["InjFlow"] * self.csv["Revs"] * (cylinders / 2)
+            )
 
-        # Convert mg/min to L/min
-        self.csv["FuelFlow_L_per_min"] = (
-            self.csv["FuelFlow_mg_per_min"] / 1e6
-        ) / diesel_density
+            self.csv["FuelFlow_L_per_min"] = (
+                self.csv["FuelFlow_mg_per_min"] / 1e6
+            ) / diesel_density
 
-        # Calculate fuel consumption in L/100 km (avoid division by zero)
-        self.csv["FuelConsumption_L_per_100km"] = (
-            (self.csv["FuelFlow_L_per_min"] * 60) / self.csv["Speed"] * 100
-        )
-        self.csv["FuelConsumption_L_per_100km"] = self.csv[
-            "FuelConsumption_L_per_100km"
-        ].replace([float("inf"), -float("inf")], None)  # Handle infinities
+            self.csv["FuelConsumption_L_per_100km"] = (
+                (self.csv["FuelFlow_L_per_min"] * 60) / self.csv["Speed"] * 100
+            )
 
-        # Compute average fuel consumption for REGEN = 0 and REGEN = 1
-        avg_fuel = self.csv["FuelConsumption_L_per_100km"].mean(skipna=True)
-        avg_fuel_float = float(round(avg_fuel, 2))
+            self.csv["FuelConsumption_L_per_100km"] = self.csv[
+                "FuelConsumption_L_per_100km"
+            ].replace([float("inf"), -float("inf")], None)
 
-        # print(f"Average Fuel Consumption: {avg_fuel_float} L/100 km")
-        return avg_fuel_float
+            avg_fuel = self.csv["FuelConsumption_L_per_100km"].mean(skipna=True)
+            return float(round(avg_fuel, 2)) if not pd.isna(avg_fuel) else None
+
+        except Exception:
+            return None
 
     def _calculate_revs(self):
         """Calculate engine revolution statistics."""
-        # Get values while driving (Speed > 0)
-        driving_revs = self.csv["Revs"][self.csv["Speed"] > 0]
+        if "Revs" not in self.csv.columns or self.csv["Revs"].dropna().empty:
+            return {"min": None, "max": None, "avg": None, "avgDriving": None}
 
-        min_revs = self.csv["Revs"].min()
-        max_revs = self.csv["Revs"].max()
-        avg_revs = self.csv["Revs"].mean()
-        avg_driving_revs = driving_revs.mean()
+        revs = self.csv["Revs"].dropna()
+        driving_revs = (
+            self.csv["Revs"][self.csv["Speed"] > 0].dropna()
+            if "Speed" in self.csv.columns
+            else pd.Series()
+        )
 
         return {
-            "min": int(round(min_revs)),
-            "max": int(round(max_revs)),
-            "avg": int(round(avg_revs)),
-            "avgDriving": int(round(avg_driving_revs)),
+            "min": int(round(revs.min())) if not revs.empty else None,
+            "max": int(round(revs.max())) if not revs.empty else None,
+            "avg": int(round(revs.mean())) if not revs.empty else None,
+            "avgDriving": int(round(driving_revs.mean()))
+            if not driving_revs.empty
+            else None,
         }
 
     def _calculate_speed(self):
         """Calculate average, max and min speed."""
-        avg_speed = self.csv["Speed"].mean()
-        max_speed = self.csv["Speed"].max()
-        min_speed = self.csv["Speed"].min()
+        if "Speed" not in self.csv.columns or self.csv["Speed"].dropna().empty:
+            return {"avg": None, "max": None, "min": None}
+
+        speed = self.csv["Speed"].dropna()
         return {
-            "avg": float(round(avg_speed, 1)),
-            "max": float(round(max_speed, 1)),
-            "min": float(round(min_speed, 1)),
+            "avg": float(round(speed.mean(), 1)),
+            "max": float(round(speed.max(), 1)),
+            "min": float(round(speed.min(), 1)),
         }
 
 
