@@ -87,7 +87,7 @@ class FapParameters:
         if "FAP life" in self.csv.columns and not self.csv["FAP life"].dropna().empty:
             life_avg = self.csv["FAP life"].mean()
             life_avg = int(round(life_avg))
-        if "FAPlifeLeft" not in self.csv.columns:
+        if "FAPlifeLeft" in self.csv.columns:
             left_avg = self.csv["FAPlifeLeft"].mean()
             left_avg = int(round(left_avg))
 
