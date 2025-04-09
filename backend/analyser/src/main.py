@@ -42,6 +42,12 @@ class FapLogAnalyser:
             if col in self.csv.columns:
                 self.csv[col] = pd.to_numeric(self.csv[col], errors="coerce")
 
+        # Drop rows with unrealistic values of FAPpressure or FAPtemp
+        if "FAPpressure" in self.csv.columns:
+            self.csv = self.csv[self.csv.get("FAPpressure") != 65280.0]
+        if "FAPtemp" in self.csv.columns:
+            self.csv = self.csv[self.csv.get("FAPtemp") != 25855.0]
+
         self.csv["Datetime"] = pd.to_datetime(
             self.csv["Date"] + " " + self.csv["Time"], errors="coerce"
         )
