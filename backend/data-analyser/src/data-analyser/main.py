@@ -72,9 +72,17 @@ class FapLogAnalyser:
 
 
 if __name__ == "__main__":
-    start = time()
-    file_path = "backend/analyser/data/DCM62v2_20240720.csv"
-    fapLogAnalyse = FapLogAnalyser(file_path)
-    end = time()
-    # print(end - start)
-    print(fapLogAnalyse)
+    import os
+
+    data_dir = "backend/analyser/data/peugeot/"
+    csv_files = [f for f in os.listdir(data_dir) if f.endswith(".csv")]
+
+    for file_name in csv_files:
+        file_path = os.path.join(data_dir, file_name)
+        print(file_path)
+        # file_path = "backend/analyser/data/peugeot/HDI_SID807_BR2_20240116.csv"
+        start = time()
+        fapLogAnalyse = FapLogAnalyser(file_path)
+        end = time()
+        # print(end - start)
+        print(fapLogAnalyse)

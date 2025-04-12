@@ -126,6 +126,11 @@ class FapRegenParameters:
             return None
 
         pressure = self.csv_regen["FAPpressure"].dropna()
+
+        pressure = pressure[pressure != 65280.0]
+
+        if pressure.empty:
+            return None
         return {
             "min": float(round(pressure.min(), 2)),
             "max": float(round(pressure.max(), 2)),
@@ -208,7 +213,7 @@ class FapRegenParameters:
 
 
 if __name__ == "__main__":
-    file_path = "backend/analyser/data/DCM62v2_20250328.csv"
+    file_path = "backend/analyser/data/peugeot/HDI_SID807_BR2_20240116.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = [
