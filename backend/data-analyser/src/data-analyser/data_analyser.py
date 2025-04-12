@@ -2,18 +2,18 @@ from json import dumps
 from time import time
 
 import pandas as pd
-from csv_columns import (
+from constants.csv_columns import (
     driving_parameters,
     engine_parameters,
     fap_parameters,
     fap_regen_parameters,
     overall_parameters,
 )
-from driving_parameters import DrivingParameters
-from engine_parameters import EngineParameters
-from fap_parameters import FapParameters
-from fap_regen_parameters import FapRegenParameters
-from overall_parameters import OverallParameters
+from parameters.driving_parameters import DrivingParameters
+from parameters.engine_parameters import EngineParameters
+from parameters.fap_parameters import FapParameters
+from parameters.fap_regen_parameters import FapRegenParameters
+from parameters.overall_parameters import OverallParameters
 
 
 class DataAnalyser:
@@ -74,7 +74,7 @@ class DataAnalyser:
 if __name__ == "__main__":
     import os
 
-    data_dir = "backend/analyser/data/peugeot/"
+    data_dir = "backend/data-analyser/data/peugeot/"
     csv_files = [f for f in os.listdir(data_dir) if f.endswith(".csv")]
 
     for file_name in csv_files:
