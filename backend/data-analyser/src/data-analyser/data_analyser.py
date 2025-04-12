@@ -16,7 +16,7 @@ from fap_regen_parameters import FapRegenParameters
 from overall_parameters import OverallParameters
 
 
-class FapLogAnalyser:
+class DataAnalyser:
     def __init__(self, file_path):
         self.all_columns = set(
             driving_parameters
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         print(file_path)
         # file_path = "backend/analyser/data/peugeot/HDI_SID807_BR2_20240116.csv"
         start = time()
-        fapLogAnalyse = FapLogAnalyser(file_path)
+        fapLogAnalyse = DataAnalyser(file_path)
         end = time()
         # print(end - start)
         print(fapLogAnalyse)
