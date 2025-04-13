@@ -1,11 +1,15 @@
 import asyncio
+
 from nats_client.nats_client import NatsClient
+from nats_client.nats_handler import NatsHandler
 
 
 async def main():
     nats_client = NatsClient()
     await nats_client.connect()
-    await nats_client.subscribe("tasks.execute", nats_client.handle_message)
+
+    nats_handler = NatsHandler(nats_client)
+    await nats_client.subscribe("tasks.execute", nats_handler.handle_message)
 
 
 if __name__ == "__main__":
