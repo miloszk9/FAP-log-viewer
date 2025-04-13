@@ -3,6 +3,7 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 
 from data_analyser.data_analyser import DataAnalyser
+from data_analyser.exceptions.exceptions import DataAnalyseException
 
 
 class NatsHandler:
@@ -26,16 +27,37 @@ class NatsHandler:
             print(f"❌ Failed to handle message: {e}")
 
     async def run_and_reply(self, msg, file_path):
+        if not msg.reply:
+            print(f"⚠️ No reply subject provided for {file_path}")
+            return
+
         try:
-            result = await self.process_file_async(file_path)
+            analysis = await self.process_file_async(file_path)
 
-            response = json.dumps(result)
+            response = json.dumps(
+                {
+                    "filename": file_path,
+                    "status": "Success",
+                    "reason": "",
+                    "analysis": analysis,
+                }
+            )
 
-            if msg.reply:
-                await self.nats_client.publish(msg.reply, response)
-                print(f"📤 Replied with result for {file_path}")
-            else:
-                print(f"⚠️ No reply subject provided for {file_path}")
+            await self.nats_client.publish(msg.reply, response)
+            print(f"📤 Replied with result for {file_path}")
+
+        except DataAnalyseException as e:
+            response = json.dumps(
+                {
+                    "filename": file_path,
+                    "status": "Failed",
+                    "reason": e,
+                    "analysis": {},
+                }
+            )
+
+            await self.nats_client.publish(msg.reply, response)
+            print(f"⚠️ Replied with failed status for {file_path}")
 
         except Exception as e:
             print(f"❌ Task error: {e}")

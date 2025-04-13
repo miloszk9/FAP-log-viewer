@@ -10,7 +10,7 @@ async def main():
     }
 
     # Send a message and wait for reply
-    response = await nc.request("tasks.execute", json.dumps(data).encode(), timeout=10)
+    response = await nc.request("data.analyse", json.dumps(data).encode(), timeout=10)
     print("📬 Got response:")
     print(response.data.decode())
 
