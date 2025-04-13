@@ -2,12 +2,18 @@ from json import dumps
 from time import time
 
 import pandas as pd
+
 from data_analyser.constants.csv_columns import (
     driving_parameters,
     engine_parameters,
     fap_parameters,
     fap_regen_parameters,
     overall_parameters,
+)
+from data_analyser.exceptions.exceptions import (
+    AnalyseDataException,
+    PorcessDataException,
+    ReadDataException,
 )
 from data_analyser.parameters.driving_parameters import DrivingParameters
 from data_analyser.parameters.engine_parameters import EngineParameters
@@ -25,8 +31,24 @@ class DataAnalyser:
             + fap_regen_parameters
             + overall_parameters
         )
-        self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
-        self._process_data()
+        try:
+            self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+        except Exception as e:
+            print(e)
+            raise ReadDataException("Failed to read log file.")
+        
+        try:
+            self._process_data()
+        except Exception as e:
+            print(e)
+            raise PorcessDataException("Failed to process log file.")
+        
+        try:
+            self.result = self._analyse_parameters()
+        except Exception as e:
+            print(e)
+            raise AnalyseDataException("Failed to analyse log file.")
+        
         self.result = self._analyse_parameters()
 
     def __str__(self):
