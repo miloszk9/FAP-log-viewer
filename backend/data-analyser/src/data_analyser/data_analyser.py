@@ -10,11 +10,7 @@ from data_analyser.constants.csv_columns import (
     fap_regen_parameters,
     overall_parameters,
 )
-from data_analyser.exceptions.exceptions import (
-    AnalyseDataException,
-    PorcessDataException,
-    ReadDataException,
-)
+from data_analyser.exceptions.exceptions import DataAnalyseException
 from data_analyser.parameters.driving_parameters import DrivingParameters
 from data_analyser.parameters.engine_parameters import EngineParameters
 from data_analyser.parameters.fap_parameters import FapParameters
@@ -35,20 +31,20 @@ class DataAnalyser:
             self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
         except Exception as e:
             print(e)
-            raise ReadDataException("Failed to read log file.")
-        
+            raise DataAnalyseException("Failed to read log file.")
+
         try:
             self._process_data()
         except Exception as e:
             print(e)
-            raise PorcessDataException("Failed to process log file.")
-        
+            raise DataAnalyseException("Failed to process log file.")
+
         try:
             self.result = self._analyse_parameters()
         except Exception as e:
             print(e)
-            raise AnalyseDataException("Failed to analyse log file.")
-        
+            raise DataAnalyseException("Failed to analyse log file.")
+
         self.result = self._analyse_parameters()
 
     def __str__(self):

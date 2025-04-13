@@ -1,10 +1,2 @@
-class AnalyseDataException(Exception):
-    pass
-
-
-class ReadDataException(Exception):
-    pass
-
-
-class PorcessDataException(Exception):
+class DataAnalyseException(Exception):
     pass
