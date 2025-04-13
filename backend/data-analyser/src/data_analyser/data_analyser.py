@@ -30,19 +30,19 @@ class DataAnalyser:
         try:
             self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
         except Exception as e:
-            print(e)
+            print(f"Failed to read log file {file_path}: {str(e)}")
             raise DataAnalyseException("Failed to read log file.")
 
         try:
             self._process_data()
         except Exception as e:
-            print(e)
+            print(f"Failed to process log file {file_path}: {str(e)}")
             raise DataAnalyseException("Failed to process log file.")
 
         try:
             self.result = self._analyse_parameters()
         except Exception as e:
-            print(e)
+            print(f"Failed to analyse log file {file_path}: {str(e)}")
             raise DataAnalyseException("Failed to analyse log file.")
 
         self.result = self._analyse_parameters()
@@ -92,7 +92,7 @@ class DataAnalyser:
 if __name__ == "__main__":
     import os
 
-    data_dir = "backend/data-analyser/data/peugeot/"
+    data_dir = "backend/data-analyser/data/ds4-issue/"
     csv_files = [f for f in os.listdir(data_dir) if f.endswith(".csv")]
 
     for file_name in csv_files:

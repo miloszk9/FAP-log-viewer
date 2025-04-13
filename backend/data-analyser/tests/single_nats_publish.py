@@ -6,7 +6,7 @@ async def main():
     nc = await nats.connect("nats://localhost:4222")
 
     data = {
-        "file_path": "/home/mylosz/github/FAP-log-viewer/backend/data-analyser/data/DCM62v2_20240430.csv"
+        "file_path": "/home/mylosz/github/FAP-log-viewer/backend/data-analyser/data/backend/data-analyser/data/DCM62v2_20240430.csv"
     }
 
     # Send a message and wait for reply

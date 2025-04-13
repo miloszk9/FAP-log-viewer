@@ -51,7 +51,7 @@ class NatsHandler:
                 {
                     "filename": file_path,
                     "status": "Failed",
-                    "reason": e,
+                    "reason": str(e),
                     "analysis": {},
                 }
             )
