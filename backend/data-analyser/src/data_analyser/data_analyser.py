@@ -2,18 +2,18 @@ from json import dumps
 from time import time
 
 import pandas as pd
-from constants.csv_columns import (
+from data_analyser.constants.csv_columns import (
     driving_parameters,
     engine_parameters,
     fap_parameters,
     fap_regen_parameters,
     overall_parameters,
 )
-from parameters.driving_parameters import DrivingParameters
-from parameters.engine_parameters import EngineParameters
-from parameters.fap_parameters import FapParameters
-from parameters.fap_regen_parameters import FapRegenParameters
-from parameters.overall_parameters import OverallParameters
+from data_analyser.parameters.driving_parameters import DrivingParameters
+from data_analyser.parameters.engine_parameters import EngineParameters
+from data_analyser.parameters.fap_parameters import FapParameters
+from data_analyser.parameters.fap_regen_parameters import FapRegenParameters
+from data_analyser.parameters.overall_parameters import OverallParameters
 
 
 class DataAnalyser:
