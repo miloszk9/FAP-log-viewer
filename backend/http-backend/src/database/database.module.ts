@@ -1,19 +1,27 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FapAnalysis } from './entities/fap-analysis.entity';
 import { FapAnalysisService } from './services/fap-analysis.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres' as const,
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '5432'),
-      username: process.env.DB_USERNAME || 'postgres',
-      password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_NAME || 'fap_analysis',
-      entities: [FapAnalysis],
-      synchronize: process.env.NODE_ENV !== 'production',
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => {
+        const dbConfig = configService.get('database');
+        return {
+          type: 'postgres' as const,
+          host: dbConfig.host,
+          port: dbConfig.port,
+          username: dbConfig.username,
+          password: dbConfig.password,
+          database: dbConfig.name,
+          entities: [FapAnalysis],
+          synchronize: configService.get('app.environment') !== 'production',
+        };
+      },
+      inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([FapAnalysis]),
   ],
