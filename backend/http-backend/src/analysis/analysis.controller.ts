@@ -17,7 +17,8 @@ import {
 } from '@nestjs/swagger';
 import { AnalysisService } from './analysis.service';
 import { AnalyseRequestDto } from './dto/analyse-request.dto';
-import { AnalyseResponseDto } from './dto/analyse-response.dto';
+import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
+import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 
 @ApiTags('analysis')
 @Controller('analyse')
@@ -31,17 +32,14 @@ export class AnalysisController {
   @ApiResponse({
     status: 201,
     description: 'File uploaded successfully',
-    type: AnalyseResponseDto,
+    type: AnalyseFileResponseDto,
   })
   @UseInterceptors(FileInterceptor('file'))
   async analyseFile(
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<AnalyseResponseDto> {
+  ): Promise<AnalyseFileResponseDto> {
     const id = await this.analysisService.saveFile(file);
-    return {
-      id,
-      status: 'processing',
-    };
+    return { id };
   }
 
   @Get(':id')
@@ -49,10 +47,10 @@ export class AnalysisController {
   @ApiResponse({
     status: 200,
     description: 'Analysis found',
-    type: AnalyseResponseDto,
+    type: GetAnalysisResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Analysis not found' })
-  async getAnalysis(@Param('id') id: string): Promise<AnalyseResponseDto> {
+  async getAnalysis(@Param('id') id: string): Promise<GetAnalysisResponseDto> {
     const analysis = await this.analysisService.getAnalysis(id);
     if (analysis.status === 'not_found') {
       throw new NotFoundException(analysis.message);
