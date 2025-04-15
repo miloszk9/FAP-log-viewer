@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs/promises';
@@ -9,6 +9,7 @@ import { NatsService } from '../nats/nats.service';
 
 @Injectable()
 export class AnalysisService {
+  private readonly logger = new Logger(AnalysisService.name);
   private readonly uploadDir: string;
 
   constructor(
@@ -26,6 +27,8 @@ export class AnalysisService {
     const id = uuidv4();
     const filePath = path.join(this.uploadDir, `${id}.csv`);
 
+    this.logger.log(`Saving file ${file.originalname} to ${filePath}`);
+
     await fs.writeFile(filePath, Buffer.from(file.buffer));
 
     const sha256 = createHash('sha256')
@@ -41,8 +44,8 @@ export class AnalysisService {
       analysis: {},
     });
 
-    // Schedule analysis process via NATS
-    await this.natsService.sendAnalysisRequest({ id, filePath });
+    this.logger.log(`Sending NATS analysis request for ${id}`);
+    await this.natsService.sendAnalysisRequest({ id });
 
     return id;
   }
