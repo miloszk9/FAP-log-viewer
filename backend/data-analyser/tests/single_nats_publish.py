@@ -2,6 +2,7 @@ import asyncio
 import json
 import nats
 
+
 async def main():
     nc = await nats.connect("nats://localhost:4222")
 
@@ -10,8 +11,11 @@ async def main():
     }
 
     # Send a message and wait for reply
-    response = await nc.request("data.analyse", json.dumps(data).encode(), timeout=10)
+    response = await nc.request(
+        "analyse.request", json.dumps(data).encode(), timeout=10
+    )
     print("📬 Got response:")
     print(response.data.decode())
+
 
 asyncio.run(main())

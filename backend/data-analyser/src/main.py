@@ -9,7 +9,7 @@ async def main():
     await nats_client.connect()
 
     nats_handler = NatsHandler(nats_client)
-    await nats_client.subscribe("data.analyse", nats_handler.handle_message)
+    await nats_client.subscribe("analyse.request", nats_handler.handle_message)
 
 
 if __name__ == "__main__":

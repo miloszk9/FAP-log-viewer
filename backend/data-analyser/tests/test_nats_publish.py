@@ -15,7 +15,8 @@ async def test_nats_publish():
     csv_files = [
         os.path.join(root, file)
         for root, _, files in os.walk(data_dir)
-        for file in files if file.endswith(".csv")
+        for file in files
+        if file.endswith(".csv")
     ]
 
     for file_path in csv_files:
@@ -24,7 +25,7 @@ async def test_nats_publish():
 
         # Send request and await response
         response = await nc.request(
-            "data.analyse", json.dumps(data).encode(), timeout=10
+            "analyse.request", json.dumps(data).encode(), timeout=10
         )
         response_data = json.loads(response.data.decode())
 

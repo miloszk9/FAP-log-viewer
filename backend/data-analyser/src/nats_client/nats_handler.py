@@ -13,10 +13,10 @@ class NatsHandler:
 
     async def handle_message(self, msg):
         try:
-            data = json.loads(msg.data.decode())
-            file_path = data.get("file_path")
+            payload = json.loads(msg.data.decode())
+            file_path = payload["data"].get("filePath")
             if not file_path:
-                raise ValueError("Missing 'file_path' in message")
+                raise ValueError("Missing 'filePath' in message")
 
             print(f"📩 Received task for: {file_path}")
 
@@ -27,10 +27,6 @@ class NatsHandler:
             print(f"❌ Failed to handle message: {e}")
 
     async def run_and_reply(self, msg, file_path):
-        if not msg.reply:
-            print(f"⚠️ No reply subject provided for {file_path}")
-            return
-
         try:
             analysis = await self.process_file_async(file_path)
 
@@ -38,12 +34,12 @@ class NatsHandler:
                 {
                     "filename": file_path,
                     "status": "Success",
-                    "reason": "",
+                    "message": "Analysis completed successfully.",
                     "analysis": analysis,
                 }
             )
 
-            await self.nats_client.publish(msg.reply, response)
+            await self.nats_client.publish("analyse.result", response)
             print(f"📤 Replied with result for {file_path}")
 
         except DataAnalyseException as e:
@@ -51,12 +47,12 @@ class NatsHandler:
                 {
                     "filename": file_path,
                     "status": "Failed",
-                    "reason": str(e),
+                    "message": str(e),
                     "analysis": {},
                 }
             )
 
-            await self.nats_client.publish(msg.reply, response)
+            await self.nats_client.publish("analyse.result", response)
             print(f"⚠️ Replied with failed status for {file_path}")
 
         except Exception as e:
