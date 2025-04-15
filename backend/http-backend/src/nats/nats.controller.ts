@@ -9,7 +9,7 @@ export class NatsController {
 
   @MessagePattern('analyse.result')
   async handleAnalysisResult(@Payload() data: AnalysisResultDto) {
-    await this.fapAnalysisService.update(data.filename, {
+    await this.fapAnalysisService.update(data.id, {
       status: data.status,
       message: data.message,
       analysis: data.analysis,
