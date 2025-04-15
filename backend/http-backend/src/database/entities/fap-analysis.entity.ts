@@ -18,5 +18,5 @@ export class FapAnalysis {
   sha256: string;
 
   @Column('jsonb')
-  result: Record<string, any>;
+  analysis: Record<string, any>;
 }

@@ -9,5 +9,9 @@ export default () => ({
   app: {
     port: parseInt(process.env.PORT || '3000'),
     environment: process.env.NODE_ENV || 'development',
+    uploadDir: process.env.UPLOAD_DIR || 'uploads',
+  },
+  nats: {
+    url: process.env.NATS_URL || 'nats://localhost:4222',
   },
 });

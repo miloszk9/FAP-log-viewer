@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
 import { AnalysisModule } from './analysis/analysis.module';
+import { NatsModule } from './nats/nats.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -16,6 +17,7 @@ import configuration from './config/configuration';
     }),
     DatabaseModule,
     AnalysisModule,
+    NatsModule,
   ],
   controllers: [],
   providers: [],
