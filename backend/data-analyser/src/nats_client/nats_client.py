@@ -1,8 +1,9 @@
 from nats.aio.client import Client as NATS
+from config import NATS_URL
 
 
 class NatsClient:
-    def __init__(self, nats_url="nats://localhost:4222"):
+    def __init__(self, nats_url=NATS_URL):
         self.nats_url = nats_url
         self.nc = NATS()
 

@@ -2,6 +2,7 @@ from json import dumps
 from time import time
 
 import pandas as pd
+from config import STORAGE_PATH
 
 from data_analyser.constants.csv_columns import (
     driving_parameters,
@@ -20,7 +21,7 @@ from data_analyser.parameters.overall_parameters import OverallParameters
 
 class DataAnalyser:
     def __init__(self, file_id):
-        file_path = f"/tmp/uploads/{file_id}.csv"
+        file_path = f"{STORAGE_PATH}/{file_id}.csv"
         self.all_columns = set(
             driving_parameters
             + engine_parameters
