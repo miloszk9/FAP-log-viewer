@@ -19,7 +19,8 @@ from data_analyser.parameters.overall_parameters import OverallParameters
 
 
 class DataAnalyser:
-    def __init__(self, file_path):
+    def __init__(self, file_id):
+        file_path = f"/tmp/uploads/{file_id}.csv"
         self.all_columns = set(
             driving_parameters
             + engine_parameters
