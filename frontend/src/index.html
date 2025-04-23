@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Upload</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <style>
+        .upload-container {
+            border: 2px dashed #dee2e6;
+            padding: 2rem;
+            text-align: center;
+            margin: 2rem 0;
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+        }
+        .upload-container.dragover {
+            background-color: #e9ecef;
+            border-color: #0d6efd;
+        }
+        #fileInput {
+            display: none;
+        }
+        .upload-icon {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 1rem;
+        }
+        .status-message {
+            display: none;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h1 class="card-title text-center mb-4">CSV File Upload</h1>
+                        <div class="upload-container" id="dropZone">
+                            <i class="bi bi-cloud-upload upload-icon"></i>
+                            <h5 class="mb-3">Drag and drop your CSV file here</h5>
+                            <p class="text-muted mb-3">or</p>
+                            <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                                <i class="bi bi-file-earmark-arrow-up me-2"></i>Choose File
+                            </button>
+                            <input type="file" id="fileInput" accept=".csv" onchange="handleFileSelect(event)">
+                        </div>
+                        <div class="alert alert-info status-message" id="status" role="alert"></div>
+                        <div id="analysisResults" class="mt-4" style="display: none;">
+                            <h3 class="mb-3">Analysis Results</h3>
+                            <pre class="bg-light p-3 rounded"><code id="analysisData"></code></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const status = document.getElementById('status');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        // Highlight drop zone when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        // Handle dropped files
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function highlight(e) {
+            dropZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            handleFiles(files);
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+
+        function handleFiles(files) {
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+                    uploadFile(file);
+                } else {
+                    showStatus('Please upload a CSV file', 'danger');
+                }
+            }
+        }
+
+        function uploadFile(file) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            showStatus('Uploading file...', 'info');
+
+            fetch('/api/analyse', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => {
+                console.log(response.json);
+                console.log(response.status);
+                if (response.status >= 400) {
+                    throw new Error('Upload failed with status: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data.id) {
+                    throw new Error('No analysis ID received');
+                }
+                showStatus('File uploaded successfully! Starting analysis...', 'success');
+                pollAnalysis(data.id);
+            })
+            .catch(error => {
+                showStatus('Error uploading file: ' + error.message, 'danger');
+            });
+        }
+
+        function pollAnalysis(id, retryCount = 0) {
+            const maxRetries = 5;
+            const retryDelay = 2000; // 2 seconds
+
+            fetch(`/api/analyse/${id}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Accept': 'application/json',
+                }
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        if (retryCount < maxRetries) {
+                            showStatus(`Analysis in progress... (Attempt ${retryCount + 1}/${maxRetries})`, 'info');
+                            setTimeout(() => pollAnalysis(id, retryCount + 1), retryDelay);
+                        } else {
+                            throw new Error('Analysis failed after maximum retries');
+                        }
+                        return;
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data) {
+                        if (data.status === 'Success') {
+                            showStatus('Analysis completed successfully!', 'success');
+                            // Display analysis results
+                            const analysisResults = document.getElementById('analysisResults');
+                            const analysisData = document.getElementById('analysisData');
+                            analysisData.textContent = JSON.stringify(data.analysis, null, 2);
+                            analysisResults.style.display = 'block';
+                        } else if (retryCount < maxRetries) {
+                            showStatus(`Analysis in progress... (Attempt ${retryCount + 1}/${maxRetries})`, 'info');
+                            setTimeout(() => pollAnalysis(id, retryCount + 1), retryDelay);
+                        } else {
+                            throw new Error('Analysis failed: ' + (data.status || 'unknown status'));
+                        }
+                    }
+                })
+                .catch(error => {
+                    if (retryCount >= maxRetries) {
+                        showStatus('Error during analysis: ' + error.message, 'danger');
+                    }
+                });
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `alert alert-${type} status-message`;
+            status.style.display = 'block';
+        }
+    </script>
+</body>
+</html> 
