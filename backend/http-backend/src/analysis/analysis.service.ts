@@ -29,25 +29,29 @@ export class AnalysisService {
       .digest('hex');
 
     const existingAnalysis = await this.fapAnalysisService.findBySha256(sha256);
+    let id: string;
     if (existingAnalysis) {
-      return existingAnalysis.id;
+      id = existingAnalysis.id;
+      if (existingAnalysis.status === 'Success') {
+        return existingAnalysis.id;
+      }
+    } else {
+      id = uuidv4();
+      const filePath = path.join(this.uploadDir, `${id}.csv`);
+
+      this.logger.log(`Saving file ${file.originalname} to ${filePath}`);
+
+      await fs.writeFile(filePath, Buffer.from(file.buffer));
+
+      await this.fapAnalysisService.create({
+        id,
+        stage: 'pending',
+        status: 'pending',
+        message: 'Analysis pending',
+        sha256,
+        analysis: {},
+      });
     }
-
-    const id = uuidv4();
-    const filePath = path.join(this.uploadDir, `${id}.csv`);
-
-    this.logger.log(`Saving file ${file.originalname} to ${filePath}`);
-
-    await fs.writeFile(filePath, Buffer.from(file.buffer));
-
-    await this.fapAnalysisService.create({
-      id,
-      stage: 'pending',
-      status: 'pending',
-      message: 'Analysis pending',
-      sha256,
-      analysis: {},
-    });
 
     this.logger.log(`Sending NATS analysis request for ${id}`);
     await this.natsService.sendAnalysisRequest({ id });
