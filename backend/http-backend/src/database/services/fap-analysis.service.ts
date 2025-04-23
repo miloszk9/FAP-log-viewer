@@ -29,6 +29,17 @@ export class FapAnalysisService {
     return result || null;
   }
 
+  async findBySha256(sha256: string): Promise<FapAnalysis | null> {
+    this.logger.log(`Finding FapAnalysis by sha256 ${sha256}`);
+    const result = await this.fapAnalysisRepository.findOne({
+      where: { sha256 },
+    });
+    this.logger.log(
+      `Found FapAnalysis with sha256 ${sha256} with status ${result?.status}`,
+    );
+    return result || null;
+  }
+
   async update(
     id: string,
     fapAnalysis: Partial<FapAnalysis>,

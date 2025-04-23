@@ -24,16 +24,21 @@ export class AnalysisService {
   }
 
   async saveFile(file: Express.Multer.File): Promise<string> {
+    const sha256 = createHash('sha256')
+      .update(Buffer.from(file.buffer))
+      .digest('hex');
+
+    const existingAnalysis = await this.fapAnalysisService.findBySha256(sha256);
+    if (existingAnalysis) {
+      return existingAnalysis.id;
+    }
+
     const id = uuidv4();
     const filePath = path.join(this.uploadDir, `${id}.csv`);
 
     this.logger.log(`Saving file ${file.originalname} to ${filePath}`);
 
     await fs.writeFile(filePath, Buffer.from(file.buffer));
-
-    const sha256 = createHash('sha256')
-      .update(Buffer.from(file.buffer))
-      .digest('hex');
 
     await this.fapAnalysisService.create({
       id,
