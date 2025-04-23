@@ -53,8 +53,8 @@
                         </div>
                         <div class="alert alert-info status-message" id="status" role="alert"></div>
                         <div id="analysisResults" class="mt-4" style="display: none;">
-                            <h3 class="mb-3">Analysis Results</h3>
-                            <pre class="bg-light p-3 rounded"><code id="analysisData"></code></pre>
+                            <h3 class="mb-4">Analysis Results</h3>
+                            <div class="row g-4" id="analysisCards"></div>
                         </div>
                     </div>
                 </div>
@@ -183,14 +183,14 @@
                             showStatus('Analysis completed successfully!', 'success');
                             // Display analysis results
                             const analysisResults = document.getElementById('analysisResults');
-                            const analysisData = document.getElementById('analysisData');
-                            analysisData.textContent = JSON.stringify(data.analysis, null, 2);
+                            const analysisCards = document.getElementById('analysisCards');
+                            displayAnalysis(data.analysis);
                             analysisResults.style.display = 'block';
-                        } else if (retryCount < maxRetries) {
+                        } else if (data.status === 'pending' && retryCount < maxRetries) {
                             showStatus(`Analysis in progress... (Attempt ${retryCount + 1}/${maxRetries})`, 'info');
                             setTimeout(() => pollAnalysis(id, retryCount + 1), retryDelay);
                         } else {
-                            throw new Error('Analysis failed: ' + (data.status || 'unknown status'));
+                            throw new Error('Analysis failed: ' + (data.message || 'unknown status'));
                         }
                     }
                 })
@@ -205,6 +205,111 @@
             status.textContent = message;
             status.className = `alert alert-${type} status-message`;
             status.style.display = 'block';
+        }
+
+        function displayAnalysis(data) {
+            console.log('Displaying analysis data:', data);
+            const cardsContainer = document.getElementById('analysisCards');
+            cardsContainer.innerHTML = ''; // Clear existing content
+
+            if (!data || Object.keys(data).length === 0) {
+                showStatus('No analysis data available', 'warning');
+                return;
+            }
+
+            // Create cards for each main section
+            Object.entries(data).forEach(([section, content]) => {
+                if (!content || Object.keys(content).length === 0) return;
+                
+                console.log('Creating card for section:', section, content);
+                const card = document.createElement('div');
+                card.className = 'col-md-6 col-lg-4 mb-4';
+                card.innerHTML = `
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">${formatSectionTitle(section)}</h5>
+                        </div>
+                        <div class="card-body">
+                            ${formatSectionContent(content)}
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(card);
+            });
+        }
+
+        function formatSectionTitle(title) {
+            return title.charAt(0).toUpperCase() + title.slice(1);
+        }
+
+        function formatSectionContent(content) {
+            if (!content || typeof content !== 'object') {
+                return '<div class="text-muted">No data available</div>';
+            }
+
+            let html = '<div class="analysis-content">';
+            
+            for (const [key, value] of Object.entries(content)) {
+                if (value === null || value === undefined) continue;
+                
+                if (typeof value === 'object' && value !== null) {
+                    html += `<div class="mb-3">
+                        <h6 class="text-muted">${formatKey(key)}</h6>
+                        ${formatNestedContent(value)}
+                    </div>`;
+                } else {
+                    html += `<div class="mb-2">
+                        <span class="text-muted">${formatKey(key)}:</span>
+                        <span class="ms-2">${formatValue(value, key)}</span>
+                    </div>`;
+                }
+            }
+            
+            html += '</div>';
+            return html;
+        }
+
+        function formatNestedContent(content) {
+            let html = '<div class="ps-3">';
+            for (const [key, value] of Object.entries(content)) {
+                if (value === null) continue;
+                
+                if (typeof value === 'object' && value !== null) {
+                    html += `<div class="mb-2">
+                        <span class="text-muted">${formatKey(key)}:</span>
+                        ${formatNestedContent(value)}
+                    </div>`;
+                } else {
+                    html += `<div class="mb-1">
+                        <span class="text-muted">${formatKey(key)}:</span>
+                        <span class="ms-2">${formatValue(value, key)}</span>
+                    </div>`;
+                }
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function formatKey(key) {
+            return key.split('_').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+        }
+
+        function formatValue(value, key) {
+            if (typeof value === 'number') {
+                // Format numbers with appropriate units
+                if (key && key.includes('temp')) return `${value}°C`;
+                if (key && key.includes('pressure')) return `${value} bar`;
+                if (key && key.includes('speed')) return `${value} km/h`;
+                if (key && key.includes('distance')) return `${value} km`;
+                if (key && key.includes('consumption')) return `${value} L/100km`;
+                if (key && key.includes('percentage')) return `${value}%`;
+                if (key && key.includes('weight')) return `${value} g`;
+                if (key && key.includes('vol')) return `${value} L`;
+                return value.toFixed(2);
+            }
+            return value;
         }
     </script>
 </body>
