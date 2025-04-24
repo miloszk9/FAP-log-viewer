@@ -3,6 +3,7 @@ from time import time
 
 import pandas as pd
 from config import STORAGE_PATH
+from logger_setup import setup_logger
 
 from data_analyser.constants.csv_columns import (
     driving_parameters,
@@ -18,6 +19,9 @@ from data_analyser.parameters.fap_parameters import FapParameters
 from data_analyser.parameters.fap_regen_parameters import FapRegenParameters
 from data_analyser.parameters.overall_parameters import OverallParameters
 
+# Set up logger for this module
+logger = setup_logger(__name__)
+
 
 class DataAnalyser:
     def __init__(self, file_id):
@@ -31,20 +35,29 @@ class DataAnalyser:
         )
         try:
             self.csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
+            logger.info(f"Successfully read log file: {file_path}")
         except Exception as e:
-            print(f"Failed to read log file {file_path}: {str(e)}")
+            logger.error(
+                f"Failed to read log file {file_path}: {str(e)}", exc_info=True
+            )
             raise DataAnalyseException("Failed to read log file.")
 
         try:
             self._process_data()
+            logger.info(f"Successfully processed log file: {file_path}")
         except Exception as e:
-            print(f"Failed to process log file {file_path}: {str(e)}")
+            logger.error(
+                f"Failed to process log file {file_path}: {str(e)}", exc_info=True
+            )
             raise DataAnalyseException("Failed to process log file.")
 
         try:
             self.result = self._analyse_parameters()
+            logger.info(f"Successfully analysed log file: {file_path}")
         except Exception as e:
-            print(f"Failed to analyse log file {file_path}: {str(e)}")
+            logger.error(
+                f"Failed to analyse log file {file_path}: {str(e)}", exc_info=True
+            )
             raise DataAnalyseException("Failed to analyse log file.")
 
         self.result = self._analyse_parameters()
@@ -99,10 +112,10 @@ if __name__ == "__main__":
 
     for file_name in csv_files:
         file_path = os.path.join(data_dir, file_name)
-        print(file_path)
+        logger.info(f"Processing file: {file_path}")
         # file_path = "backend/analyser/data/peugeot/HDI_SID807_BR2_20240116.csv"
         start = time()
         fapLogAnalyse = DataAnalyser(file_path)
         end = time()
-        # print(end - start)
-        print(fapLogAnalyse)
+        # logger.debug(f"Processing time: {end - start} seconds")
+        logger.info(f"Analysis result: {fapLogAnalyse}")

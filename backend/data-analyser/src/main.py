@@ -1,16 +1,22 @@
 import asyncio
 import signal
 
+from logger_setup import setup_logger
 from nats_client.nats_client import NatsClient
 from nats_client.nats_handler import NatsHandler
 
+logger = setup_logger(__name__)
+
 
 async def main():
+    logger.info("Starting data analyser application")
     nats_client = NatsClient()
     await nats_client.connect()
+    logger.info("Connected to NATS server")
 
     nats_handler = NatsHandler(nats_client)
     await nats_client.subscribe("analyse.request", nats_handler.handle_message)
+    logger.info("Subscribed to 'analyse.request' topic")
 
     # Create an event for shutdown
     shutdown_event = asyncio.Event()
@@ -23,10 +29,11 @@ async def main():
     try:
         # Wait for shutdown signal
         await shutdown_event.wait()
-        print("Shutting down...")
+        logger.info("Shutdown signal received, shutting down...")
         await nats_client.close()
+        logger.info("NATS client closed")
     except Exception as e:
-        print(f"Error during shutdown: {e}")
+        logger.error(f"Error during shutdown: {e}", exc_info=True)
         await nats_client.close()
 
 
@@ -34,6 +41,6 @@ if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
-        print("Received keyboard interrupt, shutting down...")
+        logger.info("Received keyboard interrupt, shutting down...")
     except Exception as e:
-        print(f"Error occurred: {e}")
+        logger.error(f"Error occurred: {e}", exc_info=True)

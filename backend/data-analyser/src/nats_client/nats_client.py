@@ -1,5 +1,9 @@
-from nats.aio.client import Client as NATS
 from config import NATS_URL
+from logger_setup import setup_logger
+from nats.aio.client import Client as NATS
+
+# Set up logger for this module
+logger = setup_logger(__name__)
 
 
 class NatsClient:
@@ -9,16 +13,16 @@ class NatsClient:
 
     async def connect(self):
         await self.nc.connect(self.nats_url)
-        print(f"🚀 Connected to NATS at {self.nats_url}")
+        logger.info(f"Connected to NATS at {self.nats_url}")
 
     async def subscribe(self, subject, callback):
         await self.nc.subscribe(subject, cb=callback)
-        print(f"🎧 Subscribed to subject '{subject}'")
+        logger.info(f"Subscribed to subject '{subject}'")
 
     async def publish(self, subject, message):
         await self.nc.publish(subject, message.encode())
-        print(f"📤 Published message to subject '{subject}'")
+        logger.info(f"Published message to subject '{subject}'")
 
     async def close(self):
         await self.nc.close()
-        print("👋 Closed NATS connection")
+        logger.info("Closed NATS connection")

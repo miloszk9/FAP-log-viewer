@@ -4,6 +4,9 @@ from concurrent.futures import ThreadPoolExecutor
 
 from data_analyser.data_analyser import DataAnalyser
 from data_analyser.exceptions.exceptions import DataAnalyseException
+from logger_setup import setup_logger
+
+logger = setup_logger(__name__)
 
 
 class NatsHandler:
@@ -18,13 +21,13 @@ class NatsHandler:
             if not file_id:
                 raise ValueError("Missing 'id' in message")
 
-            print(f"📩 Received task for: {file_id}")
+            logger.info(f"Received task for: {file_id}")
 
             # Run task in background (non-blocking)
             asyncio.create_task(self.run_and_reply(msg, file_id))
 
         except Exception as e:
-            print(f"❌ Failed to handle message: {e}")
+            logger.error(f"Failed to handle message: {e}", exc_info=True)
 
     async def run_and_reply(self, msg, file_id):
         try:
@@ -40,7 +43,7 @@ class NatsHandler:
             )
 
             await self.nats_client.publish("analyse.result", response)
-            print(f"📤 Replied with result for {file_id}")
+            logger.info(f"Replied with result for {file_id}")
 
         except DataAnalyseException as e:
             response = json.dumps(
@@ -53,10 +56,10 @@ class NatsHandler:
             )
 
             await self.nats_client.publish("analyse.result", response)
-            print(f"⚠️ Replied with failed status for {file_id}")
+            logger.warning(f"Replied with failed status for {file_id}: {str(e)}")
 
         except Exception as e:
-            print(f"❌ Task error: {e}")
+            logger.error(f"Task error: {e}", exc_info=True)
 
     async def process_file_async(self, file_id):
         loop = asyncio.get_event_loop()
