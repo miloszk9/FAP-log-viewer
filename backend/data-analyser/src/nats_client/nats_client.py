@@ -18,3 +18,7 @@ class NatsClient:
     async def publish(self, subject, message):
         await self.nc.publish(subject, message.encode())
         print(f"📤 Published message to subject '{subject}'")
+
+    async def close(self):
+        await self.nc.close()
+        print("👋 Closed NATS connection")
