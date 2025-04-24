@@ -1,0 +1,80 @@
+version: "3"
+
+services:
+  nats:
+    image: nats:2.11-alpine
+    ports:
+      - "4222:4222"
+    networks:
+      - fap-network
+
+  postgres:
+    image: postgres:17.4-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fap_analysis
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fap-network
+
+  http-backend:
+    build:
+      context: ./backend/http-backend
+      dockerfile: Dockerfile
+    volumes:
+      - uploads:/data/uploads:z
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+      - DB_NAME=fap_analysis
+      - PORT=3000
+      - NODE_ENV=production
+      - UPLOAD_DIR=/data/uploads
+      - NATS_URL=nats://nats:4222
+    depends_on:
+      - postgres
+      - nats
+    networks:
+      - fap-network
+
+  data-analyser:
+    build:
+      context: ./backend/data-analyser
+      dockerfile: Dockerfile
+    volumes:
+      - uploads:/data/uploads:ro,z
+    depends_on:
+      - nats
+    networks:
+      - fap-network
+
+  frontend-server:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    environment:
+      - BACKEND_URL=http://http-backend:3000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./frontend/src:/app/src
+    depends_on:
+      - http-backend
+    networks:
+      - fap-network
+
+networks:
+  fap-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  uploads:
