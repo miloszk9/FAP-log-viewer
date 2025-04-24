@@ -1,10 +1,12 @@
-from flask import Flask, send_from_directory, request, Response
+import os
+
 import requests
+from flask import Flask, Response, request, send_from_directory
 
 app = Flask(__name__, static_folder="src")
 
 # Backend service URL
-BACKEND_URL = "http://localhost:3000"
+BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:3000")
 
 
 @app.route("/")
