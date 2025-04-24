@@ -18,7 +18,7 @@ import { FapAnalysisService } from './services/fap-analysis.service';
           password: dbConfig.password,
           database: dbConfig.name,
           entities: [FapAnalysis],
-          synchronize: configService.get('app.environment') !== 'production',
+          synchronize: true, // TODO: Remove in production
         };
       },
       inject: [ConfigService],
