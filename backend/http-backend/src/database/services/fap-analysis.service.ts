@@ -34,9 +34,13 @@ export class FapAnalysisService {
     const result = await this.fapAnalysisRepository.findOne({
       where: { sha256 },
     });
-    this.logger.log(
-      `Found FapAnalysis with sha256 ${sha256} with status ${result?.status}`,
-    );
+    if (result) {
+      this.logger.log(
+        `Found FapAnalysis with sha256 ${sha256} with status ${result?.status}`,
+      );
+    } else {
+      this.logger.log(`No FapAnalysis found with sha256 ${sha256}`);
+    }
     return result || null;
   }
 
