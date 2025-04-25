@@ -58,6 +58,15 @@
 
 ## DevOps
 
+### K3s deployment
+
+#### Tools
+
+- ArgoCD
+- Sealed Secrets
+- OpenTelemetry
+- Grafana Cloud free
+
 ### (optional) Backup
 
 - Run on a different node as the application
