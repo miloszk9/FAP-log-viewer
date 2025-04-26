@@ -22,7 +22,7 @@ import { FapAnalysisService } from './services/fap-analysis.service';
           database: dbConfig.name,
           entities: [FapAnalysis],
           synchronize: !isProduction, // Disable in production
-          migrations: ['dist/migrations/sql/*.js'],
+          migrations: ['dist/database/migrations/sql/*.js'],
           migrationsRun: isProduction, // Run migrations automatically in production
         };
       },
