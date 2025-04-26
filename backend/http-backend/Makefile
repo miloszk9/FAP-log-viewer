@@ -1,4 +1,10 @@
-.PHONY: migration-generate migration-run migration-revert db-up db-down
+.PHONY: migration-generate migration-run migration-revert db-up db-down docker-build docker-push docker-push-local
+
+# Docker configuration
+DOCKER_IMAGE_NAME = mylosz/fap-log-viewer-backend
+
+# Include generic Docker commands
+include ../../docker.mk
 
 # Start the database container
 db-up:
@@ -53,4 +59,7 @@ help:
 	@echo "  make migration-run            - Run all pending migrations"
 	@echo "  make migration-revert         - Revert the last migration"
 	@echo "  make migration-create name=NAME   - Create a new empty migration"
+	@echo "  make docker-build             - Build Docker image"
+	@echo "  make docker-push tag=TAG      - Push Docker image"
+	@echo "  make docker-push-local tag=TAG - Push Docker image to local registry"
 	@echo "  make help                     - Show this help message" 
