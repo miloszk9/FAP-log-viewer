@@ -11,7 +11,7 @@ db-up:
 
 # Stop the database container
 db-down:
-	docker-compose -f docker-compose-migrations.yml down
+	docker-compose -f docker-compose-migrations.yml down -v
 
 # Generate a new migration
 # Usage: make migration-generate name=MigrationName
@@ -21,7 +21,7 @@ migration-generate: db-up
 		exit 1; \
 	fi
 	npm run migration:run
-	npm run migration:generate src/database/migrations/$(name)
+	npm run migration:generate src/database/migrations/sql/$(name)
 	@make db-down
 
 # Run all pending migrations
@@ -41,7 +41,7 @@ migration-create: db-up
 		echo "Error: Migration name is required. Usage: make migration-create name=MigrationName"; \
 		exit 1; \
 	fi
-	npm run migration:create src/database/migrations/$(name)
+	npm run migration:create src/database/migrations/sql/$(name)
 	@make db-down
 
 # Show help
