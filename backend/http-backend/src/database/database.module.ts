@@ -10,6 +10,9 @@ import { FapAnalysisService } from './services/fap-analysis.service';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const dbConfig = configService.get('database');
+        const isProduction =
+          configService.get('app.environment') === 'production';
+
         return {
           type: 'postgres' as const,
           host: dbConfig.host,
@@ -18,7 +21,9 @@ import { FapAnalysisService } from './services/fap-analysis.service';
           password: dbConfig.password,
           database: dbConfig.name,
           entities: [FapAnalysis],
-          synchronize: true, // TODO: Remove in production
+          synchronize: !isProduction, // Disable in production
+          migrations: ['dist/migrations/*.js'],
+          migrationsRun: isProduction, // Run migrations automatically in production
         };
       },
       inject: [ConfigService],
