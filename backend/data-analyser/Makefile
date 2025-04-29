@@ -1,4 +1,4 @@
-.PHONY: help
+.PHONY: help docker-prod docker-local
 
 # Docker configuration
 DOCKER_IMAGE_NAME = mylosz/fap-log-viewer-analyser
@@ -9,7 +9,6 @@ include ../../docker.mk
 # Show help
 help:
 	@echo "Available commands:"
-	@echo "  make docker-build             - Build Docker image"
-	@echo "  make docker-push tag=TAG      - Push Docker image"
-	@echo "  make docker-push-local tag=TAG - Push Docker image to local registry"
+	@echo "  make docker-prod tag=TAG      - Build and push Docker image to remote registry"
+	@echo "  make docker-local tag=TAG      - Build and push Docker image to local registry"
 	@echo "  make help                     - Show this help message" 
