@@ -7,6 +7,7 @@ import type { AnalysisData } from './types/analysis'
 const analysisData = ref<AnalysisData | null>(null)
 
 const handleAnalysisComplete = (data: AnalysisData) => {
+  console.log('Received analysis data in App.vue:', data)
   analysisData.value = data
 }
 </script>

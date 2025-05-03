@@ -43,28 +43,29 @@ defineProps<{
   data: AnalysisData
 }>()
 
-const formatSectionTitle = (title: string): string => {
-  return title.charAt(0).toUpperCase() + title.slice(1)
+const formatSectionTitle = (title: string | number): string => {
+  return String(title).charAt(0).toUpperCase() + String(title).slice(1)
 }
 
-const formatKey = (key: string): string => {
-  return key
+const formatKey = (key: string | number): string => {
+  return String(key)
     .split('_')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ')
 }
 
-const formatValue = (value: string | number | boolean | null, key: string): string => {
+const formatValue = (value: string | number | boolean | null, key: string | number): string => {
   if (typeof value === 'number') {
     // Format numbers with appropriate units
-    if (key.includes('temp')) return `${value}°C`
-    if (key.includes('pressure')) return `${value} bar`
-    if (key.includes('speed')) return `${value} km/h`
-    if (key.includes('distance')) return `${value} km`
-    if (key.includes('consumption')) return `${value} L/100km`
-    if (key.includes('percentage')) return `${value}%`
-    if (key.includes('weight')) return `${value} g`
-    if (key.includes('vol')) return `${value} L`
+    const keyStr = String(key)
+    if (keyStr.includes('temp')) return `${value}°C`
+    if (keyStr.includes('pressure')) return `${value} bar`
+    if (keyStr.includes('speed')) return `${value} km/h`
+    if (keyStr.includes('distance')) return `${value} km`
+    if (keyStr.includes('consumption')) return `${value} L/100km`
+    if (keyStr.includes('percentage')) return `${value}%`
+    if (keyStr.includes('weight')) return `${value} g`
+    if (keyStr.includes('vol')) return `${value} L`
     return value.toFixed(2)
   }
   return String(value)

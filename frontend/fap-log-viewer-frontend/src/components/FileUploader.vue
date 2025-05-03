@@ -27,7 +27,7 @@ import { ref } from 'vue'
 import type { AnalysisData } from '@/types/analysis'
 
 const emit = defineEmits<{
-  (e: 'file-uploaded', data: AnalysisData): void
+  (e: 'analysis-complete', data: AnalysisData): void
 }>()
 
 const fileInput = ref<HTMLInputElement | null>(null)
@@ -84,9 +84,10 @@ const uploadFile = async (file: File) => {
   showStatus('Uploading file...', 'info')
 
   try {
-    const response = await fetch('/api/analyse', {
+    const response = await fetch('/api', {
       method: 'POST',
       body: formData,
+      credentials: 'include',
       headers: {
         Accept: 'application/json',
       },
@@ -97,6 +98,7 @@ const uploadFile = async (file: File) => {
     }
 
     const data = await response.json()
+    console.log('Upload response:', data)
     if (!data.id) {
       throw new Error('No analysis ID received')
     }
@@ -116,7 +118,7 @@ const pollAnalysis = async (id: string, retryCount = 0): Promise<void> => {
   const retryDelay = 2000
 
   try {
-    const response = await fetch(`/api/analyse/${id}`, {
+    const response = await fetch(`/api/${id}`, {
       method: 'GET',
       credentials: 'include',
       headers: {
@@ -134,9 +136,11 @@ const pollAnalysis = async (id: string, retryCount = 0): Promise<void> => {
     }
 
     const data = await response.json()
+    console.log('Analysis response:', data)
     if (data.status === 'Success' && data.analysis) {
       showStatus('Analysis completed successfully!', 'success')
-      emit('file-uploaded', data.analysis)
+      console.log('Emitting analysis data:', data.analysis)
+      emit('analysis-complete', data.analysis)
     } else if (data.status === 'pending' && retryCount < maxRetries) {
       showStatus(`Analysis in progress... (Attempt ${retryCount + 1}/${maxRetries})`, 'info')
       setTimeout(() => pollAnalysis(id, retryCount + 1), retryDelay)
