@@ -1,0 +1,24 @@
+@import './base.css';
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+body {
+  box-sizing: border-box;
+}
+
+.container-fluid, .row {
+  height: 100vh;
+  min-height: 100vh;
+}
+
+.sidebar {
+  min-height: 100vh;
+  height: 100vh;
+}
