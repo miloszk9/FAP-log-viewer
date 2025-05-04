@@ -2,7 +2,9 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FapAnalysis } from './entities/fap-analysis.entity';
+import { User } from './entities/user.entity';
 import { FapAnalysisService } from './services/fap-analysis.service';
+import { UserService } from './services/user.service';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { FapAnalysisService } from './services/fap-analysis.service';
           username: dbConfig.username,
           password: dbConfig.password,
           database: dbConfig.name,
-          entities: [FapAnalysis],
+          entities: [FapAnalysis, User],
           synchronize: !isProduction, // Disable in production
           migrations: ['dist/database/migrations/sql/*.js'],
           migrationsRun: isProduction, // Run migrations automatically in production
@@ -28,9 +30,9 @@ import { FapAnalysisService } from './services/fap-analysis.service';
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([FapAnalysis]),
+    TypeOrmModule.forFeature([FapAnalysis, User]),
   ],
-  providers: [FapAnalysisService],
-  exports: [FapAnalysisService],
+  providers: [FapAnalysisService, UserService],
+  exports: [FapAnalysisService, UserService],
 })
 export class DatabaseModule {}
