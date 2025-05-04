@@ -18,64 +18,40 @@
               <li class="nav-item">
                 <a class="nav-link d-flex align-items-center gap-2" href="#">
                   <i class="bi bi-file-earmark"></i>
-                  Orders
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2" href="#">
-                  <i class="bi bi-cart"></i>
-                  Products
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2" href="#">
-                  <i class="bi bi-people"></i>
-                  Customers
+                  Upload log file
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link d-flex align-items-center gap-2" href="#">
                   <i class="bi bi-graph-up"></i>
-                  Reports
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2" href="#">
-                  <i class="bi bi-puzzle"></i>
-                  Integrations
+                  Summary
                 </a>
               </li>
             </ul>
 
             <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase">
               <span>Saved reports</span>
-              <a class="link-secondary" href="#" aria-label="Add a new report">
-                <i class="bi bi-plus-circle"></i>
+              <a class="link-secondary" href="#" aria-label="Refresh reports">
+                <i class="bi bi-arrow-clockwise"></i>
               </a>
             </h6>
             <ul class="nav flex-column mb-auto">
               <li class="nav-item">
                 <a class="nav-link d-flex align-items-center gap-2" href="#">
                   <i class="bi bi-file-earmark-text"></i>
-                  Current month
+                  Report 1
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link d-flex align-items-center gap-2" href="#">
                   <i class="bi bi-file-earmark-text"></i>
-                  Last quarter
+                  Report 2
                 </a>
               </li>
               <li class="nav-item">
                 <a class="nav-link d-flex align-items-center gap-2" href="#">
                   <i class="bi bi-file-earmark-text"></i>
-                  Social engagement
-                </a>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link d-flex align-items-center gap-2" href="#">
-                  <i class="bi bi-file-earmark-text"></i>
-                  Year-end sale
+                  Report 3
                 </a>
               </li>
             </ul>
