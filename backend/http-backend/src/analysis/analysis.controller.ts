@@ -20,7 +20,7 @@ import { AnalyseRequestDto } from './dto/analyse-request.dto';
 import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
 import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 
-@ApiTags('analysis')
+@ApiTags('Analyse API')
 @Controller('analyse')
 export class AnalysisController {
   constructor(private readonly analysisService: AnalysisService) {}
