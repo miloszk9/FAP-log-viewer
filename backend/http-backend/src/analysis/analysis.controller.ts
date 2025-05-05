@@ -1,27 +1,32 @@
 import {
   Controller,
-  Post,
   Get,
   Param,
+  Post,
+  Request,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
-  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
-  ApiTags,
-  ApiConsumes,
+  ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
+import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
+import { RequestWithUser } from 'src/auth/interfaces/request.interface';
 import { AnalysisService } from './analysis.service';
-import { AnalyseRequestDto } from './dto/analyse-request.dto';
 import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
+import { AnalyseRequestDto } from './dto/analyse-request.dto';
 import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 
 @ApiTags('Analyse API')
 @Controller('analyse')
+@ApiBearerAuth()
 export class AnalysisController {
   constructor(private readonly analysisService: AnalysisService) {}
 
@@ -34,11 +39,13 @@ export class AnalysisController {
     description: 'File uploaded successfully',
     type: AnalyseFileResponseDto,
   })
+  @UseGuards(OptionalJwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async analyseFile(
     @UploadedFile() file: Express.Multer.File,
+    @Request() req: RequestWithUser,
   ): Promise<AnalyseFileResponseDto> {
-    const id = await this.analysisService.saveFile(file);
+    const id = await this.analysisService.saveFile(file, req.user?.id);
     return { id };
   }
 
@@ -50,11 +57,13 @@ export class AnalysisController {
     type: GetAnalysisResponseDto,
   })
   @ApiResponse({ status: 404, description: 'Analysis not found' })
-  async getAnalysis(@Param('id') id: string): Promise<GetAnalysisResponseDto> {
-    const analysis = await this.analysisService.getAnalysis(id);
-    if (analysis.status === 'not_found') {
-      throw new NotFoundException(analysis.message);
-    }
+  @UseGuards(OptionalJwtAuthGuard)
+  async getAnalysis(
+    @Param('id') id: string,
+    @Request() req: RequestWithUser,
+  ): Promise<GetAnalysisResponseDto> {
+    // TODO: Fix scenario where analysis is uploaded by unauthenticated user, then the same is uploaded by authenticated user, unauthenticated user will not be able to access it
+    const analysis = await this.analysisService.getAnalysis(id, req.user?.id);
     return {
       id,
       ...analysis,

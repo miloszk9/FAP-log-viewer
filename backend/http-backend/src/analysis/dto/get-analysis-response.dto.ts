@@ -4,6 +4,9 @@ export class GetAnalysisResponseDto {
   @ApiProperty({ description: 'Unique identifier of the analysis' })
   id: string;
 
+  @ApiProperty({ description: 'File name of the analysis' })
+  fileName: string;
+
   @ApiProperty({ description: 'Current status of the analysis' })
   status: string;
 

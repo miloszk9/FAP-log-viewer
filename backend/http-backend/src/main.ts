@@ -24,6 +24,7 @@ async function bootstrap() {
     .setTitle('FAP Analysis API')
     .setDescription('API for analyzing FAP log files')
     .setVersion('0.0.1')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

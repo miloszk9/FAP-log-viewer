@@ -1,9 +1,9 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { v4 as uuidv4 } from 'uuid';
+import { createHash } from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { createHash } from 'crypto';
+import { FapAnalysis } from 'src/database/entities/fap-analysis.entity';
 import { FapAnalysisService } from 'src/database/services/fap-analysis.service';
 import { NatsService } from '../nats/nats.service';
 
@@ -23,7 +23,7 @@ export class AnalysisService {
     fs.mkdir(this.uploadDir, { recursive: true }).catch(() => {});
   }
 
-  async saveFile(file: Express.Multer.File): Promise<string> {
+  async saveFile(file: Express.Multer.File, userId?: string): Promise<string> {
     const sha256 = createHash('sha256')
       .update(Buffer.from(file.buffer))
       .digest('hex');
@@ -36,21 +36,20 @@ export class AnalysisService {
         return existingAnalysis.id;
       }
     } else {
-      id = uuidv4();
+      const newAnalysis = await this.fapAnalysisService.create({
+        status: 'pending',
+        message: 'Analysis pending',
+        sha256,
+        analysis: {},
+        user: userId ? ({ id: userId } as any) : undefined,
+        fileName: file.originalname,
+      } as FapAnalysis);
+      id = newAnalysis.id;
       const filePath = path.join(this.uploadDir, `${id}.csv`);
 
       this.logger.log(`Saving file ${file.originalname} to ${filePath}`);
 
       await fs.writeFile(filePath, Buffer.from(file.buffer));
-
-      await this.fapAnalysisService.create({
-        id,
-        stage: 'pending',
-        status: 'pending',
-        message: 'Analysis pending',
-        sha256,
-        analysis: {},
-      });
     }
 
     this.logger.log(`Sending NATS analysis request for ${id}`);
@@ -61,15 +60,28 @@ export class AnalysisService {
 
   async getAnalysis(
     id: string,
-  ): Promise<{ status: string; message: string; analysis?: any }> {
+    userId?: string,
+  ): Promise<{
+    fileName: string;
+    status: string;
+    message: string;
+    result: any;
+  }> {
     const analysis = await this.fapAnalysisService.findOne(id);
     if (!analysis) {
       throw new NotFoundException('Analysis for given ID not found.');
     }
+
+    // If analysis has a user and it doesn't match the requesting user, return not found
+    if (analysis.user && analysis.user.id !== userId) {
+      throw new NotFoundException('Analysis for given ID not found.');
+    }
+
     return {
+      fileName: analysis.fileName,
       status: analysis.status,
       message: analysis.message,
-      analysis: analysis.analysis,
+      result: analysis.analysis,
     };
   }
 }

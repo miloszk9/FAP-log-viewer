@@ -4,7 +4,9 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
+import { FapAnalysis } from './fap-analysis.entity';
 
 @Entity('users')
 export class User {
@@ -22,6 +24,9 @@ export class User {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @OneToMany(() => FapAnalysis, (analysis) => analysis.user)
+  analyses: FapAnalysis[];
 
   @CreateDateColumn()
   createdAt: Date;
