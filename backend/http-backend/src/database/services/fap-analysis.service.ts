@@ -24,7 +24,10 @@ export class FapAnalysisService {
 
   async findOne(id: string): Promise<FapAnalysis | null> {
     this.logger.log(`Finding FapAnalysis ${id}`);
-    const result = await this.fapAnalysisRepository.findOne({ where: { id } });
+    const result = await this.fapAnalysisRepository.findOne({
+      where: { id },
+      relations: ['user'],
+    });
     this.logger.log(`Found FapAnalysis ${id} with status ${result?.status}`);
     return result || null;
   }

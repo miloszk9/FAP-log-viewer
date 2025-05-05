@@ -69,11 +69,13 @@ export class AnalysisService {
   }> {
     const analysis = await this.fapAnalysisService.findOne(id);
     if (!analysis) {
+      this.logger.log(`FapAnalysis ${id} not found`);
       throw new NotFoundException('Analysis for given ID not found.');
     }
 
     // If analysis has a user and it doesn't match the requesting user, return not found
     if (analysis.user && analysis.user.id !== userId) {
+      this.logger.warn(`Denied access to FapAnalysis ${id} for user ${userId}`);
       throw new NotFoundException('Analysis for given ID not found.');
     }
 

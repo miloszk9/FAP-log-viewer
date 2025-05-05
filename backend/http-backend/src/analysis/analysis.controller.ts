@@ -24,7 +24,7 @@ import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
 import { AnalyseRequestDto } from './dto/analyse-request.dto';
 import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 
-@ApiTags('Analyse API')
+@ApiTags('Analyse')
 @Controller('analyse')
 @ApiBearerAuth()
 export class AnalysisController {
