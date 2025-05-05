@@ -1,5 +1,6 @@
 import { DataSource } from 'typeorm';
 import { FapAnalysis } from '../entities/fap-analysis.entity';
+import { User } from '../entities/user.entity';
 
 export default new DataSource({
   type: 'postgres',
@@ -8,7 +9,7 @@ export default new DataSource({
   username: 'postgres',
   password: 'postgres',
   database: 'fap_analysis',
-  entities: [FapAnalysis],
+  entities: [FapAnalysis, User],
   migrations: ['src/database/migrations/sql/*.ts'],
   migrationsTableName: 'migrations',
 });
