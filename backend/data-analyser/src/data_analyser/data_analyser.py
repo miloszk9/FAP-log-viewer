@@ -105,17 +105,20 @@ class DataAnalyser:
 
 
 if __name__ == "__main__":
+    # Run from "backend/data-analyser/src"
+    # Usage: python -m data_analyser.data_analyser
     import os
 
-    data_dir = "backend/data-analyser/data/ds4-issue/"
-    csv_files = [f for f in os.listdir(data_dir) if f.endswith(".csv")]
+    data_dir = "../data/ds4/"
+    csv_files = [
+        os.path.splitext(f)[0] for f in os.listdir(data_dir) if f.endswith(".csv")
+    ]
 
     for file_name in csv_files:
-        file_path = os.path.join(data_dir, file_name)
-        logger.info(f"Processing file: {file_path}")
+        logger.info(f"Processing file: {file_name}")
         # file_path = "backend/analyser/data/peugeot/HDI_SID807_BR2_20240116.csv"
         start = time()
-        fapLogAnalyse = DataAnalyser(file_path)
+        fapLogAnalyse = DataAnalyser(file_name)
         end = time()
         # logger.debug(f"Processing time: {end - start} seconds")
         logger.info(f"Analysis result: {fapLogAnalyse}")

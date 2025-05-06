@@ -153,7 +153,9 @@ class FapParameters:
 
 
 if __name__ == "__main__":
-    file_path = "backend/analyser/data/peugeot/HDI_SID807_BR2_20250312.csv"
+    # Run from "backend/data-analyser/src"
+    # Usage: python -m data_analyser.parameters.fap_parameters
+    file_path = "../data/ds4/DCM62v2_20250205.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = [

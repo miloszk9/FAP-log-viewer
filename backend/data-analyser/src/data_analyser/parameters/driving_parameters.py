@@ -111,6 +111,8 @@ class DrivingParameters:
 
 
 if __name__ == "__main__":
+    # Run from "backend/data-analyser/src"
+    # Usage: python -m data_analyser.parameters.driving_parameters
     file_path = "../data/ds4/DCM62v2_20250205.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
