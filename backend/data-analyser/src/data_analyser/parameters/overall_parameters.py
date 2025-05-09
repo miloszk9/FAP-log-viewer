@@ -122,7 +122,7 @@ class OverallParameters:
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
     # Usage: python -m data_analyser.parameters.overall_parameters
-    file_path = "../data/ds4/DCM62v2_20250205.csv"
+    file_path = "../data/ds4/DCM62v2_20250222.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = ["Revs", "Speed", "ExternalTemp"]

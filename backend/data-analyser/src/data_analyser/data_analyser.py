@@ -159,8 +159,10 @@ class DataAnalyser:
 
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
+    # export STORAGE_PATH=../data/ds4
     # Usage: python -m data_analyser.data_analyser
     import os
+    from time import time
 
     data_dir = "../data/ds4/"
     csv_files = [
@@ -175,3 +177,7 @@ if __name__ == "__main__":
         end = time()
         # logger.debug(f"Processing time: {end - start} seconds")
         logger.info(f"Analysis result: {fapLogAnalyse}")
+
+    # Test with a specific file
+    fapLogAnalyse = DataAnalyser("DCM62v2_20250222")
+    logger.info(f"Analysis result: {fapLogAnalyse}")
