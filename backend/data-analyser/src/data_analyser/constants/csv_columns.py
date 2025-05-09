@@ -1,5 +1,12 @@
 overall_parameters = ["Revs", "Speed", "ExternalTemp", "Datetime", "Time_Diff"]
-driving_parameters = ["Revs", "Speed", "InjFlow", "AccelPedalPos"]
+driving_parameters = [
+    "Revs",
+    "Speed",
+    "InjFlow",
+    "AccelPedalPos",
+    "Datetime",
+    "Time_Diff",
+]
 engine_parameters = [
     "Battery",
     "Coolant",
