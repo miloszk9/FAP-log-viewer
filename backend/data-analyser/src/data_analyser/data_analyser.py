@@ -5,6 +5,7 @@ from config import STORAGE_PATH
 from logger_setup import setup_logger
 
 from data_analyser.constants.csv_columns import (
+    date_parameters,
     driving_parameters,
     engine_parameters,
     fap_parameters,
@@ -12,6 +13,7 @@ from data_analyser.constants.csv_columns import (
     overall_parameters,
 )
 from data_analyser.exceptions.exceptions import DataAnalyseException
+from data_analyser.parameters.date_parameters import DateParameters
 from data_analyser.parameters.driving_parameters import DrivingParameters
 from data_analyser.parameters.engine_parameters import EngineParameters
 from data_analyser.parameters.fap_parameters import FapParameters
@@ -136,6 +138,7 @@ class DataAnalyser:
         for i, segment in enumerate(self.csv_list):
             logger.info(f"Analyzing segment {i + 1}")
             csv_columns = segment.columns
+            date_columns = list(set(csv_columns) & set(date_parameters))
             overall_columns = list(set(csv_columns) & set(overall_parameters))
             driving_columns = list(set(csv_columns) & set(driving_parameters))
             engine_columns = list(set(csv_columns) & set(engine_parameters))
@@ -143,7 +146,7 @@ class DataAnalyser:
             fap_regen_columns = list(set(csv_columns) & set(fap_regen_parameters))
 
             segment_result = {
-                "segment": i + 1,
+                "date": DateParameters(segment[date_columns].copy()).result,
                 "overall": OverallParameters(segment[overall_columns].copy()).result,
                 "driving": DrivingParameters(segment[driving_columns].copy()).result,
                 "engine": EngineParameters(segment[engine_columns].copy()).result,
@@ -179,5 +182,5 @@ if __name__ == "__main__":
         logger.info(f"Analysis result: {fapLogAnalyse}")
 
     # Test with a specific file
-    fapLogAnalyse = DataAnalyser("DCM62v2_20250222")
-    logger.info(f"Analysis result: {fapLogAnalyse}")
+    # fapLogAnalyse = DataAnalyser("DCM62v2_20250222")
+    # logger.info(f"Analysis result: {fapLogAnalyse}")
