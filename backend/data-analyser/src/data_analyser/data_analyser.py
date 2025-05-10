@@ -92,6 +92,12 @@ class DataAnalyser:
         self.csv = self.csv.sort_values("Datetime")
         self.csv["Time_Diff"] = self.csv["Datetime"].diff().dt.total_seconds().fillna(0)
 
+        # Calculate typical time difference (median of all time differences)
+        typical_diff = self.csv["Time_Diff"].median()
+
+        # Filter out rows where Time_Diff exceeds the threshold
+        self.csv = self.csv[self.csv["Time_Diff"] < typical_diff * 3]
+
     def _analyse_parameters(self):
         """Preprocess the data."""
         csv_columns = self.csv.columns

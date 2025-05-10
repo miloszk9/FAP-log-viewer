@@ -72,8 +72,10 @@ class DrivingParameters:
             total_fuel_per_distance = (total_fuel / total_distance) * 100
 
         return {
-            "liters": float(round(total_fuel, 2)),
-            "per_100km": float(round(total_fuel_per_distance, 2)),
+            "liters": float(round(total_fuel, 2)) if total_fuel else None,
+            "per_100km": float(round(total_fuel_per_distance, 2))
+            if total_fuel_per_distance
+            else None,
         }
 
     def _calculate_revs(self):
