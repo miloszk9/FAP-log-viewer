@@ -8,7 +8,6 @@ class OverallParameters:
     def __init__(self, csv):
         self.csv = csv
         self.result = {
-            "date": self._calculate_date(),
             "distance": self._calculate_distance(),
             "duration": self._calculate_idle_driving_duration(),
             "externalTemp": self._calculate_temp(),
@@ -20,14 +19,6 @@ class OverallParameters:
 
     def to_json(self):
         return dumps(self.result)
-
-    def _calculate_date(self):
-        """Return the earliest date from the dataset."""
-        if "Datetime" not in self.csv.columns or self.csv["Datetime"].dropna().empty:
-            return None
-
-        min_date = self.csv["Datetime"].min()
-        return min_date.strftime("%Y-%m-%d") if not pd.isna(min_date) else None
 
     def _calculate_speed(self):
         """Calculate average and max speed."""
