@@ -50,13 +50,17 @@ class DataAverage:
 
     def _calculate_overall(self):
         return {
-            "distance": self.single_analyses["overall.distance"].sum(),
+            "distance": float(self.single_analyses["overall.distance"].sum()),
             "duration": {
-                "overall": self.single_analyses["overall.duration.overall"].sum(),
-                "engineOn": self.single_analyses["overall.duration.engineOn"].sum(),
-                "engineOff": self.single_analyses["overall.duration.engineOff"].sum(),
-                "idle": self.single_analyses["overall.duration.idle"].sum(),
-                "driving": self.single_analyses["overall.duration.driving"].sum(),
+                "overall": int(self.single_analyses["overall.duration.overall"].sum()),
+                "engineOn": int(
+                    self.single_analyses["overall.duration.engineOn"].sum()
+                ),
+                "engineOff": int(
+                    self.single_analyses["overall.duration.engineOff"].sum()
+                ),
+                "idle": int(self.single_analyses["overall.duration.idle"].sum()),
+                "driving": int(self.single_analyses["overall.duration.driving"].sum()),
             },
         }
 
@@ -65,38 +69,48 @@ class DataAverage:
             self.single_analyses["driving.acceleration.avg"],
             self.single_analyses["overall.duration.driving"],
         )
+        acceleration_avg = int(round(acceleration_avg)) if acceleration_avg else None
         fuel_consumption_avg = self._weighted_average(
-            self.single_analyses["driving.fuelConsumption.liters"],
+            self.single_analyses["driving.fuelConsumption.per_100km"],
             self.single_analyses["overall.distance"],
+        )
+        fuel_consumption_avg = (
+            float(round(fuel_consumption_avg, 2)) if fuel_consumption_avg else None
         )
         revs_avg = self._weighted_average(
             self.single_analyses["driving.revs.avg"],
             self.single_analyses["overall.duration.driving"],
         )
+        revs_avg = int(round(revs_avg)) if revs_avg else None
         revs_driving_avg = self._weighted_average(
             self.single_analyses["driving.revs.avgDriving"],
             self.single_analyses["overall.duration.driving"],
         )
+        revs_driving_avg = int(round(revs_driving_avg)) if revs_driving_avg else None
         speed_avg = self._weighted_average(
             self.single_analyses["driving.speed.avg"],
             self.single_analyses["overall.duration.driving"],
         )
+        speed_avg = float(round(speed_avg, 2)) if speed_avg else None
 
         return {
             "acceleration": {
-                "max": self.single_analyses["driving.acceleration.max"].max(),
+                "max": float(self.single_analyses["driving.acceleration.max"].max()),
                 "avg": acceleration_avg,
             },
-            "fuelConsumption": fuel_consumption_avg,
+            "fuelConsumption": {
+                "total": float(self.single_analyses["driving.fuelConsumption.liters"].sum()),
+                "avg": fuel_consumption_avg
+            },
             "revs": {
-                "min": self.single_analyses["driving.revs.min"].min(),
-                "max": self.single_analyses["driving.revs.max"].max(),
+                "min": int(self.single_analyses["driving.revs.min"].min()),
+                "max": int(self.single_analyses["driving.revs.max"].max()),
                 "avg": revs_avg,
                 "avgDriving": revs_driving_avg,
             },
             "speed": {
                 "avg": speed_avg,
-                "max": self.single_analyses["driving.speed.max"].max(),
+                "max": float(self.single_analyses["driving.speed.max"].max()),
             },
         }
 
