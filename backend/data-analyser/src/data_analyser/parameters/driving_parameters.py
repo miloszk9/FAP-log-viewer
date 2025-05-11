@@ -106,9 +106,9 @@ class DrivingParameters:
 
         speed = self.csv["Speed"].dropna()
         return {
-            "avg": float(round(speed.mean(), 1)),
-            "max": float(round(speed.max(), 1)),
-            "min": float(round(speed.min(), 1)),
+            "avg": float(round(speed.mean(), 2)),
+            "max": float(round(speed.max(), 2)),
+            "min": float(round(speed.min(), 2)),
         }
 
 

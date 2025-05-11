@@ -9,9 +9,8 @@ class OverallParameters:
         self.csv = csv
         self.result = {
             "distance": self._calculate_distance(),
-            "duration": self._calculate_idle_driving_duration(),
+            "duration": self._calculate_duration(),
             "externalTemp": self._calculate_temp(),
-            "speed": self._calculate_speed(),
         }
 
     def __str__(self):
@@ -19,17 +18,6 @@ class OverallParameters:
 
     def to_json(self):
         return dumps(self.result)
-
-    def _calculate_speed(self):
-        """Calculate average and max speed."""
-        if "Speed" not in self.csv.columns or self.csv["Speed"].dropna().empty:
-            return {"avg": None, "max": None}
-
-        speed = self.csv["Speed"].dropna()
-        return {
-            "avg": float(round(speed.mean(), 2)),
-            "max": float(round(speed.max(), 2)),
-        }
 
     def _calculate_distance(self):
         """
@@ -63,8 +51,8 @@ class OverallParameters:
             "min": float(round(temp.min(), 1)),
         }
 
-    def _calculate_idle_driving_duration(self):
-        """Calculate total idle time, driving time, and overall duration."""
+    def _calculate_duration(self):
+        """ Calculate overall, engine off, engine on, idle, and driving time."""
         required_cols = {"Speed", "Revs", "Time_Diff", "Datetime"}
         if (
             not required_cols.issubset(self.csv.columns)
@@ -72,42 +60,32 @@ class OverallParameters:
         ):
             return {
                 "overall": None,
+                "engineOff": None,
+                "engineOn": None,
                 "idle": None,
                 "driving": None,
             }
 
-        try:
-            self.csv["Idle_Time"] = (
-                (self.csv["Speed"] == 0) & (self.csv["Revs"] > 0)
-            ) * self.csv["Time_Diff"]
-            self.csv["Driving_Time"] = (self.csv["Speed"] > 0) * self.csv["Time_Diff"]
+        self.csv["EngineOff_Time"] = (self.csv["Revs"] == 0) * self.csv["Time_Diff"]
+        self.csv["EngineOn_Time"] = (self.csv["Revs"] > 0) * self.csv["Time_Diff"]
+        self.csv["Idle_Time"] = (
+            (self.csv["Speed"] == 0) & (self.csv["Revs"] > 0)
+        ) * self.csv["Time_Diff"]
+        self.csv["Driving_Time"] = (self.csv["Speed"] > 0) * self.csv["Time_Diff"]
 
-            idle_time_sec = self.csv["Idle_Time"].sum(skipna=True)
-            driving_time_sec = self.csv["Driving_Time"].sum(skipna=True)
+        engine_off_sec = self.csv["EngineOff_Time"].sum(skipna=True)
+        engine_on_sec = self.csv["EngineOn_Time"].sum(skipna=True)
+        idle_time_sec = self.csv["Idle_Time"].sum(skipna=True)
+        driving_time_sec = self.csv["Driving_Time"].sum(skipna=True)
+        overall_duration_sec = self.csv["Time_Diff"].sum(skipna=True)
 
-            idle_time_str = str(timedelta(seconds=int(idle_time_sec)))
-            driving_time_str = str(timedelta(seconds=int(driving_time_sec)))
-
-            min_dt = self.csv["Datetime"].min()
-            max_dt = self.csv["Datetime"].max()
-
-            if pd.isna(min_dt) or pd.isna(max_dt):
-                overall_duration_str = None
-            else:
-                overall_duration_sec = (max_dt - min_dt).total_seconds()
-                overall_duration_str = str(timedelta(seconds=int(overall_duration_sec)))
-
-            return {
-                "overall": overall_duration_str,
-                "idle": idle_time_str,
-                "driving": driving_time_str,
-            }
-        except Exception:
-            return {
-                "overall": None,
-                "idle": None,
-                "driving": None,
-            }
+        return {
+            "overall": int(overall_duration_sec),
+            "engineOff": int(engine_off_sec),
+            "engineOn": int(engine_on_sec),
+            "idle": int(idle_time_sec),
+            "driving": int(driving_time_sec),
+        }
 
 
 if __name__ == "__main__":
