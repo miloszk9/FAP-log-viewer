@@ -16,6 +16,7 @@ async def main():
 
     nats_handler = NatsHandler(nats_client)
     await nats_client.subscribe("analyse.request", nats_handler.handle_message)
+    await nats_client.subscribe("average.request", nats_handler.handle_message)
     logger.info("Subscribed to 'analyse.request' topic")
 
     # Create an event for shutdown

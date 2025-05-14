@@ -216,7 +216,10 @@ class DataAverage:
         }
 
     def _calculate_fap_regen(self):
-        duration = self.analyses["fapRegen.duration"]
+        duration = self.analyses.get("fapRegen.duration")
+        if not duration:
+            return None
+
         distance_avg = self._weighted_average(
             self.analyses["fapRegen.distance"], duration
         )

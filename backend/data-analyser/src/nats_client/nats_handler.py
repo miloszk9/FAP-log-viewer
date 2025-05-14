@@ -3,7 +3,11 @@ import json
 from concurrent.futures import ThreadPoolExecutor
 
 from data_analyser.data_analyser import DataAnalyser
-from data_analyser.exceptions.exceptions import DataAnalyseException
+from data_analyser.data_average import DataAverage
+from data_analyser.exceptions.exceptions import (
+    DataAnalyseException,
+    DataAverageException,
+)
 from logger_setup import setup_logger
 
 logger = setup_logger(__name__)
@@ -13,25 +17,33 @@ class NatsHandler:
     def __init__(self, nats_client, max_workers=5):
         self.nats_client = nats_client
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
+        self.topic_handlers = {
+            "analyse.request": self.handle_analyse_request,
+            "average.request": self.handle_average_request,
+        }
 
     async def handle_message(self, msg):
         try:
             payload = json.loads(msg.data.decode())
-            file_id = payload["data"].get("id")
-            if not file_id:
-                raise ValueError("Missing 'id' in message")
+            topic = msg.subject
+            handler = self.topic_handlers.get(topic)
 
-            logger.info(f"Received task for: {file_id}")
+            if not handler:
+                raise ValueError(f"No handler registered for topic: {topic}")
 
-            # Run task in background (non-blocking)
-            asyncio.create_task(self.run_and_reply(msg, file_id))
+            logger.info(f"Received message on topic '{topic}'")
+            asyncio.create_task(handler(msg, payload))
 
         except Exception as e:
             logger.error(f"Failed to handle message: {e}", exc_info=True)
 
-    async def run_and_reply(self, msg, file_id):
+    async def handle_analyse_request(self, msg, payload):
         try:
-            analysis = await self.process_file_async(file_id)
+            file_id = payload.get("id")
+            if not file_id:
+                raise ValueError("Missing 'id' in message")
+
+            analysis = await self.data_analyser_async(file_id)
 
             response = json.dumps(
                 {
@@ -56,12 +68,51 @@ class NatsHandler:
             )
 
             await self.nats_client.publish("analyse.result", response)
-            logger.warning(f"Replied with failed status for {file_id}: {str(e)}")
+            logger.warning(f"Replied with failed status for analysis of {file_id}: {str(e)}")
 
         except Exception as e:
-            logger.error(f"Task error: {e}", exc_info=True)
+            logger.error(f"Analyse error: {e}", exc_info=True)
 
-    async def process_file_async(self, file_id):
+    async def handle_average_request(self, msg, payload):
+        try:
+            analyses = payload.get("analyses")
+            analyses = json.loads(analyses)
+            if not analyses or not isinstance(analyses, list):
+                raise ValueError("Invalid or missing 'analyses' in message")
+
+            average = await self.data_average_async(analyses)
+
+            response = json.dumps(
+                {
+                    "status": "Success",
+                    "message": "Average calculated successfully.",
+                    "average": average,
+                }
+            )
+
+            await self.nats_client.publish("average.result", response)
+            logger.info(f"Replied with average result: {average}")
+
+        except DataAverageException as e:
+            response = json.dumps(
+                {
+                    "status": "Failed",
+                    "message": str(e),
+                }
+            )
+
+            await self.nats_client.publish("average.result", response)
+            logger.warning(f"Replied with failed status for average request: {str(e)}")
+
+        except Exception as e:
+            logger.error(f"Average error: {e}", exc_info=True)
+
+    async def data_analyser_async(self, file_id):
         loop = asyncio.get_event_loop()
         dataAnalyser = await loop.run_in_executor(self.executor, DataAnalyser, file_id)
         return dataAnalyser.result
+
+    async def data_average_async(self, analyses):
+        loop = asyncio.get_event_loop()
+        dataAverage = await loop.run_in_executor(self.executor, DataAverage, analyses)
+        return dataAverage.result
