@@ -5,8 +5,10 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  OneToOne,
 } from 'typeorm';
 import { FapAnalysis } from './fap-analysis.entity';
+import { FapAverage } from './fap-average.entity';
 
 @Entity('users')
 export class User {
@@ -27,6 +29,9 @@ export class User {
 
   @OneToMany(() => FapAnalysis, (analysis) => analysis.user)
   analyses: FapAnalysis[];
+
+  @OneToOne(() => FapAverage, (average) => average.user, { cascade: true })
+  average: FapAverage;
 
   @CreateDateColumn()
   createdAt: Date;

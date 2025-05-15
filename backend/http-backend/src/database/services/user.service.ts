@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { FapAverage } from '../entities/fap-average.entity';
 
 @Injectable()
 export class UserService {
@@ -24,9 +25,12 @@ export class UserService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const fapAverage = new FapAverage();
+
     const user = this.userRepository.create({
       email,
       password: hashedPassword,
+      average: fapAverage,
     });
 
     return this.userRepository.save(user);
