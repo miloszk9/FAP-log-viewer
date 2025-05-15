@@ -1,7 +1,6 @@
 import pandas as pd
 from logger_setup import setup_logger
 
-from data_analyser.data_analyser import DataAnalyser
 from data_analyser.exceptions.exceptions import DataAverageException
 
 # Set up logger for this module
@@ -33,6 +32,19 @@ class DataAverage:
 
         logger.info("Average calculation completed")
 
+    def _calculate(self, key, operation, round_digits=0):
+        # Available operations: 'sum', 'mean', 'min', 'max'
+        column = self.analyses.get(key)
+        if column is None or column.empty:
+            return None
+
+        value = getattr(column, operation)()
+        if value is None or pd.isna(value):
+            return None
+        if round_digits:
+            return float(round(value, round_digits))
+        return int(value)
+
     def _calculate_result(self):
         overall = self._calculate_overall()
         driving = self._calculate_driving()
@@ -50,258 +62,192 @@ class DataAverage:
 
     def _calculate_overall(self):
         return {
-            "distance": float(round(self.analyses["overall.distance"].sum(), 2)),
+            "distance": self._calculate("overall.distance", "sum", 2),
             "duration": {
-                "overall": int(self.analyses["overall.duration.overall"].sum()),
-                "engineOn": int(self.analyses["overall.duration.engineOn"].sum()),
-                "engineOff": int(self.analyses["overall.duration.engineOff"].sum()),
-                "idle": int(self.analyses["overall.duration.idle"].sum()),
-                "driving": int(self.analyses["overall.duration.driving"].sum()),
+                "overall": self._calculate("overall.duration.overall", "sum"),
+                "engineOn": self._calculate("overall.duration.engineOn", "sum"),
+                "engineOff": self._calculate("overall.duration.engineOff", "sum"),
+                "idle": self._calculate("overall.duration.idle", "sum"),
+                "driving": self._calculate("overall.duration.driving", "sum"),
             },
         }
 
     def _calculate_driving(self):
-        acceleration_avg = self._weighted_average(
-            self.analyses["driving.acceleration.avg"],
-            self.analyses["overall.duration.driving"],
-        )
-        acceleration_avg = int(round(acceleration_avg)) if acceleration_avg else None
-        fuel_consumption_avg = self._weighted_average(
-            self.analyses["driving.fuelConsumption.per_100km"],
-            self.analyses["overall.distance"],
-        )
-        fuel_consumption_avg = (
-            float(round(fuel_consumption_avg, 2)) if fuel_consumption_avg else None
-        )
-        revs_avg = self._weighted_average(
-            self.analyses["driving.revs.avg"],
-            self.analyses["overall.duration.driving"],
-        )
-        revs_avg = int(round(revs_avg)) if revs_avg else None
-        revs_driving_avg = self._weighted_average(
-            self.analyses["driving.revs.avgDriving"],
-            self.analyses["overall.duration.driving"],
-        )
-        revs_driving_avg = int(round(revs_driving_avg)) if revs_driving_avg else None
-        speed_avg = self._weighted_average(
-            self.analyses["driving.speed.avg"],
-            self.analyses["overall.duration.driving"],
-        )
-        speed_avg = float(round(speed_avg, 2)) if speed_avg else None
-
         return {
             "acceleration": {
-                "max": float(self.analyses["driving.acceleration.max"].max()),
-                "avg": acceleration_avg,
+                "max": self._calculate("driving.acceleration.max", "max", None),
+                "avg": self._weighted_average(
+                    "driving.acceleration.avg", "overall.duration.driving"
+                ),
             },
             "fuelConsumption": {
-                "total": float(
-                    round(self.analyses["driving.fuelConsumption.liters"].sum(), 2)
+                "total": self._calculate("driving.fuelConsumption.liters", "sum"),
+                "avg": self._weighted_average(
+                    "driving.fuelConsumption.per_100km", "overall.distance", 2
                 ),
-                "avg": fuel_consumption_avg,
             },
             "revs": {
-                "min": int(self.analyses["driving.revs.min"].min()),
-                "max": int(self.analyses["driving.revs.max"].max()),
-                "avg": revs_avg,
-                "avgDriving": revs_driving_avg,
+                "min": self._calculate("driving.revs.min", "min"),
+                "max": self._calculate("driving.revs.max", "max"),
+                "avg": self._weighted_average(
+                    "driving.revs.avg", "overall.duration.driving"
+                ),
+                "avgDriving": self._weighted_average(
+                    "driving.revs.avgDriving", "overall.duration.driving"
+                ),
             },
             "speed": {
-                "avg": speed_avg,
-                "max": float(self.analyses["driving.speed.max"].max()),
+                "avg": self._weighted_average(
+                    "driving.speed.avg", "overall.duration.driving", 2
+                ),
+                "max": self._calculate("driving.speed.max", "max"),
             },
         }
 
     def _calculate_engine(self):
-        battery_before_drive_avg = self.analyses[
-            "engine.battery.beforeDrive.avg"
-        ].mean()
-        battery_before_drive_avg = float(round(battery_before_drive_avg, 2))
-        engineRunning_avg = self._weighted_average(
-            self.analyses["engine.battery.engineRunning.avg"],
-            self.analyses["overall.duration.engineOn"],
-        )
-        engineRunning_avg = (
-            float(round(engineRunning_avg, 2)) if engineRunning_avg else None
-        )
-        coolantTemp_avg = self._weighted_average(
-            self.analyses["engine.coolantTemp.avg"],
-            self.analyses["overall.duration.engineOn"],
-        )
-        coolantTemp_avg = float(round(coolantTemp_avg, 2)) if coolantTemp_avg else None
-        oilTemp_avg = self._weighted_average(
-            self.analyses["engine.oilTemp.avg"],
-            self.analyses["overall.duration.engineOn"],
-        )
-        oilTemp_avg = float(round(oilTemp_avg, 2)) if oilTemp_avg else None
-
         return {
             "battery": {
-                "beforeDrive": {"avg": battery_before_drive_avg},
-                "engineRunning": {"avg": engineRunning_avg},
+                "beforeDrive": {
+                    "avg": self._calculate("engine.battery.beforeDrive.avg", "mean", 2)
+                },
+                "engineRunning": {
+                    "avg": self._weighted_average(
+                        "engine.battery.engineRunning.avg",
+                        "overall.duration.engineOn",
+                        2,
+                    )
+                },
             },
             "coolantTemp": {
-                "min": float(self.analyses["engine.coolantTemp.min"].min()),
-                "max": float(self.analyses["engine.coolantTemp.max"].max()),
-                "avg": coolantTemp_avg,
+                "min": self._calculate("engine.coolantTemp.min", "min"),
+                "max": self._calculate("engine.coolantTemp.max", "max"),
+                "avg": self._weighted_average(
+                    "engine.coolantTemp.avg", "overall.duration.engineOn", 2
+                ),
             },
             "engineWarmup": {
-                "coolant": float(self.analyses["engine.engineWarmup.coolant"].mean()),
-                "oil": float(self.analyses["engine.engineWarmup.oil"].mean()),
+                "coolant": self._calculate("engine.engineWarmup.coolant", "mean", 2),
+                "oil": self._calculate("engine.engineWarmup.oil", "mean", 2),
             },
             "errors": {
-                "min": int(self.analyses["engine.errors"].min()),
-                "max": int(self.analyses["engine.errors"].max()),
+                "min": self._calculate("engine.errors", "min"),
+                "max": self._calculate("engine.errors", "max"),
             },
             "oilCarbonate": {
-                "min": int(self.analyses["engine.oilCarbonate"].min())
-                if not self.analyses["engine.oilCarbonate"].isnull().all()
-                else None,
-                "max": int(self.analyses["engine.oilCarbonate"].max())
-                if not self.analyses["engine.oilCarbonate"].isnull().all()
-                else None,
+                "min": self._calculate("engine.oilCarbonate", "min"),
+                "max": self._calculate("engine.oilCarbonate", "max"),
             },
             "oilDilution": {
-                "min": int(self.analyses["engine.oilDilution"].min())
-                if not self.analyses["engine.oilDilution"].isnull().all()
-                else None,
-                "max": int(self.analyses["engine.oilDilution"].max())
-                if not self.analyses["engine.oilDilution"].isnull().all()
-                else None,
+                "min": self._calculate("engine.oilDilution", "min"),
+                "max": self._calculate("engine.oilDilution", "max"),
             },
             "oilTemp": {
-                "min": int(self.analyses["engine.oilTemp.min"].min())
-                if not self.analyses["engine.oilTemp.min"].isnull().all()
-                else None,
-                "max": int(self.analyses["engine.oilTemp.max"].max())
-                if not self.analyses["engine.oilTemp.max"].isnull().all()
-                else None,
-                "avg": oilTemp_avg,
+                "min": self._calculate("engine.oilTemp.min", "min"),
+                "max": self._calculate("engine.oilTemp.max", "max"),
+                "avg": self._weighted_average(
+                    "engine.oilTemp.avg", "overall.duration.engineOn", 2
+                ),
             },
         }
 
     def _calculate_fap(self):
-        pressure_avg = self._weighted_average(
-            self.analyses["fap.pressure.avg"],
-            self.analyses["overall.duration.engineOn"],
-        )
-        pressure_avg = float(round(pressure_avg, 2)) if pressure_avg else None
-        pressure_idle_avg = self._weighted_average(
-            self.analyses["fap.pressure_idle.avg"],
-            self.analyses["overall.duration.idle"],
-        )
-        pressure_idle_avg = (
-            float(round(pressure_idle_avg, 2)) if pressure_idle_avg else None
-        )
-        temp_avg = self._weighted_average(
-            self.analyses["fap.temp.avg"],
-            self.analyses["overall.duration.engineOn"],
-        )
-        temp_avg = float(round(temp_avg, 2)) if temp_avg else None
-
         return {
             "pressure": {
-                "min": float(self.analyses["fap.pressure.min"].min()),
-                "max": float(self.analyses["fap.pressure.max"].max()),
-                "avg": pressure_avg,
+                "min": self._calculate("fap.pressure.min", "min"),
+                "max": self._calculate("fap.pressure.max", "max"),
+                "avg": self._weighted_average(
+                    "fap.pressure.avg", "overall.duration.engineOn", 2
+                ),
             },
             "pressure_idle": {
-                "avg": pressure_idle_avg,
+                "avg": self._weighted_average(
+                    "fap.pressure_idle.avg", "overall.duration.idle", 2
+                ),
             },
             "temp": {
-                "min": float(self.analyses["fap.temp.min"].min()),
-                "max": float(self.analyses["fap.temp.max"].max()),
-                "avg": temp_avg,
+                "min": self._calculate("fap.temp.min", "min"),
+                "max": self._calculate("fap.temp.max", "max"),
+                "avg": self._weighted_average(
+                    "fap.temp.avg", "overall.duration.engineOn", 2
+                ),
             },
         }
 
     def _calculate_fap_regen(self):
-        duration = self.analyses.get("fapRegen.duration")
-        if not duration:
+        if not self.analyses.get("fapRegen.duration"):
             return None
 
-        distance_avg = self._weighted_average(
-            self.analyses["fapRegen.distance"], duration
-        )
-        distance_avg = float(round(distance_avg, 2)) if distance_avg else None
-        speed_avg = self._weighted_average(
-            self.analyses["fapRegen.speed.avg"], duration
-        )
-        speed_avg = float(round(speed_avg, 2)) if speed_avg else None
-        fap_temp_avg = self._weighted_average(
-            self.analyses["fapRegen.fapTemp.avg"], duration
-        )
-        fap_temp_avg = float(round(fap_temp_avg, 2)) if fap_temp_avg else None
-        fap_pressure_avg = self._weighted_average(
-            self.analyses["fapRegen.fapPressure.avg"], duration
-        )
-        fap_pressure_avg = (
-            float(round(fap_pressure_avg, 2)) if fap_pressure_avg else None
-        )
-        revs_avg = self._weighted_average(self.analyses["fapRegen.revs.avg"], duration)
-        revs_avg = int(round(revs_avg)) if revs_avg else None
-        fap_soot_start_avg = self.analyses["fapRegen.fapSoot.start"].mean()
-        fap_soot_start_avg = (
-            float(round(fap_soot_start_avg, 2)) if fap_soot_start_avg else None
-        )
-        fap_soot_end_avg = self.analyses["fapRegen.fapSoot.end"].mean()
-        fap_soot_end_avg = (
-            float(round(fap_soot_end_avg, 2)) if fap_soot_end_avg else None
-        )
-        fuel_consumption_regen_avg = self._weighted_average(
-            self.analyses["fapRegen.fuelConsumption.regen"], duration
-        )
-        fuel_consumption_regen_avg = float(round(fuel_consumption_regen_avg, 2))
-        fuel_consumption_non_regen_avg = self._weighted_average(
-            self.analyses["fapRegen.fuelConsumption.non-regen"], duration
-        )
-        fuel_consumption_non_regen_avg = float(round(fuel_consumption_non_regen_avg, 2))
-
         return {
-            "previousRegen": int(self.analyses["fapRegen.previousRegen"].mean()),
-            "duration": int(duration.mean()),
-            "distance": distance_avg,
+            "previousRegen": self._calculate("fapRegen.previousRegen", "mean", 2),
+            "duration": self._calculate("fapRegen.duration", "mean", 2),
+            "distance": self._weighted_average(
+                "fapRegen.distance", "fapRegen.duration", 2
+            ),
             "speed": {
-                "min": float(self.analyses["fapRegen.speed.min"].min()),
-                "max": float(self.analyses["fapRegen.speed.max"].max()),
-                "avg": speed_avg,
+                "min": self._calculate("fapRegen.speed.min", "min"),
+                "max": self._calculate("fapRegen.speed.max", "max"),
+                "avg": self._weighted_average(
+                    "fapRegen.speed.avg", "fapRegen.duration", 2
+                ),
             },
             "fapTemp": {
-                "min": float(self.analyses["fapRegen.fapTemp.min"].min()),
-                "max": float(self.analyses["fapRegen.fapTemp.max"].max()),
-                "avg": fap_temp_avg,
+                "min": self._calculate("fapRegen.fapTemp.min", "min"),
+                "max": self._calculate("fapRegen.fapTemp.max", "max"),
+                "avg": self._weighted_average(
+                    "fapRegen.fapTemp.avg", "fapRegen.duration", 2
+                ),
             },
             "fapPressure": {
-                "min": float(self.analyses["fapRegen.fapPressure.min"].min()),
-                "max": float(self.analyses["fapRegen.fapPressure.max"].max()),
-                "avg": fap_pressure_avg,
+                "min": self._calculate("fapRegen.fapPressure.min", "min"),
+                "max": self._calculate("fapRegen.fapPressure.max", "max"),
+                "avg": self._weighted_average(
+                    "fapRegen.fapPressure.avg", "fapRegen.duration", 2
+                ),
             },
             "revs": {
-                "min": int(self.analyses["fapRegen.revs.min"].min()),
-                "max": int(self.analyses["fapRegen.revs.max"].max()),
-                "avg": revs_avg,
+                "min": self._calculate("fapRegen.revs.min", "min"),
+                "max": self._calculate("fapRegen.revs.max", "max"),
+                "avg": self._weighted_average("fapRegen.revs.avg", "fapRegen.duration"),
             },
             "fapSoot": {
-                "start": fap_soot_start_avg,
-                "end": fap_soot_end_avg,
+                "start": self._calculate("fapRegen.fapSoot.start", "mean", 2),
+                "end": self._calculate("fapRegen.fapSoot.end", "mean", 2),
             },
             "fuelConsumption": {
-                "regen": fuel_consumption_regen_avg,
-                "non-regen": fuel_consumption_non_regen_avg,
+                "regen": self._weighted_average(
+                    "fapRegen.fuelConsumption.regen", "fapRegen.duration", 2
+                ),
+                "non-regen": self._weighted_average(
+                    "fapRegen.fuelConsumption.non-regen", "fapRegen.duration", 2
+                ),
             },
         }
 
-    def _weighted_average(self, values, weights):
+    def _weighted_average(self, values_key, weights_key, round_digits=0):
+        values = self.analyses.get(values_key)
+        weights = self.analyses.get(weights_key)
+
+        if values is None or weights is None or values.empty or weights.empty:
+            return None
+
         total_weight = weights.sum()
         if total_weight == 0:
             return None
-        return (values * weights).sum() / total_weight
+
+        value = (values * weights).sum() / total_weight
+        if pd.isna(value):
+            return None
+
+        if round_digits:
+            return float(round(value, round_digits))
+        return int(value)
 
 
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
     # export STORAGE_PATH=../data/ds4
     # Usage: python -m data_analyser.data_average
+    from data_analyser.data_analyser import DataAnalyser
     # import os
     # from time import time
 
