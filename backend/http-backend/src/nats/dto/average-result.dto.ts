@@ -1,14 +1,20 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class AnalysisResultDto {
+export class AverageResultDto {
   @ApiProperty({
-    description: 'ID of the analyzed file',
+    description: 'User ID of the analysis files',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   id: string;
 
   @ApiProperty({
-    description: 'Status of the analysis',
+    description: 'Sha256 of the analysis',
+    example: '2cf24dba5fb3a713146449fd4b813712e8d6d41b5bb4f4d8f011c0148fd4b329',
+  })
+  analysisSha: string;
+
+  @ApiProperty({
+    description: 'Status of the average analysis',
     example: 'Success',
     enum: ['Success', 'Failed'],
   })
@@ -16,18 +22,13 @@ export class AnalysisResultDto {
 
   @ApiProperty({
     description: 'Description for the status',
-    example: 'Analysis completed successfully.',
+    example: 'Average analysis completed successfully.',
   })
   message: string;
 
   @ApiProperty({
-    description: 'Analysis results',
+    description: 'Average analysis results',
     example: {
-      date: {
-        date: '2025-03-11',
-        start: '07:32:34',
-        end: '08:21:49',
-      },
       overall: {
         distance: 18.91,
         duration: {
@@ -37,21 +38,13 @@ export class AnalysisResultDto {
           idle: 589,
           driving: 1616,
         },
-        externalTemp: {
-          avg: 10.5,
-          max: 12,
-          min: 10,
-        },
       },
       driving: {
         acceleration: {
           max: 39,
           avg: 18.89,
         },
-        fuelConsumption: {
-          liters: 2.25,
-          per_100km: 11.9,
-        },
+        fuelConsumption: 12.48,
         revs: {
           min: 0,
           max: 2906,
@@ -61,19 +54,14 @@ export class AnalysisResultDto {
         speed: {
           avg: 23.2,
           max: 74,
-          min: 0,
         },
       },
       engine: {
         battery: {
           beforeDrive: {
-            min: 12.3,
-            max: 12.3,
             avg: 12.3,
           },
           engineRunning: {
-            min: 12.3,
-            max: 14.58,
             avg: 14.45,
           },
         },
@@ -86,9 +74,18 @@ export class AnalysisResultDto {
           coolant: 20.37,
           oil: 23.73,
         },
-        errors: 0,
-        oilCarbonate: 1,
-        oilDilution: 3,
+        errors: {
+          min: 0,
+          max: 2,
+        },
+        oilCarbonate: {
+          min: 0,
+          max: 3,
+        },
+        oilDilution: {
+          min: 0,
+          max: 2,
+        },
         oilTemp: {
           min: 12,
           max: 100,
@@ -96,39 +93,22 @@ export class AnalysisResultDto {
         },
       },
       fap: {
-        additive: {
-          vol: 1260,
-          remain: 752,
-        },
-        deposits: {
-          percentage: 3,
-          weight_gram: 2,
-        },
-        lastRegen: 3,
-        lastRegen10: 751,
-        life: {
-          life_avg: 11469,
-          left_avg: 142560,
+        pressure: {
+          min: 0,
+          max: 100,
+          avg: 10.1,
         },
         pressure_idle: {
           avg: 10.1,
-          max: 37,
-          min: 0,
-        },
-        pressure: {
-          min: 0,
-          max: 133,
-          avg: 29.2,
         },
         soot: {
-          start: 17.5,
-          end: 0.74,
-          diff: -16.76,
+          min: 0.74,
+          max: 17.5,
         },
         temp: {
           min: 7,
           max: 440,
-          avg: 225,
+          avg: 224,
         },
       },
       fapRegen: {
@@ -158,7 +138,6 @@ export class AnalysisResultDto {
         fapSoot: {
           start: 17.66,
           end: 1.77,
-          diff: -15.89,
         },
         fuelConsumption: {
           regen: 17.64,
@@ -167,5 +146,5 @@ export class AnalysisResultDto {
       },
     },
   })
-  analysis: any;
+  average: any;
 }
