@@ -91,7 +91,7 @@ class NatsHandler:
             response = json.dumps(
                 {
                     "id": user_id,
-                    "analysis_sha": sha,
+                    "sha256": sha,
                     "status": "Success",
                     "message": "Average calculated successfully.",
                     "average": average,
