@@ -15,4 +15,14 @@ export class NatsService {
     await firstValueFrom(this.natsClient.emit('analyse.request', data));
     this.logger.log(`Analysis request sent for ${data.id}`);
   }
+
+  async sendAverageRequest(data: {
+    id: string;
+    analysis_sha: string;
+    analysis: Record<string, any>[];
+  }): Promise<void> {
+    this.logger.log(`Sending average request for ${data.id}`);
+    await firstValueFrom(this.natsClient.emit('average.request', data));
+    this.logger.log(`Average request sent for ${data.id}`);
+  }
 }

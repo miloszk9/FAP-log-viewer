@@ -1,13 +1,14 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { NatsService } from './nats.service';
 import { NatsController } from './nats.controller';
 import { DatabaseModule } from '../database/database.module';
+import { AverageModule } from '../average/average.module';
 
 @Module({
   imports: [
-    DatabaseModule,
+    forwardRef(() => DatabaseModule),
     ClientsModule.registerAsync([
       {
         name: 'NATS_SERVICE',
@@ -22,6 +23,7 @@ import { DatabaseModule } from '../database/database.module';
         inject: [ConfigService],
       },
     ]),
+    forwardRef(() => AverageModule),
   ],
   controllers: [NatsController],
   providers: [NatsService],

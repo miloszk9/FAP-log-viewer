@@ -11,7 +11,7 @@ export class AverageResultDto {
     description: 'Sha256 of the analysis',
     example: '2cf24dba5fb3a713146449fd4b813712e8d6d41b5bb4f4d8f011c0148fd4b329',
   })
-  analysisSha: string;
+  sha256: string;
 
   @ApiProperty({
     description: 'Status of the average analysis',

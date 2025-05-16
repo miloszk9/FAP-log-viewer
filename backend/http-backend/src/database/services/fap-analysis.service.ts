@@ -13,13 +13,21 @@ export class FapAnalysisService {
   ) {}
 
   create(fapAnalysis: FapAnalysis): Promise<FapAnalysis> {
-    this.logger.log(`Creating FapAnalysis`, fapAnalysis.id);
+    this.logger.log(`Creating FapAnalysis for file ${fapAnalysis.fileName}`);
     return this.fapAnalysisRepository.save(fapAnalysis);
   }
 
   findAll(): Promise<FapAnalysis[]> {
     this.logger.log(`Finding all FapAnalyses`);
     return this.fapAnalysisRepository.find();
+  }
+
+  async findAllByUserId(userId: string): Promise<FapAnalysis[]> {
+    this.logger.log(`Finding all FapAnalyses for user ${userId}`);
+    return this.fapAnalysisRepository.find({
+      where: { user: { id: userId } },
+      relations: ['user'],
+    });
   }
 
   async findOne(id: string): Promise<FapAnalysis | null> {

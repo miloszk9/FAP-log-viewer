@@ -26,6 +26,10 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const fapAverage = new FapAverage();
+    fapAverage.status = '';
+    fapAverage.message = '';
+    fapAverage.sha256 = '';
+    fapAverage.average = {};
 
     const user = this.userRepository.create({
       email,

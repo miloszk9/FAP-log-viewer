@@ -5,6 +5,7 @@ import { AnalysisModule } from './analysis/analysis.module';
 import { NatsModule } from './nats/nats.module';
 import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
+import { AverageModule } from './average/average.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import configuration from './config/configuration';
     }),
     DatabaseModule,
     AnalysisModule,
+    AverageModule,
     NatsModule,
     AuthModule,
   ],

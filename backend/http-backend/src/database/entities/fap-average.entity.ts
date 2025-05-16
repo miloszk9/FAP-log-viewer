@@ -12,7 +12,7 @@ export class FapAverage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => User, (user) => user.average, { cascade: true })
+  @OneToOne(() => User, (user) => user.average)
   @JoinColumn({ name: 'userId' })
   user: User;
 

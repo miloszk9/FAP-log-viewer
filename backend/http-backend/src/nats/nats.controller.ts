@@ -3,28 +3,34 @@ import { MessagePattern, Payload } from '@nestjs/microservices';
 import { FapAnalysisService } from '../database/services/fap-analysis.service';
 import { AnalysisResultDto } from './dto/analysis-result.dto';
 import { AverageResultDto } from './dto/average-result.dto';
-import { FapAverageService } from 'src/database/services/fap-average.service';
+import { FapAverageService } from '../database/services/fap-average.service';
+import { AverageService } from '../average/average.service';
 
 @Controller()
 export class NatsController {
   constructor(
+    private readonly averageService: AverageService,
     private readonly fapAnalysisService: FapAnalysisService,
     private readonly fapAverageService: FapAverageService,
   ) {}
 
   @MessagePattern('analyse.result')
   async handleAnalysisResult(@Payload() data: AnalysisResultDto) {
-    await this.fapAnalysisService.update(data.id, {
+    const updatedAnalysis = await this.fapAnalysisService.update(data.id, {
       status: data.status,
       message: data.message,
       analysis: data.analysis,
     });
+    const userId = updatedAnalysis.user.id;
+    if (userId) {
+      await this.averageService.update(userId);
+    }
   }
 
   @MessagePattern('average.result')
   async handleAverageResult(@Payload() data: AverageResultDto) {
     await this.fapAverageService.update(data.id, {
-      sha256: data.analysisSha,
+      sha256: data.sha256,
       status: data.status,
       message: data.message,
       average: data.average,
