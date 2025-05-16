@@ -37,9 +37,10 @@ class NatsHandler:
         except Exception as e:
             logger.error(f"Failed to handle message: {e}", exc_info=True)
 
-    async def handle_analyse_request(self, msg, payload):
+    async def handle_analyse_request(self, _, payload):
         try:
-            file_id = payload.get("id")
+            print(payload)
+            file_id = payload.get("data").get("id")
             if not file_id:
                 raise ValueError("Missing 'id' in message")
 
@@ -68,22 +69,29 @@ class NatsHandler:
             )
 
             await self.nats_client.publish("analyse.result", response)
-            logger.warning(f"Replied with failed status for analysis of {file_id}: {str(e)}")
+            logger.warning(
+                f"Replied with failed status for analysis of {file_id}: {str(e)}"
+            )
 
         except Exception as e:
             logger.error(f"Analyse error: {e}", exc_info=True)
 
-    async def handle_average_request(self, msg, payload):
+    async def handle_average_request(self, _, payload):
         try:
-            analyses = payload.get("analyses")
-            analyses = json.loads(analyses)
-            if not analyses or not isinstance(analyses, list):
-                raise ValueError("Invalid or missing 'analyses' in message")
+            analysis = payload["data"]["analysis"]
+            user_id = payload["data"]["id"]
+            sha = payload["data"]["analysis_sha"]
+            if isinstance(analysis, str):
+                analysis = json.loads(analysis)
+            if not analysis or not isinstance(analysis, list):
+                raise ValueError("Invalid or missing 'analysis' in message")
 
-            average = await self.data_average_async(analyses)
+            average = await self.data_average_async(analysis)
 
             response = json.dumps(
                 {
+                    "id": user_id,
+                    "analysis_sha": sha,
                     "status": "Success",
                     "message": "Average calculated successfully.",
                     "average": average,
@@ -112,7 +120,7 @@ class NatsHandler:
         dataAnalyser = await loop.run_in_executor(self.executor, DataAnalyser, file_id)
         return dataAnalyser.result
 
-    async def data_average_async(self, analyses):
+    async def data_average_async(self, analysis):
         loop = asyncio.get_event_loop()
-        dataAverage = await loop.run_in_executor(self.executor, DataAverage, analyses)
+        dataAverage = await loop.run_in_executor(self.executor, DataAverage, analysis)
         return dataAverage.result
