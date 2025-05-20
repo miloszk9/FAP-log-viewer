@@ -174,7 +174,8 @@ class DataAverage:
         }
 
     def _calculate_fap_regen(self):
-        if not self.analyses.get("fapRegen.duration"):
+        fap_regen_duration = self.analyses.get("fapRegen.duration")
+        if fap_regen_duration is None or fap_regen_duration.empty:
             return None
 
         return {
