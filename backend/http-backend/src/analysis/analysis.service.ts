@@ -86,4 +86,8 @@ export class AnalysisService {
       result: analysis.analysis,
     };
   }
+
+  async getAnalysisForUser(userId: string): Promise<FapAnalysis[]> {
+    return this.fapAnalysisService.findAllByUserId(userId);
+  }
 }

@@ -23,6 +23,8 @@ import { AnalysisService } from './analysis.service';
 import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
 import { AnalyseRequestDto } from './dto/analyse-request.dto';
 import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
+import { GetAllAnalysisResponseDto } from './dto/get-all-analysis-response.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @ApiTags('Analyse')
 @Controller('analyse')
@@ -68,5 +70,27 @@ export class AnalysisController {
       id,
       ...analysis,
     };
+  }
+
+  @Get()
+  @ApiOperation({ summary: 'Get all analysis results for a user' })
+  @ApiResponse({
+    status: 200,
+    description: 'Analysis found',
+    type: GetAllAnalysisResponseDto,
+  })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 404, description: 'Analysis not found' })
+  @UseGuards(JwtAuthGuard)
+  async getAnalysisForUser(
+    @Request() req: RequestWithUser,
+  ): Promise<GetAllAnalysisResponseDto[]> {
+    const analysis = await this.analysisService.getAnalysisForUser(
+      req.user?.id,
+    );
+    return analysis.map((analysis) => ({
+      id: analysis.id,
+      fileName: analysis.fileName,
+    }));
   }
 }
