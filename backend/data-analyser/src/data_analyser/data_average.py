@@ -62,45 +62,49 @@ class DataAverage:
 
     def _calculate_overall(self):
         return {
-            "distance": self._calculate("overall.distance", "sum", 2),
+            "distance_km": self._calculate("overall.distance_km", "sum", 2),
             "duration": {
-                "overall": self._calculate("overall.duration.overall", "sum"),
-                "engineOn": self._calculate("overall.duration.engineOn", "sum"),
-                "engineOff": self._calculate("overall.duration.engineOff", "sum"),
-                "idle": self._calculate("overall.duration.idle", "sum"),
-                "driving": self._calculate("overall.duration.driving", "sum"),
+                "overall_sec": self._calculate("overall.duration.overall_sec", "sum"),
+                "engineOn_sec": self._calculate("overall.duration.engineOn_sec", "sum"),
+                "engineOff_sec": self._calculate(
+                    "overall.duration.engineOff_sec", "sum"
+                ),
+                "idle_sec": self._calculate("overall.duration.idle_sec", "sum"),
+                "driving_sec": self._calculate("overall.duration.driving_sec", "sum"),
             },
         }
 
     def _calculate_driving(self):
         return {
             "acceleration": {
-                "max": self._calculate("driving.acceleration.max", "max", None),
-                "avg": self._weighted_average(
-                    "driving.acceleration.avg", "overall.duration.driving"
+                "max_perc": self._calculate(
+                    "driving.acceleration.max_perc", "max", None
+                ),
+                "avg_perc": self._weighted_average(
+                    "driving.acceleration.avg_perc", "overall.duration.driving_sec"
                 ),
             },
             "fuelConsumption": {
-                "total": self._calculate("driving.fuelConsumption.liters", "sum"),
-                "avg": self._weighted_average(
-                    "driving.fuelConsumption.per_100km", "overall.distance", 2
+                "total_l": self._calculate("driving.fuelConsumption.total_l", "sum"),
+                "avg_l100km": self._weighted_average(
+                    "driving.fuelConsumption.avg_l100km", "overall.distance_km", 2
                 ),
             },
             "revs": {
                 "min": self._calculate("driving.revs.min", "min"),
                 "max": self._calculate("driving.revs.max", "max"),
                 "avg": self._weighted_average(
-                    "driving.revs.avg", "overall.duration.driving"
+                    "driving.revs.avg", "overall.duration.driving_sec"
                 ),
                 "avgDriving": self._weighted_average(
-                    "driving.revs.avgDriving", "overall.duration.driving"
+                    "driving.revs.avgDriving", "overall.duration.driving_sec"
                 ),
             },
             "speed": {
-                "avg": self._weighted_average(
-                    "driving.speed.avg", "overall.duration.driving", 2
+                "avg_kmh": self._weighted_average(
+                    "driving.speed.avg_kmh", "overall.duration.driving_sec", 2
                 ),
-                "max": self._calculate("driving.speed.max", "max"),
+                "max_kmh": self._calculate("driving.speed.max_kmh", "max"),
             },
         }
 
@@ -108,44 +112,48 @@ class DataAverage:
         return {
             "battery": {
                 "beforeDrive": {
-                    "avg": self._calculate("engine.battery.beforeDrive.avg", "mean", 2)
+                    "avg_v": self._calculate(
+                        "engine.battery.beforeDrive.avg_v", "mean", 2
+                    ),
                 },
                 "engineRunning": {
-                    "avg": self._weighted_average(
-                        "engine.battery.engineRunning.avg",
-                        "overall.duration.engineOn",
+                    "avg_v": self._weighted_average(
+                        "engine.battery.engineRunning.avg_v",
+                        "overall.duration.engineOn_sec",
                         2,
-                    )
+                    ),
                 },
             },
             "coolantTemp": {
-                "min": self._calculate("engine.coolantTemp.min", "min"),
-                "max": self._calculate("engine.coolantTemp.max", "max"),
-                "avg": self._weighted_average(
-                    "engine.coolantTemp.avg", "overall.duration.engineOn", 2
+                "min_c": self._calculate("engine.coolantTemp.min_c", "min"),
+                "max_c": self._calculate("engine.coolantTemp.max_c", "max"),
+                "avg_c": self._weighted_average(
+                    "engine.coolantTemp.avg_c", "overall.duration.engineOn_sec", 2
                 ),
             },
             "engineWarmup": {
-                "coolant": self._calculate("engine.engineWarmup.coolant", "mean", 2),
-                "oil": self._calculate("engine.engineWarmup.oil", "mean", 2),
+                "coolant_sec": self._calculate(
+                    "engine.engineWarmup.coolant_sec", "mean", 2
+                ),
+                "oil_sec": self._calculate("engine.engineWarmup.oil_sec", "mean", 2),
             },
             "errors": {
                 "min": self._calculate("engine.errors", "min"),
                 "max": self._calculate("engine.errors", "max"),
             },
             "oilCarbonate": {
-                "min": self._calculate("engine.oilCarbonate", "min"),
-                "max": self._calculate("engine.oilCarbonate", "max"),
+                "min_perc": self._calculate("engine.oilCarbonate_perc", "min"),
+                "max_perc": self._calculate("engine.oilCarbonate_perc", "max"),
             },
             "oilDilution": {
-                "min": self._calculate("engine.oilDilution", "min"),
-                "max": self._calculate("engine.oilDilution", "max"),
+                "min_perc": self._calculate("engine.oilDilution_perc", "min"),
+                "max_perc": self._calculate("engine.oilDilution_perc", "max"),
             },
             "oilTemp": {
-                "min": self._calculate("engine.oilTemp.min", "min"),
-                "max": self._calculate("engine.oilTemp.max", "max"),
-                "avg": self._weighted_average(
-                    "engine.oilTemp.avg", "overall.duration.engineOn", 2
+                "min_c": self._calculate("engine.oilTemp.min_c", "min"),
+                "max_c": self._calculate("engine.oilTemp.max_c", "max"),
+                "avg_c": self._weighted_average(
+                    "engine.oilTemp.avg_c", "overall.duration.engineOn_sec", 2
                 ),
             },
         }
@@ -153,73 +161,77 @@ class DataAverage:
     def _calculate_fap(self):
         return {
             "pressure": {
-                "min": self._calculate("fap.pressure.min", "min"),
-                "max": self._calculate("fap.pressure.max", "max"),
-                "avg": self._weighted_average(
-                    "fap.pressure.avg", "overall.duration.engineOn", 2
+                "min_mbar": self._calculate("fap.pressure.min_mbar", "min"),
+                "max_mbar": self._calculate("fap.pressure.max_mbar", "max"),
+                "avg_mbar": self._weighted_average(
+                    "fap.pressure.avg_mbar", "overall.duration.engineOn_sec", 2
                 ),
             },
             "pressure_idle": {
-                "avg": self._weighted_average(
-                    "fap.pressure_idle.avg", "overall.duration.idle", 2
+                "avg_mbar": self._weighted_average(
+                    "fap.pressure_idle.avg_mbar", "overall.duration.idle_sec", 2
                 ),
             },
             "temp": {
-                "min": self._calculate("fap.temp.min", "min"),
-                "max": self._calculate("fap.temp.max", "max"),
-                "avg": self._weighted_average(
-                    "fap.temp.avg", "overall.duration.engineOn", 2
+                "min_c": self._calculate("fap.temp.min_c", "min"),
+                "max_c": self._calculate("fap.temp.max_c", "max"),
+                "avg_c": self._weighted_average(
+                    "fap.temp.avg_c", "overall.duration.engineOn_sec", 2
                 ),
             },
         }
 
     def _calculate_fap_regen(self):
-        fap_regen_duration = self.analyses.get("fapRegen.duration")
+        fap_regen_duration = self.analyses.get("fapRegen.duration_sec")
         if fap_regen_duration is None or fap_regen_duration.empty:
             return None
 
         return {
-            "previousRegen": self._calculate("fapRegen.previousRegen", "mean", 2),
-            "duration": self._calculate("fapRegen.duration", "mean", 2),
-            "distance": self._weighted_average(
-                "fapRegen.distance", "fapRegen.duration", 2
+            "previousRegen_km": self._calculate("fapRegen.previousRegen_km", "mean", 2),
+            "duration_sec": self._calculate("fapRegen.duration_sec", "mean", 2),
+            "distance_km": self._weighted_average(
+                "fapRegen.distance_km", "fapRegen.duration_sec", 2
             ),
             "speed": {
-                "min": self._calculate("fapRegen.speed.min", "min"),
-                "max": self._calculate("fapRegen.speed.max", "max"),
-                "avg": self._weighted_average(
-                    "fapRegen.speed.avg", "fapRegen.duration", 2
+                "min_kmh": self._calculate("fapRegen.speed.min_kmh", "min"),
+                "max_kmh": self._calculate("fapRegen.speed.max_kmh", "max"),
+                "avg_kmh": self._weighted_average(
+                    "fapRegen.speed.avg_kmh", "fapRegen.duration_sec", 2
                 ),
             },
             "fapTemp": {
-                "min": self._calculate("fapRegen.fapTemp.min", "min"),
-                "max": self._calculate("fapRegen.fapTemp.max", "max"),
-                "avg": self._weighted_average(
-                    "fapRegen.fapTemp.avg", "fapRegen.duration", 2
+                "min_c": self._calculate("fapRegen.fapTemp.min_c", "min"),
+                "max_c": self._calculate("fapRegen.fapTemp.max_c", "max"),
+                "avg_c": self._weighted_average(
+                    "fapRegen.fapTemp.avg_c", "fapRegen.duration_sec", 2
                 ),
             },
             "fapPressure": {
-                "min": self._calculate("fapRegen.fapPressure.min", "min"),
-                "max": self._calculate("fapRegen.fapPressure.max", "max"),
-                "avg": self._weighted_average(
-                    "fapRegen.fapPressure.avg", "fapRegen.duration", 2
+                "min_mbar": self._calculate("fapRegen.fapPressure.min_mbar", "min"),
+                "max_mbar": self._calculate("fapRegen.fapPressure.max_mbar", "max"),
+                "avg_mbar": self._weighted_average(
+                    "fapRegen.fapPressure.avg_mbar", "fapRegen.duration_sec", 2
                 ),
             },
             "revs": {
                 "min": self._calculate("fapRegen.revs.min", "min"),
                 "max": self._calculate("fapRegen.revs.max", "max"),
-                "avg": self._weighted_average("fapRegen.revs.avg", "fapRegen.duration"),
+                "avg": self._weighted_average(
+                    "fapRegen.revs.avg", "fapRegen.duration_sec"
+                ),
             },
             "fapSoot": {
-                "start": self._calculate("fapRegen.fapSoot.start", "mean", 2),
-                "end": self._calculate("fapRegen.fapSoot.end", "mean", 2),
+                "start_gl": self._calculate("fapRegen.fapSoot.start_gl", "mean", 2),
+                "end_gl": self._calculate("fapRegen.fapSoot.end_gl", "mean", 2),
             },
             "fuelConsumption": {
-                "regen": self._weighted_average(
-                    "fapRegen.fuelConsumption.regen", "fapRegen.duration", 2
+                "regen_l100km": self._weighted_average(
+                    "fapRegen.fuelConsumption.regen_l100km", "fapRegen.duration_sec", 2
                 ),
-                "non-regen": self._weighted_average(
-                    "fapRegen.fuelConsumption.non-regen", "fapRegen.duration", 2
+                "nonRegen_l100km": self._weighted_average(
+                    "fapRegen.fuelConsumption.nonRegen_l100km",
+                    "fapRegen.duration_sec",
+                    2,
                 ),
             },
         }
