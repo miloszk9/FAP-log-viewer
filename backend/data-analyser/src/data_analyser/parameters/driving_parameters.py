@@ -25,7 +25,7 @@ class DrivingParameters:
             "AccelPedalPos" not in self.csv.columns
             or self.csv["AccelPedalPos"].dropna().empty
         ):
-            return {"max": None, "avg": None}
+            return {"max_perc": None, "avg_perc": None}
 
         accel = self.csv["AccelPedalPos"].dropna()
         non_zero_accel = accel[accel > 0]
@@ -34,8 +34,8 @@ class DrivingParameters:
         avg_accel = non_zero_accel.mean() if not non_zero_accel.empty else None
 
         return {
-            "max": float(round(max_accel, 2)) if max_accel is not None else None,
-            "avg": float(round(avg_accel, 2)) if avg_accel is not None else None,
+            "max_perc": float(round(max_accel, 2)) if max_accel is not None else None,
+            "avg_perc": float(round(avg_accel, 2)) if avg_accel is not None else None,
         }
 
     def _calculate_fuel(self):
@@ -72,8 +72,8 @@ class DrivingParameters:
             total_fuel_per_distance = (total_fuel / total_distance) * 100
 
         return {
-            "liters": float(round(total_fuel, 2)) if total_fuel else None,
-            "per_100km": float(round(total_fuel_per_distance, 2))
+            "total_l": float(round(total_fuel, 2)) if total_fuel else None,
+            "avg_l100km": float(round(total_fuel_per_distance, 2))
             if total_fuel_per_distance
             else None,
         }
@@ -102,13 +102,13 @@ class DrivingParameters:
     def _calculate_speed(self):
         """Calculate average, max and min speed."""
         if "Speed" not in self.csv.columns or self.csv["Speed"].dropna().empty:
-            return {"avg": None, "max": None, "min": None}
+            return {"avg_kmh": None, "max_kmh": None, "min_kmh": None}
 
         speed = self.csv["Speed"].dropna()
         return {
-            "avg": float(round(speed.mean(), 2)),
-            "max": float(round(speed.max(), 2)),
-            "min": float(round(speed.min(), 2)),
+            "avg_kmh": float(round(speed.mean(), 2)),
+            "max_kmh": float(round(speed.max(), 2)),
+            "min_kmh": float(round(speed.min(), 2)),
         }
 
 

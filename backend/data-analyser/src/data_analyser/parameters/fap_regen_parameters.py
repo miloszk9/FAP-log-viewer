@@ -12,9 +12,9 @@ class FapRegenParameters:
 
         self.csv_regen = self.csv[self.csv["REGEN"] == 1]
         self.result = {
-            "previousRegen": self._calculate_previous_regen(),
-            "duration": self._calculate_duration_sec(),
-            "distance": self._calculate_distance(),
+            "previousRegen_km": self._calculate_previous_regen(),
+            "duration_sec": self._calculate_duration_sec(),
+            "distance_km": self._calculate_distance(),
             "speed": self._calculate_speed(),
             "fapTemp": self._calculate_fap_temp(),
             "fapPressure": self._calculate_fap_pressure(),
@@ -97,9 +97,9 @@ class FapRegenParameters:
 
         speed = self.csv_regen["Speed"].dropna()
         return {
-            "min": float(round(speed.min(), 2)),
-            "max": float(round(speed.max(), 2)),
-            "avg": float(round(speed.mean(), 2)),
+            "min_kmh": float(round(speed.min(), 2)),
+            "max_kmh": float(round(speed.max(), 2)),
+            "avg_kmh": float(round(speed.mean(), 2)),
         }
 
     def _calculate_fap_temp(self):
@@ -112,9 +112,9 @@ class FapRegenParameters:
 
         temp = self.csv_regen["FAPtemp"].dropna()
         return {
-            "min": float(round(temp.min(), 2)),
-            "max": float(round(temp.max(), 2)),
-            "avg": float(round(temp.mean(), 2)),
+            "min_c": float(round(temp.min(), 2)),
+            "max_c": float(round(temp.max(), 2)),
+            "avg_c": float(round(temp.mean(), 2)),
         }
 
     def _calculate_fap_pressure(self):
@@ -132,9 +132,9 @@ class FapRegenParameters:
         if pressure.empty:
             return None
         return {
-            "min": float(round(pressure.min(), 2)),
-            "max": float(round(pressure.max(), 2)),
-            "avg": float(round(pressure.mean(), 2)),
+            "min_mbar": float(round(pressure.min(), 2)),
+            "max_mbar": float(round(pressure.max(), 2)),
+            "avg_mbar": float(round(pressure.mean(), 2)),
         }
 
     def _calculate_revs(self):
@@ -163,15 +163,15 @@ class FapRegenParameters:
         start = soot_series.iloc[0]
         end = soot_series.iloc[-1]
         return {
-            "start": float(round(start, 2)),
-            "end": float(round(end, 2)),
-            "diff": float(round(end - start, 2)),
+            "start_gl": float(round(start, 2)),
+            "end_gl": float(round(end, 2)),
+            "diff_gl": float(round(end - start, 2)),
         }
 
     def _calculate_fuel(self):
         required_cols = {"InjFlow", "Revs", "Speed", "REGEN"}
         if not required_cols.issubset(self.csv.columns):
-            return {"regen": None, "non-regen": None}
+            return {"regen_l100km": None, "nonRegen_l100km": None}
 
         diesel_density = 0.8375
         cylinders = 4
@@ -200,16 +200,16 @@ class FapRegenParameters:
             ].dropna()
 
             return {
-                "regen": float(round(regen_on.mean(), 2))
+                "regen_l100km": float(round(regen_on.mean(), 2))
                 if not regen_on.empty
                 else None,
-                "non-regen": float(round(regen_off.mean(), 2))
+                "nonRegen_l100km": float(round(regen_off.mean(), 2))
                 if not regen_off.empty
                 else None,
             }
 
         except Exception:
-            return {"regen": None, "non-regen": None}
+            return {"regen_l100km": None, "nonRegen_l100km": None}
 
 
 if __name__ == "__main__":

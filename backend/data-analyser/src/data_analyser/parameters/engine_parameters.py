@@ -11,8 +11,8 @@ class EngineParameters:
             "coolantTemp": self._calculate_coolant_temp(),
             "engineWarmup": self._calculate_warmup_time(),
             "errors": self._calculate_errors(),
-            "oilCarbonate": self._calculate_oil_carbonate(),
-            "oilDilution": self._calculate_oil_dilution(),
+            "oilCarbonate_perc": self._calculate_oil_carbonate(),
+            "oilDilution_perc": self._calculate_oil_dilution(),
             "oilTemp": self._calculate_oil_temp(),
         }
 
@@ -24,24 +24,24 @@ class EngineParameters:
 
     def _calculate_coolant_temp(self):
         if "Coolant" not in self.csv.columns or self.csv["Coolant"].dropna().empty:
-            return {"min": None, "max": None, "avg": None}
+            return {"min_c": None, "max_c": None, "avg_c": None}
 
         values = self.csv["Coolant"].dropna()
         return {
-            "min": round(values.min()),
-            "max": round(values.max()),
-            "avg": round(values.mean()),
+            "min_c": round(values.min()),
+            "max_c": round(values.max()),
+            "avg_c": round(values.mean()),
         }
 
     def _calculate_oil_temp(self):
         if "OilTemp" not in self.csv.columns or self.csv["OilTemp"].dropna().empty:
-            return {"min": None, "max": None, "avg": None}
+            return {"min_c": None, "max_c": None, "avg_c": None}
 
         values = self.csv["OilTemp"].dropna()
         return {
-            "min": round(values.min()),
-            "max": round(values.max()),
-            "avg": round(values.mean()),
+            "min_c": round(values.min()),
+            "max_c": round(values.max()),
+            "avg_c": round(values.mean()),
         }
 
     def _calculate_oil_dilution(self):
@@ -59,8 +59,8 @@ class EngineParameters:
 
     def _calculate_battery(self):
         result = {
-            "beforeDrive": {"min": None, "max": None, "avg": None},
-            "engineRunning": {"min": None, "max": None, "avg": None},
+            "beforeDrive": {"min_v": None, "max_v": None, "avg_v": None},
+            "engineRunning": {"min_v": None, "max_v": None, "avg_v": None},
         }
 
         if "Revs" not in self.csv.columns or "Battery" not in self.csv.columns:
@@ -78,13 +78,13 @@ class EngineParameters:
             # Engine never started, all data is before drive
             before_drive = battery[revs == 0].dropna()
             result["beforeDrive"] = {
-                "min": float(round(before_drive.min(), 2))
+                "min_v": float(round(before_drive.min(), 2))
                 if not before_drive.empty
                 else None,
-                "max": float(round(before_drive.max(), 2))
+                "max_v": float(round(before_drive.max(), 2))
                 if not before_drive.empty
                 else None,
-                "avg": float(round(before_drive.mean(), 2))
+                "avg_v": float(round(before_drive.mean(), 2))
                 if not before_drive.empty
                 else None,
             }
@@ -100,25 +100,25 @@ class EngineParameters:
         engine_running = self.csv[self.csv["Revs"] > 0]["Battery"].dropna()
 
         result["beforeDrive"] = {
-            "min": float(round(before_drive.min(), 2))
+            "min_v": float(round(before_drive.min(), 2))
             if not before_drive.empty
             else None,
-            "max": float(round(before_drive.max(), 2))
+            "max_v": float(round(before_drive.max(), 2))
             if not before_drive.empty
             else None,
-            "avg": float(round(before_drive.mean(), 2))
+            "avg_v": float(round(before_drive.mean(), 2))
             if not before_drive.empty
             else None,
         }
 
         result["engineRunning"] = {
-            "min": float(round(engine_running.min(), 2))
+            "min_v": float(round(engine_running.min(), 2))
             if not engine_running.empty
             else None,
-            "max": float(round(engine_running.max(), 2))
+            "max_v": float(round(engine_running.max(), 2))
             if not engine_running.empty
             else None,
-            "avg": float(round(engine_running.mean(), 2))
+            "avg_v": float(round(engine_running.mean(), 2))
             if not engine_running.empty
             else None,
         }
@@ -128,11 +128,11 @@ class EngineParameters:
     def _calculate_warmup_time(self):
         required_cols = {"Datetime", "Coolant", "OilTemp"}
         if not required_cols.issubset(self.csv.columns):
-            return {"coolant": None, "oil": None}
+            return {"coolant_sec": None, "oil_sec": None}
 
         csv_valid = self.csv.dropna(subset=list(required_cols))
         if csv_valid.empty:
-            return {"coolant": None, "oil": None}
+            return {"coolant_sec": None, "oil_sec": None}
 
         initial_state = (
             csv_valid[(csv_valid["Coolant"] < 50) | (csv_valid["OilTemp"] < 50)]
@@ -141,7 +141,7 @@ class EngineParameters:
         )
 
         if initial_state.empty:
-            return {"coolant": None, "oil": None}
+            return {"coolant_sec": None, "oil_sec": None}
 
         start_time = initial_state["Datetime"].iloc[0]
         after_start = csv_valid[csv_valid["Datetime"] >= start_time]
@@ -161,10 +161,8 @@ class EngineParameters:
         )
 
         return {
-            "coolant": round(coolant_warmup_duration / 60, 2)
-            if coolant_warmup_duration
-            else None,
-            "oil": round(oil_warmup_duration / 60, 2) if oil_warmup_duration else None,
+            "coolant_sec": coolant_warmup_duration if coolant_warmup_duration else None,
+            "oil_sec": oil_warmup_duration if oil_warmup_duration else None,
         }
 
     def _calculate_errors(self):

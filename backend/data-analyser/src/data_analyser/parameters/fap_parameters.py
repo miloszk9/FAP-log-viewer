@@ -9,8 +9,8 @@ class FapParameters:
         self.result = {
             "additive": self._calculate_additive(),
             "deposits": self._calculate_deposits(),
-            "lastRegen": self._calculate_last_regen(),
-            "lastRegen10": self._calculate_last_regen_10(),
+            "lastRegen_km": self._calculate_last_regen(),
+            "last10Regen_km": self._calculate_last_regen_10(),
             "life": self._calculate_life(),
             "pressure_idle": self._calculate_pressure_idle(),
             "pressure": self._calculate_pressure(),
@@ -39,8 +39,8 @@ class FapParameters:
             remain = float(round(self.csv["FAPAdditiveRemain"].mean(), 2))
 
         return {
-            "vol": vol,
-            "remain": remain,
+            "vol_ml": vol,
+            "remain_ml": remain,
         }
 
     def _calculate_deposits(self):
@@ -55,7 +55,7 @@ class FapParameters:
             weight_gram = float(round(self.csv["FAPcinder"].mean(), 2))
 
         return {
-            "percentage": percentage,
+            "percentage_perc": percentage,
             "weight_gram": weight_gram,
         }
 
@@ -95,8 +95,8 @@ class FapParameters:
             left_avg = int(round(left_avg))
 
         return {
-            "life_avg": life_avg,
-            "left_avg": left_avg,
+            "life_km": life_avg,
+            "left_km": left_avg,
         }
 
     def _calculate_pressure_idle(self):
@@ -106,49 +106,49 @@ class FapParameters:
         avg_pressure = idle_csv["FAPpressure"].mean()
 
         return {
-            "avg": float(round(avg_pressure, 1)),
-            "max": float(round(max_pressure, 1)),
-            "min": float(round(min_pressure, 1)),
+            "avg_mbar": float(round(avg_pressure, 1)),
+            "max_mbar": float(round(max_pressure, 1)),
+            "min_mbar": float(round(min_pressure, 1)),
         }
 
     def _calculate_pressure(self):
         return {
-            "min": float(round(self.csv["FAPpressure"].min(), 1)),
-            "max": float(round(self.csv["FAPpressure"].max(), 1)),
-            "avg": float(round(self.csv["FAPpressure"].mean(), 1)),
+            "min_mbar": float(round(self.csv["FAPpressure"].min(), 1)),
+            "max_mbar": float(round(self.csv["FAPpressure"].max(), 1)),
+            "avg_mbar": float(round(self.csv["FAPpressure"].mean(), 1)),
         }
 
     def _calculate_soot(self):
         if "FAPsoot" not in self.csv.columns:
-            return {"start": None, "end": None, "diff": None}
+            return {"start_gl": None, "end_gl": None, "diff_gl": None}
 
         soot_series = self.csv["FAPsoot"].dropna()
         if soot_series.empty:
-            return {"start": None, "end": None, "diff": None}
+            return {"start_gl": None, "end_gl": None, "diff_gl": None}
 
         start = soot_series.iloc[0]
         end = soot_series.iloc[-1]
         diff = float(round(end - start, 2))
 
         return {
-            "start": float(round(start, 2)),
-            "end": float(round(end, 2)),
-            "diff": diff,
+            "start_gl": float(round(start, 2)),
+            "end_gl": float(round(end, 2)),
+            "diff_gl": diff,
         }
 
     def _calculate_temp(self):
         if "FAPtemp" not in self.csv.columns or self.csv["FAPtemp"].dropna().empty:
             return {
-                "min": None,
-                "max": None,
-                "avg": None,
+                "min_c": None,
+                "max_c": None,
+                "avg_c": None,
             }
 
         temp_series = self.csv["FAPtemp"].dropna()
         return {
-            "min": int(round(temp_series.min())),
-            "max": int(round(temp_series.max())),
-            "avg": int(round(temp_series.mean())),
+            "min_c": int(round(temp_series.min())),
+            "max_c": int(round(temp_series.max())),
+            "avg_c": int(round(temp_series.mean())),
         }
 
 

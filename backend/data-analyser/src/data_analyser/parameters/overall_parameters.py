@@ -8,7 +8,7 @@ class OverallParameters:
     def __init__(self, csv):
         self.csv = csv
         self.result = {
-            "distance": self._calculate_distance(),
+            "distance_km": self._calculate_distance(),
             "duration": self._calculate_duration(),
             "externalTemp": self._calculate_temp(),
         }
@@ -42,28 +42,28 @@ class OverallParameters:
             "ExternalTemp" not in self.csv.columns
             or self.csv["ExternalTemp"].dropna().empty
         ):
-            return {"avg": None, "max": None, "min": None}
+            return {"avg_c": None, "max_c": None, "min_c": None}
 
         temp = self.csv["ExternalTemp"].dropna()
         return {
-            "avg": float(round(temp.mean(), 1)),
-            "max": float(round(temp.max(), 1)),
-            "min": float(round(temp.min(), 1)),
+            "avg_c": float(round(temp.mean(), 1)),
+            "max_c": float(round(temp.max(), 1)),
+            "min_c": float(round(temp.min(), 1)),
         }
 
     def _calculate_duration(self):
-        """ Calculate overall, engine off, engine on, idle, and driving time."""
+        """Calculate overall, engine off, engine on, idle, and driving time."""
         required_cols = {"Speed", "Revs", "Time_Diff", "Datetime"}
         if (
             not required_cols.issubset(self.csv.columns)
             or self.csv[list(required_cols)].dropna().empty
         ):
             return {
-                "overall": None,
-                "engineOff": None,
-                "engineOn": None,
-                "idle": None,
-                "driving": None,
+                "overall_sec": None,
+                "engineOff_sec": None,
+                "engineOn_sec": None,
+                "idle_sec": None,
+                "driving_sec": None,
             }
 
         self.csv["EngineOff_Time"] = (self.csv["Revs"] == 0) * self.csv["Time_Diff"]
@@ -80,11 +80,11 @@ class OverallParameters:
         overall_duration_sec = self.csv["Time_Diff"].sum(skipna=True)
 
         return {
-            "overall": int(overall_duration_sec),
-            "engineOff": int(engine_off_sec),
-            "engineOn": int(engine_on_sec),
-            "idle": int(idle_time_sec),
-            "driving": int(driving_time_sec),
+            "overall_sec": int(overall_duration_sec),
+            "engineOff_sec": int(engine_off_sec),
+            "engineOn_sec": int(engine_on_sec),
+            "idle_sec": int(idle_time_sec),
+            "driving_sec": int(driving_time_sec),
         }
 
 
