@@ -25,8 +25,8 @@
         </div>
       </div>
 
-      <template v-if="result">
-        <div v-for="(section, sectionKey) in result" :key="sectionKey" class="col-md-6 col-lg-4 mb-4">
+      <template v-if="sortedResult">
+        <div v-for="(section, sectionKey) in sortedResult" :key="sectionKey" class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100">
             <div class="card-header">
               <h5 class="card-title mb-0">{{ formatSectionTitle(sectionKey) }}</h5>
@@ -78,6 +78,31 @@ const props = defineProps<{
   message?: string
   result?: AnalysisResult
 }>()
+
+const sortedResult = computed(() => {
+  if (!props.result) return undefined
+
+  const sortObject = (obj: any): any => {
+    if (obj === null || typeof obj !== 'object') return obj
+
+    if (Array.isArray(obj)) {
+      return obj.map(item => sortObject(item))
+    }
+
+    return Object.entries(obj)
+      .filter(([_, value]) => value !== null)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .reduce((sorted: any, [key, value]) => {
+        const sortedValue = sortObject(value)
+        if (sortedValue !== null) {
+          sorted[key] = sortedValue
+        }
+        return sorted
+      }, {})
+  }
+
+  return sortObject(props.result)
+})
 
 const statusClass = computed(() => {
   if (!props.status) return ''
