@@ -4,6 +4,7 @@ export interface AnalysisItem {
 }
 
 export interface AnalysisData {
+  fileName: string
   id: string
   status: 'pending' | 'Success' | 'Error'
   message: string
