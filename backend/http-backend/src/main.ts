@@ -11,6 +11,12 @@ async function bootstrap() {
   const natsUrl =
     configService.get<string>('nats.url') || 'nats://localhost:4222';
 
+  // Enable CORS
+  app.enableCors({
+    origin: 'http://127.0.0.1:5173',
+    credentials: true,
+  });
+
   app.connectMicroservice({
     transport: Transport.NATS,
     options: {

@@ -1,7 +1,10 @@
 import {
   Controller,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Post,
   Request,
   UploadedFile,
@@ -17,14 +20,14 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from 'src/auth/guards/optional-jwt-auth.guard';
 import { RequestWithUser } from 'src/auth/interfaces/request.interface';
 import { AnalysisService } from './analysis.service';
 import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
 import { AnalyseRequestDto } from './dto/analyse-request.dto';
-import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 import { GetAllAnalysisResponseDto } from './dto/get-all-analysis-response.dto';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 
 @ApiTags('Analyse')
 @Controller('analyse')
@@ -33,7 +36,9 @@ export class AnalysisController {
   constructor(private readonly analysisService: AnalysisService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Upload a CSV file for analysis' })
+  @ApiOperation({
+    summary: 'Upload a CSV file or ZIP with CSV files for analysis',
+  })
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: AnalyseRequestDto })
   @ApiResponse({
@@ -44,11 +49,22 @@ export class AnalysisController {
   @UseGuards(OptionalJwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
   async analyseFile(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 20971520 }),
+          new FileTypeValidator({ fileType: '.(zip|csv)$' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
     @Request() req: RequestWithUser,
   ): Promise<AnalyseFileResponseDto> {
-    const id = await this.analysisService.saveFile(file, req.user?.id);
-    return { id };
+    const result = await this.analysisService.saveFile(file, req.user?.id);
+    if (Array.isArray(result)) {
+      return { ids: result };
+    }
+    return { ids: [result] };
   }
 
   @Get(':id')

@@ -1,8 +1,15 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
 import * as fs from 'fs/promises';
 import * as path from 'path';
+import * as AdmZip from 'adm-zip';
+import { Readable } from 'stream';
 import { FapAnalysis } from 'src/database/entities/fap-analysis.entity';
 import { FapAnalysisService } from 'src/database/services/fap-analysis.service';
 import { NatsService } from '../nats/nats.service';
@@ -23,7 +30,52 @@ export class AnalysisService {
     fs.mkdir(this.uploadDir, { recursive: true }).catch(() => {});
   }
 
-  async saveFile(file: Express.Multer.File, userId?: string): Promise<string> {
+  private async processZipFile(
+    file: Express.Multer.File,
+    userId?: string,
+  ): Promise<string[]> {
+    const zip = new AdmZip(Buffer.from(file.buffer));
+    const zipEntries = zip.getEntries();
+
+    // Check if all files are CSV
+    const nonCsvFiles = zipEntries.filter(
+      (entry) => !entry.entryName.toLowerCase().endsWith('.csv'),
+    );
+    if (nonCsvFiles.length > 0) {
+      throw new BadRequestException('ZIP file must contain only CSV files');
+    }
+
+    const analysisIds: string[] = [];
+
+    // Process each CSV file
+    for (const entry of zipEntries) {
+      if (entry.entryName.toLowerCase().endsWith('.csv')) {
+        const csvBuffer = entry.getData();
+        const csvFile: Express.Multer.File = {
+          buffer: csvBuffer,
+          originalname: entry.entryName,
+          fieldname: 'file',
+          encoding: '7bit',
+          mimetype: 'text/csv',
+          size: csvBuffer.length,
+          destination: '',
+          filename: '',
+          path: '',
+          stream: Readable.from(Buffer.from(csvBuffer)),
+        };
+
+        const id = await this.saveCsvFile(csvFile, userId);
+        analysisIds.push(id);
+      }
+    }
+
+    return analysisIds;
+  }
+
+  private async saveCsvFile(
+    file: Express.Multer.File,
+    userId?: string,
+  ): Promise<string> {
     const sha256 = createHash('sha256')
       .update(Buffer.from(file.buffer))
       .digest('hex');
@@ -56,6 +108,17 @@ export class AnalysisService {
     await this.natsService.sendAnalysisRequest({ id });
 
     return id;
+  }
+
+  async saveFile(
+    file: Express.Multer.File,
+    userId?: string,
+  ): Promise<string | string[]> {
+    if (file.originalname.toLowerCase().endsWith('.zip')) {
+      return this.processZipFile(file, userId);
+    } else {
+      return this.saveCsvFile(file, userId);
+    }
   }
 
   async getAnalysis(

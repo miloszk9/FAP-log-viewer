@@ -4,7 +4,7 @@ export class AnalyseRequestDto {
   @ApiProperty({
     type: 'string',
     format: 'binary',
-    description: 'CSV file to analyze',
+    description: 'CSV file or ZIP with CSV files',
   })
   file: Express.Multer.File;
 }
