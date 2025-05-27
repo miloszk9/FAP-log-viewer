@@ -3,11 +3,12 @@ import ApiService from './api.service'
 const AVERAGE_URL = '/average'
 
 export interface AverageData {
-  // Add your average data interface here based on backend response
-  // This is a placeholder - adjust according to your actual API response
-  average: number
+  average: {
+    [key: string]: any
+  }
   count: number
-  // ... other fields
+  status: string
+  message?: string
 }
 
 class AverageService extends ApiService {
