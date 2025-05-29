@@ -9,17 +9,17 @@ export interface AllAnalysisResponse {
 }
 
 class AnalyseService extends ApiService {
-  async uploadFile(file: File): Promise<{ id: string }> {
+  async uploadFile(file: File): Promise<{ ids: string[] }> {
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await this.post<{ id: string }>(ANALYSE_URL, formData, {
+    const response = await this.post<{ ids: string[] }>(ANALYSE_URL, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     })
 
-    if (!response.data.id) {
+    if (!response.data.ids) {
       throw new Error('No analysis ID received')
     }
 
