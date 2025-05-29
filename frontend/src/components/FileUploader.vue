@@ -10,12 +10,12 @@
         @drop.prevent="handleDrop"
       >
         <i class="bi bi-cloud-upload upload-icon"></i>
-        <h5 class="mb-3">Drag and drop your CSV file here</h5>
+        <h5 class="mb-3">Drag and drop your CSV or ZIP file here</h5>
         <p class="text-muted mb-3">or</p>
         <button class="btn btn-primary" @click="triggerFileInput">
           <i class="bi bi-file-earmark-arrow-up me-2"></i>Choose File
         </button>
-        <input type="file" ref="fileInput" accept=".csv" @change="handleFileSelect" class="d-none" />
+        <input type="file" ref="fileInput" accept=".csv,.zip" @change="handleFileSelect" class="d-none" />
       </div>
       <div class="alert" :class="statusClass" v-if="statusMessage" role="alert">
         {{ statusMessage }}
@@ -72,10 +72,11 @@ const handleFileSelect = (e: Event) => {
 const handleFiles = (files: FileList) => {
   if (files.length > 0) {
     const file = files[0]
-    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+    if (file.type === 'text/csv' || file.name.endsWith('.csv') || 
+        file.type === 'application/zip' || file.name.endsWith('.zip')) {
       uploadFile(file)
     } else {
-      showStatus('Please upload a CSV file', 'danger')
+      showStatus('Please upload a CSV or ZIP file', 'danger')
     }
   }
 }
@@ -84,9 +85,9 @@ const uploadFile = async (file: File) => {
   showStatus('Uploading file...', 'info')
 
   try {
-    const { id } = await analyseService.uploadFile(file)
+    const { ids } = await analyseService.uploadFile(file)
     showStatus('File uploaded successfully! Starting analysis...', 'success')
-    await pollAnalysis(id)
+    await pollAnalysis(ids[0])
   } catch (error) {
     showStatus(
       `Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`,
