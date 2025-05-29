@@ -21,9 +21,9 @@ export class NatsController {
       message: data.message,
       analysis: data.analysis,
     });
-    const userId = updatedAnalysis.user.id;
-    if (userId) {
-      await this.averageService.update(userId);
+    const user = updatedAnalysis.user;
+    if (user) {
+      await this.averageService.update(user.id);
     }
   }
 
