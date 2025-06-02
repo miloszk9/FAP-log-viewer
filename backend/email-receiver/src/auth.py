@@ -1,4 +1,6 @@
 import os.path
+
+from config import CREDENTIAL_JSON_PATH, TMP_TOKEN_PATH
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -18,9 +20,9 @@ def authenticate():
     """Authenticate user and return Gmail API service."""
     creds = None
     # Token stores user's access and refresh tokens
-    if os.path.exists("token.json"):
+    if os.path.exists(TMP_TOKEN_PATH):
         logger.info("Found existing token.json file")
-        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+        creds = Credentials.from_authorized_user_file(TMP_TOKEN_PATH, SCOPES)
 
     # If credentials are invalid or don't exist, log in again
     if not creds or not creds.valid:
@@ -29,11 +31,13 @@ def authenticate():
             creds.refresh(Request())
         else:
             logger.info("Starting new authentication flow")
-            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file(
+                CREDENTIAL_JSON_PATH, SCOPES
+            )
             creds = flow.run_local_server(port=0)
 
         # Save the credentials for future runs
-        with open("token.json", "w") as token:
+        with open(TMP_TOKEN_PATH, "w") as token:
             token.write(creds.to_json())
             logger.info("Successfully saved new credentials to token.json")
 
