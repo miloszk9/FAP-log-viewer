@@ -1,6 +1,17 @@
 version: "3"
 
 services:
+  data-analyser:
+    build:
+      context: ./backend/data-analyser
+      dockerfile: Dockerfile
+    volumes:
+      - /tmp/uploads:/data/uploads:ro,z
+    depends_on:
+      - nats
+    networks:
+      - fap-network
+
   nats:
     image: nats:latest
     ports:
