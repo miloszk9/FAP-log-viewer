@@ -1,0 +1,15 @@
+graph LR
+    Frontend[Frontend App] -->|HTTP| HttpBackend[HTTP Backend]
+    HttpBackend ---|HTTP| EmailReceiver[Email Receiver]
+    HttpBackend <-->|NATS| Nats[NATS]
+    HttpBackend -->|PostgreSQL| Postgres[PostgreSQL]
+    Nats <-->|NATS| DataAnalyser[Data Analyser]
+    EmailReceiver -->|API| GmailAPI((Gmail API))
+
+    style Frontend fill:#f9f,stroke:#333,stroke-width:2px
+    style HttpBackend fill:#bbf,stroke:#333,stroke-width:2px
+    style Nats fill:#bfb,stroke:#333,stroke-width:2px
+    style Postgres fill:#fbb,stroke:#333,stroke-width:2px
+    style DataAnalyser fill:#fbf,stroke:#333,stroke-width:2px
+    style EmailReceiver fill:#bff,stroke:#333,stroke-width:2px
+    style GmailAPI fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5
