@@ -1,14 +1,12 @@
 import axios from 'axios'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 
-const BASE_URL = 'http://localhost:3000'
-
 class ApiService {
   protected api: AxiosInstance
 
   constructor() {
     this.api = axios.create({
-      baseURL: BASE_URL,
+      baseURL: '/api',
     })
 
     // Add request interceptor to add auth header

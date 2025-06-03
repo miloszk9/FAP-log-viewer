@@ -10,7 +10,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 // Configure axios defaults
-axios.defaults.baseURL = 'http://localhost:3000'
+axios.defaults.baseURL = '/api'
+
 axios.interceptors.request.use((config) => {
   const token = localStorage.getItem('accessToken')
   if (token) {
