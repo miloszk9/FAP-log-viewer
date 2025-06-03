@@ -366,10 +366,11 @@ Example:
 
 ```json
 {
-  "id": "File_id",
+  "id": "490234c9-9b67-46b2-9141-98b2d9d177d1",
+  "fileName": "DCM62v2_20250328.csv",
   "status": "Success",
   "message": "Analysis completed successfully.",
-  "analysis": {}
+  "result": {}
 }
 ```
 

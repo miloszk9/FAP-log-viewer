@@ -103,9 +103,9 @@ const pollAnalysis = async (id: string, retryCount = 0): Promise<void> => {
   try {
     const data = await analyseService.getAnalysis(id)
 
-    if (data.status === 'Success' && data.analysis) {
+    if (data.status === 'Success' && data.result) {
       showStatus('Analysis completed successfully!', 'success')
-      emit('analysis-complete', data.analysis)
+      emit('analysis-complete', data)
     } else if (data.status === 'pending' && retryCount < maxRetries) {
       showStatus(`Analysis in progress... (Attempt ${retryCount + 1}/${maxRetries})`, 'info')
       setTimeout(() => pollAnalysis(id, retryCount + 1), retryDelay)

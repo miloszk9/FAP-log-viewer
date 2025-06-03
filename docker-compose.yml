@@ -56,18 +56,12 @@ services:
     networks:
       - fap-network
 
-  frontend-server:
+  frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    environment:
-      - BACKEND_URL=http://http-backend:3000
     ports:
-      - "8080:8080"
-    volumes:
-      - ./frontend/src:/app/src
-    depends_on:
-      - http-backend
+      - "8080:80"
     networks:
       - fap-network
 

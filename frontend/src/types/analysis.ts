@@ -8,5 +8,5 @@ export interface AnalysisData {
   id: string
   status: 'pending' | 'Success' | 'Error'
   message: string
-  result?: {}
+  result?: Record<string, any>
 }
