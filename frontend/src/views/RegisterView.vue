@@ -55,7 +55,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from 'axios'
+import authService from '@/services/auth.service'
 
 const router = useRouter()
 const email = ref('')
@@ -69,7 +69,7 @@ const handleRegister = async () => {
   }
 
   try {
-    await axios.post('http://localhost:3000/auth/register', {
+    await authService.register({
       email: email.value,
       password: password.value,
     })

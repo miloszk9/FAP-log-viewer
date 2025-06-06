@@ -30,8 +30,8 @@ class AuthService extends ApiService {
     return response.data
   }
 
-  async register(email: string, password: string): Promise<void> {
-    await this.post(`${AUTH_URL}/register`, { email, password })
+  async register(data: RegisterData) {
+    return this.post('/auth/register', data)
   }
 
   async logout(): Promise<void> {
