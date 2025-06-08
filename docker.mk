@@ -3,7 +3,6 @@
 
 # Docker configuration
 DOCKER_IMAGE_NAME ?= $(error DOCKER_IMAGE_NAME must be set)
-DOCKER_REGISTRY_LOCAL ?= localhost:5000
 
 # Build and push Docker image to remote registry
 # Usage: make docker-push tag=TAG
@@ -22,4 +21,3 @@ docker-local:
 		exit 1; \
 	fi
 	docker build -t $(DOCKER_IMAGE_NAME):$(tag) .
-	docker push $(DOCKER_REGISTRY_LOCAL)/$(DOCKER_IMAGE_NAME):$(tag) 
