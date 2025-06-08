@@ -1,8 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from '../database/services/user.service';
+import { JwtService } from '@nestjs/jwt';
 import { User } from '../database/entities/user.entity';
+import { UserService } from '../database/services/user.service';
 import { AuthResponseDto, RefreshResponseDto } from './dto/auth.dto';
 
 @Injectable()
