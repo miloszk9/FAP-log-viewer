@@ -1,4 +1,4 @@
-.PHONY: migration-generate migration-run migration-revert db-up db-down docker-prod docker-local
+.PHONY: migration-generate migration-run migration-revert db-up db-down docker-prod docker-local docker-k3d
 
 # Docker configuration
 DOCKER_IMAGE_NAME = mylosz/fap-log-viewer-backend
@@ -49,16 +49,3 @@ migration-create: db-up
 	fi
 	npm run migration:create src/database/migrations/sql/$(name)
 	@make db-down
-
-# Show help
-help:
-	@echo "Available commands:"
-	@echo "  make db-up                    - Start the database container"
-	@echo "  make db-down                  - Stop the database container"
-	@echo "  make migration-generate name=NAME  - Generate a new migration"
-	@echo "  make migration-run            - Run all pending migrations"
-	@echo "  make migration-revert         - Revert the last migration"
-	@echo "  make migration-create name=NAME   - Create a new empty migration"
-	@echo "  make docker-prod tag=TAG      - Build and push Docker image to remote registry"
-	@echo "  make docker-local tag=TAG      - Build and push Docker image to local registry"
-	@echo "  make help                     - Show this help message" 
