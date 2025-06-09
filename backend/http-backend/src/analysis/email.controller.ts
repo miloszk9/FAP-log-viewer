@@ -48,7 +48,7 @@ export class EmailController {
       new ParseFilePipe({
         validators: [
           new MaxFileSizeValidator({ maxSize: 20971520 }),
-          new FileTypeValidator({ fileType: '.(zip|csv)$' }),
+          // new FileTypeValidator({ fileType: '.(zip|csv)' }),
         ],
       }),
     )
