@@ -1,7 +1,9 @@
 import time
-from auth import authenticate
-from email_handler import check_unread_emails, get_message_data, mark_as_read
+
 from attachment_processor import process_attachments
+from auth import authenticate
+from config import ENV
+from email_handler import check_unread_emails, get_message_data, mark_as_read
 from logger_setup import setup_logger
 
 # Set up logger with file output
@@ -20,7 +22,8 @@ def main():
             if msg_data:
                 try:
                     process_attachments(msg_data, service)
-                    mark_as_read(service, msg["id"])
+                    if ENV == "production":
+                        mark_as_read(service, msg["id"])
                 except Exception as e:
                     logger.error(
                         f"Error processing message {msg['id']}: {e}", exc_info=True
