@@ -36,7 +36,7 @@ def send_file_to_endpoint(filename, file_data, email):
             f"Sending POST request with {filename} from {email}",
         )
 
-        response = requests.post(f"{BACKEND_URL}/email", files=files, data=data)
+        response = requests.post(f"{BACKEND_URL}/api/email", files=files, data=data)
 
         if response.status_code == 201:
             logger.info(f"Successfully processed {filename} from {email}")
