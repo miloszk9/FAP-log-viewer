@@ -60,4 +60,8 @@ import { RouterView } from 'vue-router'
     display: block;
   }
 }
+
+.sidebar {
+  position: fixed;
+}
 </style>

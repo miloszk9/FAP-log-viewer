@@ -1,10 +1,7 @@
 <template>
   <div class="sidebar border border-right col-md-3 col-lg-2 p-0 bg-body-tertiary d-none d-md-block">
     <div class="position-sticky h-100">
-      <div class="d-flex flex-column h-100">
-        <div class="p-3">
-          <h5>FAP log viewer</h5>
-        </div>
+      <div class="d-flex flex-column h-100 pt-5">
         <div class="flex-grow-1 overflow-y-auto">
           <SidebarContent :is-authenticated="isAuthenticated" :reports="sortedReports" @refresh="fetchReports" @logout="handleLogout" />
         </div>
