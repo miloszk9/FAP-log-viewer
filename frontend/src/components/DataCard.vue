@@ -33,7 +33,10 @@
             </div>
             <div class="card-body">
               <template v-for="(value, key) in section" :key="key">
-                <div v-if="value !== null" class="mb-2">
+                <div v-if="value !== null && (
+                  (typeof value === 'object' && Object.values(value).some(v => v !== null)) ||
+                  (typeof value !== 'object')
+                )" class="mb-2">
                   <template v-if="typeof value === 'object' && value !== null">
                     <h6 class="mb-2">{{ formatKey(key) }}</h6>
                     <template v-for="(subValue, subKey) in value" :key="subKey">
