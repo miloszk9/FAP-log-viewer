@@ -46,13 +46,13 @@ class FapParameters:
     def _calculate_deposits(self):
         percentage = None
         weight_gram = None
+        if "FAPcinder" in self.csv.columns and not self.csv["FAPcinder"].dropna().empty:
+            percentage = float(round(self.csv["FAPcinder"].mean(), 2))
         if (
             "FAPdeposits" in self.csv.columns
             and not self.csv["FAPdeposits"].dropna().empty
         ):
-            percentage = float(round(self.csv["FAPdeposits"].mean(), 2))
-        if "FAPcinder" in self.csv.columns and not self.csv["FAPcinder"].dropna().empty:
-            weight_gram = float(round(self.csv["FAPcinder"].mean(), 2))
+            weight_gram = float(round(self.csv["FAPdeposits"].mean(), 2))
 
         return {
             "percentage_perc": percentage,
@@ -85,14 +85,12 @@ class FapParameters:
         life_avg = None
         left_avg = None
         if "FAP life" in self.csv.columns and not self.csv["FAP life"].dropna().empty:
-            life_avg = self.csv["FAP life"].mean()
-            life_avg = int(round(life_avg))
+            life_avg = int(self.csv["FAP life"].median())
         if (
             "FAPlifeLeft" in self.csv.columns
             and not self.csv["FAPlifeLeft"].dropna().empty
         ):
-            left_avg = self.csv["FAPlifeLeft"].mean()
-            left_avg = int(round(left_avg))
+            left_avg = int(self.csv["FAPlifeLeft"].median())
 
         return {
             "life_km": life_avg,

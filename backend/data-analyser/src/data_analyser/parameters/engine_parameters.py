@@ -50,17 +50,17 @@ class EngineParameters:
             or self.csv["OilDilution"].dropna().empty
         ):
             return None
-        return round(self.csv["OilDilution"].mean())
+        return round(self.csv["OilDilution"].median())
 
     def _calculate_oil_carbonate(self):
         if "OilCarbon" not in self.csv.columns or self.csv["OilCarbon"].dropna().empty:
             return None
-        return round(self.csv["OilCarbon"].mean())
+        return round(self.csv["OilCarbon"].median())
 
     def _calculate_battery(self):
         result = {
-            "beforeDrive": {"min_v": None, "max_v": None, "avg_v": None},
-            "engineRunning": {"min_v": None, "max_v": None, "avg_v": None},
+            "beforeDrive_v": None,
+            "engineRunning_v": None,
         }
 
         if "Revs" not in self.csv.columns or "Battery" not in self.csv.columns:
@@ -77,17 +77,9 @@ class EngineParameters:
         if first_start_index is None:
             # Engine never started, all data is before drive
             before_drive = battery[revs == 0].dropna()
-            result["beforeDrive"] = {
-                "min_v": float(round(before_drive.min(), 2))
-                if not before_drive.empty
-                else None,
-                "max_v": float(round(before_drive.max(), 2))
-                if not before_drive.empty
-                else None,
-                "avg_v": float(round(before_drive.mean(), 2))
-                if not before_drive.empty
-                else None,
-            }
+            result["beforeDrive_v"] = (
+                float(round(before_drive.mean(), 2)) if not before_drive.empty else None
+            )
             return result
 
         if first_start_index != 0:
@@ -99,29 +91,13 @@ class EngineParameters:
 
         engine_running = self.csv[self.csv["Revs"] > 0]["Battery"].dropna()
 
-        result["beforeDrive"] = {
-            "min_v": float(round(before_drive.min(), 2))
-            if not before_drive.empty
-            else None,
-            "max_v": float(round(before_drive.max(), 2))
-            if not before_drive.empty
-            else None,
-            "avg_v": float(round(before_drive.mean(), 2))
-            if not before_drive.empty
-            else None,
-        }
+        result["beforeDrive_v"] = (
+            float(round(before_drive.mean(), 2)) if not before_drive.empty else None
+        )
 
-        result["engineRunning"] = {
-            "min_v": float(round(engine_running.min(), 2))
-            if not engine_running.empty
-            else None,
-            "max_v": float(round(engine_running.max(), 2))
-            if not engine_running.empty
-            else None,
-            "avg_v": float(round(engine_running.mean(), 2))
-            if not engine_running.empty
-            else None,
-        }
+        result["engineRunning_v"] = (
+            float(round(engine_running.mean(), 2)) if not engine_running.empty else None
+        )
 
         return result
 
@@ -168,7 +144,7 @@ class EngineParameters:
     def _calculate_errors(self):
         if "Errors" not in self.csv.columns or self.csv["Errors"].dropna().empty:
             return None
-        return int(self.csv["Errors"].max())
+        return int(self.csv["Errors"].median())
 
 
 if __name__ == "__main__":

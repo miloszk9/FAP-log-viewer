@@ -28,6 +28,8 @@ class DrivingParameters:
             return {"max_perc": None, "avg_perc": None}
 
         accel = self.csv["AccelPedalPos"].dropna()
+        # Filter out values not between 0 and 100
+        accel = accel[(accel >= 0) & (accel <= 100)]
         non_zero_accel = accel[accel > 0]
 
         max_accel = accel.max() if not accel.empty else None

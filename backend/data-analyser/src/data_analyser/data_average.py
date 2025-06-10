@@ -111,18 +111,14 @@ class DataAverage:
     def _calculate_engine(self):
         return {
             "battery": {
-                "beforeDrive": {
-                    "avg_v": self._calculate(
-                        "engine.battery.beforeDrive.avg_v", "mean", 2
-                    ),
-                },
-                "engineRunning": {
-                    "avg_v": self._weighted_average(
-                        "engine.battery.engineRunning.avg_v",
-                        "overall.duration.engineOn_sec",
-                        2,
-                    ),
-                },
+                "beforeDrive_v": self._calculate(
+                    "engine.battery.beforeDrive_v", "mean", 2
+                ),
+                "engineRunning_v": self._weighted_average(
+                    "engine.battery.engineRunning_v",
+                    "overall.duration.engineOn_sec",
+                    2,
+                ),
             },
             "coolantTemp": {
                 "min_c": self._calculate("engine.coolantTemp.min_c", "min"),
@@ -258,30 +254,30 @@ class DataAverage:
 
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
-    # export STORAGE_PATH=../data/ds4
+    # export STORAGE_PATH=../data/peugeot
     # Usage: python -m data_analyser.data_average
     from data_analyser.data_analyser import DataAnalyser
-    # import os
-    # from time import time
+    import os
+    from time import time
 
-    # data_dir = "../data/ds4/"
-    # csv_files = [
-    #     os.path.splitext(f)[0] for f in os.listdir(data_dir) if f.endswith(".csv")
-    # ]
-    # analysys = []
-    # for file_name in csv_files:
-    #     logger.info(f"Processing file: {file_name}")
-    #     analysys.append(DataAnalyser(file_name).result)
+    data_dir = "../data/peugeot/"
+    csv_files = [
+        os.path.splitext(f)[0] for f in os.listdir(data_dir) if f.endswith(".csv")
+    ]
+    analysys = []
+    for file_name in csv_files:
+        logger.info(f"Processing file: {file_name}")
+        analysys.append(DataAnalyser(file_name).result)
 
-    # start = time()
-    # dataAverage = DataAverage(analysys)
-    # end = time()
-    # logger.info(f"Average: {dataAverage.result}")
-    # logger.info(f"Processing time: {end - start} seconds")
-
-    fapLogAnalyse1 = DataAnalyser("HDI_SID807_BR2_20250326")
-    fapLogAnalyse2 = DataAnalyser("HDI_SID807_BR2_20250324")
-    print(fapLogAnalyse1)
-    print(fapLogAnalyse2)
-    dataAverage = DataAverage([fapLogAnalyse1.result, fapLogAnalyse2.result])
+    start = time()
+    dataAverage = DataAverage(analysys)
+    end = time()
     logger.info(f"Average: {dataAverage.result}")
+    logger.info(f"Processing time: {end - start} seconds")
+
+    # fapLogAnalyse1 = DataAnalyser("HDI_SID807_BR2_20250326")
+    # fapLogAnalyse2 = DataAnalyser("HDI_SID807_BR2_20250324")
+    # print(fapLogAnalyse1)
+    # print(fapLogAnalyse2)
+    # dataAverage = DataAverage([fapLogAnalyse1.result, fapLogAnalyse2.result])
+    # logger.info(f"Average: {dataAverage.result}")
