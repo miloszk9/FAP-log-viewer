@@ -2,37 +2,37 @@
   <div>
     <ul class="nav flex-column">
       <li class="nav-item" v-if="!isAuthenticated">
-        <router-link class="nav-link d-flex align-items-center gap-2" to="/login">
+        <router-link class="nav-link d-flex align-items-center gap-2" to="/login" @click="closeSidebar">
           <i class="bi bi-box-arrow-in-right"></i>
           Sign in
         </router-link>
       </li>
       <li class="nav-item" v-if="!isAuthenticated">
-        <router-link class="nav-link d-flex align-items-center gap-2" to="/register">
+        <router-link class="nav-link d-flex align-items-center gap-2" to="/register" @click="closeSidebar">
           <i class="bi bi-person-plus"></i>
           Register
         </router-link>
       </li>
       <li class="nav-item" v-if="isAuthenticated">
-        <router-link class="nav-link d-flex align-items-center gap-2" to="/summary">
+        <router-link class="nav-link d-flex align-items-center gap-2" to="/summary" @click="closeSidebar">
           <i class="bi bi-graph-up"></i>
           Summary
         </router-link>
       </li>
       <li class="nav-item" v-if="isAuthenticated">
-        <router-link class="nav-link d-flex align-items-center gap-2" to="/upload">
+        <router-link class="nav-link d-flex align-items-center gap-2" to="/upload" @click="closeSidebar">
           <i class="bi bi-file-earmark"></i>
           Upload log file
         </router-link>
       </li>
       <li class="nav-item" v-if="isAuthenticated">
-        <a class="nav-link d-flex align-items-center gap-2" href="#" @click.prevent="$emit('logout')">
+        <a class="nav-link d-flex align-items-center gap-2" href="#" @click.prevent="handleLogout">
           <i class="bi bi-door-closed"></i>
           Sign out
         </a>
       </li>
       <li class="nav-item" v-if="!isAuthenticated">
-        <router-link class="nav-link d-flex align-items-center gap-2" to="/upload">
+        <router-link class="nav-link d-flex align-items-center gap-2" to="/upload" @click="closeSidebar">
           <i class="bi bi-file-earmark"></i>
           Single log analysis
         </router-link>
@@ -47,7 +47,7 @@
       </h6>
       <ul class="nav flex-column mb-auto">
         <li class="nav-item" v-for="report in reports" :key="report.id">
-          <router-link class="nav-link d-flex align-items-center gap-2" :to="`/analyse/${report.id}`">
+          <router-link class="nav-link d-flex align-items-center gap-2" :to="`/analyse/${report.id}`" @click="closeSidebar">
             <i class="bi bi-file-earmark-text"></i>
             {{ report.fileName }}
           </router-link>
@@ -65,8 +65,21 @@ defineProps<{
   reports: AllAnalysisResponse[]
 }>()
 
-defineEmits<{
+const emit = defineEmits<{
   (e: 'refresh'): void
   (e: 'logout'): void
 }>()
+
+const closeSidebar = () => {
+  const closeButton = document.querySelector('[data-bs-dismiss="offcanvas"]')
+  if (closeButton instanceof HTMLElement) {
+    closeButton.click()
+  }
+}
+
+const handleLogout = () => {
+  closeSidebar()
+  emit('logout')
+}
+
 </script> 
