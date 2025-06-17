@@ -31,7 +31,12 @@
     "rememberMe": "Remember me",
     "email": "Email",
     "noAccount": "Don't have an account? Register",
-    "loginTitle": "Login"
+    "loginTitle": "Login",
+    "register": "Register",
+    "registerTitle": "Register",
+    "confirmPassword": "Confirm Password",
+    "haveAccount": "Already have an account? Login",
+    "passwordsDoNotMatch": "Passwords do not match"
   },
   "logs": {
     "viewLogs": "View Logs",

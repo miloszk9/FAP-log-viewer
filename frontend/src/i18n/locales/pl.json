@@ -31,7 +31,12 @@
     "rememberMe": "Zapamiętaj mnie",
     "email": "Email",
     "noAccount": "Nie masz konta? Zarejestruj się",
-    "loginTitle": "Logowanie"
+    "loginTitle": "Logowanie",
+    "register": "Zarejestruj się",
+    "registerTitle": "Rejestracja",
+    "confirmPassword": "Potwierdź hasło",
+    "haveAccount": "Masz już konto? Zaloguj się",
+    "passwordsDoNotMatch": "Hasła nie są zgodne"
   },
   "logs": {
     "viewLogs": "Zobacz logi",

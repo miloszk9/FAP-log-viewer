@@ -4,12 +4,12 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-header">
-            <h3 class="text-center">Register</h3>
+            <h3 class="text-center">{{ $t('auth.registerTitle') }}</h3>
           </div>
           <div class="card-body">
             <form @submit.prevent="handleRegister">
               <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">{{ $t('auth.email') }}</label>
                 <input
                   type="email"
                   class="form-control"
@@ -19,7 +19,7 @@
                 />
               </div>
               <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">{{ $t('auth.password') }}</label>
                 <input
                   type="password"
                   class="form-control"
@@ -29,7 +29,7 @@
                 />
               </div>
               <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <label for="confirmPassword" class="form-label">{{ $t('auth.confirmPassword') }}</label>
                 <input
                   type="password"
                   class="form-control"
@@ -39,9 +39,9 @@
                 />
               </div>
               <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Register</button>
+                <button type="submit" class="btn btn-primary">{{ $t('auth.register') }}</button>
                 <router-link to="/login" class="btn btn-link">
-                  Already have an account? Login
+                  {{ $t('auth.haveAccount') }}
                 </router-link>
               </div>
             </form>
@@ -55,16 +55,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import authService from '@/services/auth.service'
 
 const router = useRouter()
+const { t } = useI18n()
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
 
 const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match')
+    alert(t('auth.passwordsDoNotMatch'))
     return
   }
 
