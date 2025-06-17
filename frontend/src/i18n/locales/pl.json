@@ -1,0 +1,44 @@
+{
+  "common": {
+    "language": "Język",
+    "english": "Angielski",
+    "polish": "Polski"
+  },
+  "header": {
+    "title": "Przeglądarka Logów FAP",
+    "search": "Szukaj",
+    "searchPlaceholder": "Szukaj w logach..."
+  },
+  "sidebar": {
+    "dashboard": "Panel główny",
+    "logs": "Logi",
+    "settings": "Ustawienia",
+    "profile": "Profil",
+    "signIn": "Zaloguj się",
+    "register": "Zarejestruj się",
+    "summary": "Podsumowanie",
+    "uploadLogFile": "Prześlij plik logów",
+    "signOut": "Wyloguj się",
+    "singleLogAnalysis": "Analiza pojedynczego logu",
+    "savedReports": "Zapisane raporty",
+    "refreshReports": "Odśwież raporty"
+  },
+  "auth": {
+    "login": "Zaloguj się",
+    "logout": "Wyloguj się",
+    "username": "Nazwa użytkownika",
+    "password": "Hasło",
+    "rememberMe": "Zapamiętaj mnie",
+    "email": "Email",
+    "noAccount": "Nie masz konta? Zarejestruj się",
+    "loginTitle": "Logowanie"
+  },
+  "logs": {
+    "viewLogs": "Zobacz logi",
+    "noLogs": "Nie znaleziono logów",
+    "timestamp": "Znacznik czasu",
+    "level": "Poziom",
+    "message": "Wiadomość",
+    "details": "Szczegóły"
+  }
+} 

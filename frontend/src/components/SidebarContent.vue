@@ -4,44 +4,44 @@
       <li class="nav-item" v-if="!isAuthenticated">
         <router-link class="nav-link d-flex align-items-center gap-2" to="/login" @click="closeSidebar">
           <i class="bi bi-box-arrow-in-right"></i>
-          Sign in
+          {{ $t('sidebar.signIn') }}
         </router-link>
       </li>
       <li class="nav-item" v-if="!isAuthenticated">
         <router-link class="nav-link d-flex align-items-center gap-2" to="/register" @click="closeSidebar">
           <i class="bi bi-person-plus"></i>
-          Register
+          {{ $t('sidebar.register') }}
         </router-link>
       </li>
       <li class="nav-item" v-if="isAuthenticated">
         <router-link class="nav-link d-flex align-items-center gap-2" to="/summary" @click="closeSidebar">
           <i class="bi bi-graph-up"></i>
-          Summary
+          {{ $t('sidebar.summary') }}
         </router-link>
       </li>
       <li class="nav-item" v-if="isAuthenticated">
         <router-link class="nav-link d-flex align-items-center gap-2" to="/upload" @click="closeSidebar">
           <i class="bi bi-file-earmark"></i>
-          Upload log file
+          {{ $t('sidebar.uploadLogFile') }}
         </router-link>
       </li>
       <li class="nav-item" v-if="isAuthenticated">
         <a class="nav-link d-flex align-items-center gap-2" href="#" @click.prevent="handleLogout">
           <i class="bi bi-door-closed"></i>
-          Sign out
+          {{ $t('sidebar.signOut') }}
         </a>
       </li>
       <li class="nav-item" v-if="!isAuthenticated">
         <router-link class="nav-link d-flex align-items-center gap-2" to="/upload" @click="closeSidebar">
           <i class="bi bi-file-earmark"></i>
-          Single log analysis
+          {{ $t('sidebar.singleLogAnalysis') }}
         </router-link>
       </li>
     </ul>
     <div v-if="isAuthenticated" class="reports-section">
       <h6 class="sidebar-heading d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase">
-        <span>Saved reports</span>
-        <a class="link-secondary" href="#" aria-label="Refresh reports" @click.prevent="$emit('refresh')">
+        <span>{{ $t('sidebar.savedReports') }}</span>
+        <a class="link-secondary" href="#" :aria-label="$t('sidebar.refreshReports')" @click.prevent="$emit('refresh')">
           <i class="bi bi-arrow-clockwise"></i>
         </a>
       </h6>
@@ -59,6 +59,9 @@
 
 <script setup lang="ts">
 import type { AllAnalysisResponse } from '../services/analyse.service'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 defineProps<{
   isAuthenticated: boolean
@@ -81,5 +84,4 @@ const handleLogout = () => {
   closeSidebar()
   emit('logout')
 }
-
 </script> 

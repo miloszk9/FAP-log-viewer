@@ -4,12 +4,12 @@
       <div class="col-md-6">
         <div class="card">
           <div class="card-header">
-            <h3 class="text-center">Login</h3>
+            <h3 class="text-center">{{ $t('auth.loginTitle') }}</h3>
           </div>
           <div class="card-body">
             <form @submit.prevent="handleLogin">
               <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
+                <label for="email" class="form-label">{{ $t('auth.email') }}</label>
                 <input
                   type="email"
                   class="form-control"
@@ -19,7 +19,7 @@
                 />
               </div>
               <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
+                <label for="password" class="form-label">{{ $t('auth.password') }}</label>
                 <input
                   type="password"
                   class="form-control"
@@ -29,9 +29,9 @@
                 />
               </div>
               <div class="d-grid gap-2">
-                <button type="submit" class="btn btn-primary">Login</button>
+                <button type="submit" class="btn btn-primary">{{ $t('auth.login') }}</button>
                 <router-link to="/register" class="btn btn-link">
-                  Don't have an account? Register
+                  {{ $t('auth.noAccount') }}
                 </router-link>
               </div>
             </form>

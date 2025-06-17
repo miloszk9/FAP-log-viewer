@@ -1,0 +1,44 @@
+{
+  "common": {
+    "language": "Language",
+    "english": "English",
+    "polish": "Polish"
+  },
+  "header": {
+    "title": "FAP Log Viewer",
+    "search": "Search",
+    "searchPlaceholder": "Search logs..."
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "logs": "Logs",
+    "settings": "Settings",
+    "profile": "Profile",
+    "signIn": "Sign in",
+    "register": "Register",
+    "summary": "Summary",
+    "uploadLogFile": "Upload log file",
+    "signOut": "Sign out",
+    "singleLogAnalysis": "Single log analysis",
+    "savedReports": "Saved reports",
+    "refreshReports": "Refresh reports"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Logout",
+    "username": "Username",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "email": "Email",
+    "noAccount": "Don't have an account? Register",
+    "loginTitle": "Login"
+  },
+  "logs": {
+    "viewLogs": "View Logs",
+    "noLogs": "No logs found",
+    "timestamp": "Timestamp",
+    "level": "Level",
+    "message": "Message",
+    "details": "Details"
+  }
+} 
