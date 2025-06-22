@@ -23,7 +23,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import authService from '../services/auth.service'
 import analyseService, { type AllAnalysisResponse } from '../services/analyse.service'
 import SidebarContent from './SidebarContent.vue'
@@ -61,6 +61,14 @@ const fetchReports = async () => {
 onMounted(() => {
   if (isAuthenticated) {
     fetchReports()
+  }
+})
+
+watch(isAuthenticated, (newVal) => {
+  if (newVal) {
+    fetchReports()
+  } else {
+    reports.value = []
   }
 })
 </script> 
