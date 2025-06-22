@@ -39,17 +39,22 @@ const sortedReports = computed(() => {
 const handleLogout = async () => {
   try {
     await authService.logout()
-    router.push('/login')
   } catch (error) {
     console.error('Logout failed:', error)
   }
+  router.push('/login')
 }
 
 const fetchReports = async () => {
   try {
     reports.value = await analyseService.getAll()
-  } catch (error) {
-    console.error('Failed to fetch reports:', error)
+  } catch (error: any) {
+    // Check for 401/403 HTTP error
+    if (error?.response && (error.response.status === 401 || error.response.status === 403)) {
+      await handleLogout()
+    } else {
+      console.error('Failed to fetch reports:', error)
+    }
   }
 }
 
