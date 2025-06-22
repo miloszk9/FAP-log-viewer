@@ -5,9 +5,7 @@
     "polish": "Polski"
   },
   "header": {
-    "title": "Przeglądarka Logów FAP",
-    "search": "Szukaj",
-    "searchPlaceholder": "Szukaj w logach..."
+    "title": "Przeglądarka Logów FAP"
   },
   "sidebar": {
     "dashboard": "Panel główny",
@@ -69,12 +67,12 @@
     },
     "keys": {
       "acceleration": "Przyspieszenie",
-      "additive": "Dodatek",
+      "additive": "Dodatek Eolys",
       "avg": "Średnia",
       "avgDriving": "Średnia podczas jazdy",
       "battery": "Akumulator",
       "beforeDrive": "Przed jazdą",
-      "coolant_sec": "Rozgrzewanie płynu (s)",
+      "coolant": "Płyn chłodzący",
       "coolantTemp": "Temperatura płynu chłodzącego",
       "date": "Data",
       "deposits": "Popiół",
@@ -90,12 +88,11 @@
       "errors": "Błędy",
       "externalTemp": "Temperatura zewnętrzna",
       "fapPressure": "Ciśnienie FAP",
-      "fapSoot": "Sadza FAP",
+      "fapSoot": "Sadza",
       "fapTemp": "Temperatura FAP",
-      "fuelConsumption_l100km": "Zużycie paliwa (L/100km)",
       "fuelConsumption": "Zużycie paliwa",
       "idle": "Jałowe obroty",
-      "idlePressure": "Ciśnienie na biegu jałowym",
+      "pressure_idle": "Ciśnienie na biegu jałowym",
       "last10Regen": "Ostatnie 10 regeneracji",
       "lastRegen": "Ostatnia regeneracja",
       "left": "Pozostało",

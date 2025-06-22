@@ -8,9 +8,6 @@
         </button>
       </li>
     </ul>
-    <div id="navbarSearch" class="navbar-search w-100 collapse">
-      <input class="form-control w-100 rounded-0 border-0" type="text" :placeholder="$t('header.searchPlaceholder')" aria-label="Search">
-    </div>
     <div class="navbar-nav px-3">
       <div class="nav-item text-nowrap">
         <select 
