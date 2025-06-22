@@ -2,7 +2,7 @@
   <div class="container-fluid py-4">
     <div v-if="loading" class="d-flex justify-content-center">
       <div class="spinner-border" role="status">
-        <span class="visually-hidden">Loading...</span>
+        <span class="visually-hidden">{{ $t('dataCard.loading') }}</span>
       </div>
     </div>
     
@@ -17,7 +17,7 @@
             <h5 class="card-title mb-0">{{ title }}</h5>
           </div>
           <div v-if="status && status.toLowerCase() !== 'success'" class="card-body">
-            <h6>Status: <span :class="statusClass">{{ status }}</span></h6>
+            <h6>{{ $t('dataCard.status') }}: <span :class="statusClass">{{ status }}</span></h6>
             <div v-if="message" class="alert alert-danger mt-3">
               {{ message }}
             </div>
@@ -62,6 +62,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 type AnalysisValue = number | string | null
 type AnalysisSection = {
@@ -81,6 +82,8 @@ const props = defineProps<{
   message?: string
   result?: AnalysisResult
 }>()
+
+const { t } = useI18n()
 
 const sortedResult = computed(() => {
   if (!props.result) return undefined
@@ -123,6 +126,11 @@ const statusClass = computed(() => {
 })
 
 const formatSectionTitle = (key: string | number): string => {
+  const keyStr = String(key)
+  const translation = t(`dataCard.sections.${keyStr}`)
+  if (translation !== `dataCard.sections.${keyStr}`) {
+    return translation
+  }
   return String(key)
     .replace(/([A-Z])/g, ' $1')
     .replace(/^./, str => str.toUpperCase())
@@ -132,7 +140,14 @@ const formatKey = (key: string | number): string => {
   const keyStr = String(key)
   // Remove unit suffix if it exists
   const keyWithoutUnit = keyStr.replace(/_(km|kmh|sec|c|v|mbar|l|l100km|ml|gl|perc|gram)$/, '')
-  
+
+  // Try to translate the key
+  const translation = t(`dataCard.keys.${keyWithoutUnit}`)
+  if (translation !== `dataCard.keys.${keyWithoutUnit}`) {
+    return translation
+  }
+
+  // Fallback: prettify the key
   return keyWithoutUnit
     .replace(/([A-Z])/g, ' $1')
     .replace(/_/g, ' ')
@@ -163,37 +178,13 @@ const formatValue = (value: unknown, key: string | number): string => {
   if (value === null) return ''
   if (typeof value !== 'number') return String(value)
 
-  const unit = String(key).split('_').pop()
+  const keyStr = String(key)
+  const parts = keyStr.split('_')
+  const unit = parts.length > 1 ? parts[parts.length - 1] : undefined
   if (!unit) return value.toString()
 
-  switch (unit) {
-    case 'km':
-      return `${value.toFixed(1)} km`
-    case 'kmh':
-      return `${value.toFixed(1)} km/h`
-    case 'sec':
-      return formatSeconds(value)
-    case 'c':
-      return `${value.toFixed(1)} °C`
-    case 'v':
-      return `${value.toFixed(2)} V`
-    case 'mbar':
-      return `${value.toFixed(1)} mbar`
-    case 'l':
-      return `${value.toFixed(2)} L`
-    case 'l100km':
-      return `${value.toFixed(1)} L/100km`
-    case 'ml':
-      return `${value.toFixed(0)} ml`
-    case 'gl':
-      return `${value.toFixed(2)} g/L`
-    case 'perc':
-      return `${value.toFixed(1)}%`
-    case 'gram':
-      return `${value.toFixed(1)} g`
-    default:
-      return value.toString()
-  }
+  const translatedUnit = t(`dataCard.units.${unit}`)
+  return `${value.toFixed(1)} ${translatedUnit}`
 }
 </script>
 

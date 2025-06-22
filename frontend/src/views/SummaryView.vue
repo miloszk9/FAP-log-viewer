@@ -3,7 +3,7 @@
     :loading="loading"
     :error="error"
     :data="averageData"
-    title="Summary"
+    :title="$t('summary.title')"
     :status="averageData?.status"
     :message="averageData?.message"
     :result="averageData?.average"
@@ -13,10 +13,12 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import averageService, { type AverageData } from '../services/average.service'
 import DataCard from '../components/DataCard.vue'
 
 const route = useRoute()
+const { t } = useI18n()
 const averageData = ref<AverageData | null>(null)
 const loading = ref(true)
 const error = ref<string | null>(null)
@@ -27,7 +29,7 @@ const fetchData = async () => {
     error.value = null
     averageData.value = await averageService.getAverage()
   } catch (err) {
-    error.value = 'Failed to load summary data'
+    error.value = t('summary.loadingError')
     console.error('Error fetching summary:', err)
   } finally {
     loading.value = false
