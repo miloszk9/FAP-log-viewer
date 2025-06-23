@@ -34,7 +34,9 @@
     "registerTitle": "Rejestracja",
     "confirmPassword": "Potwierdź hasło",
     "haveAccount": "Masz już konto? Zaloguj się",
-    "passwordsDoNotMatch": "Hasła nie są zgodne"
+    "passwordsDoNotMatch": "Hasła nie są zgodne",
+    "loginError": "Logowanie nie powiodło się. Sprawdź dane i spróbuj ponownie.",
+    "registerError": "Rejestracja nie powiodła się."
   },
   "summary": {
     "title": "Podsumowanie",

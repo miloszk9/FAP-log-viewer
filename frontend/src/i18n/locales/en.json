@@ -34,7 +34,9 @@
     "registerTitle": "Register",
     "confirmPassword": "Confirm Password",
     "haveAccount": "Already have an account? Login",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    "loginError": "Login failed. Please check your credentials and try again.",
+    "registerError": "Registration failed."
   },
   "summary": {
     "title": "Summary",

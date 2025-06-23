@@ -7,6 +7,9 @@
             <h3 class="text-center">{{ $t('auth.registerTitle') }}</h3>
           </div>
           <div class="card-body">
+            <div v-if="errorMessage" class="alert alert-danger" role="alert">
+              {{ errorMessage }}
+            </div>
             <form @submit.prevent="handleRegister">
               <div class="mb-3">
                 <label for="email" class="form-label">{{ $t('auth.email') }}</label>
@@ -63,10 +66,11 @@ const { t } = useI18n()
 const email = ref('')
 const password = ref('')
 const confirmPassword = ref('')
+const errorMessage = ref('')
 
 const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
-    alert(t('auth.passwordsDoNotMatch'))
+    errorMessage.value = t('auth.passwordsDoNotMatch')
     return
   }
 
@@ -78,9 +82,10 @@ const handleRegister = async () => {
     
     // Redirect to login page after successful registration
     router.push('/login')
+    errorMessage.value = ''
   } catch (error) {
     console.error('Registration failed:', error)
-    // Here you might want to show an error message to the user
+    errorMessage.value = t('auth.registerError')
   }
 }
 </script> 
