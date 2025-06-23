@@ -1,14 +1,10 @@
 <template>
   <header class="navbar sticky-top bg-dark flex-md-nowrap p-0 shadow" data-bs-theme="dark">
-    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="/">{{ $t('header.title') }}</a>
-    <ul class="navbar-nav flex-row d-md-none">
-      <li class="nav-item text-nowrap">
-        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-          <i class="bi bi-list"></i>
-        </button>
-      </li>
-    </ul>
-    <div class="navbar-nav px-3">
+    <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6 text-white" href="/">
+      <span class="d-inline d-md-none">FAP</span>
+      <span class="d-none d-md-inline">{{ $t('header.title') }}</span>
+    </a>
+    <div class="navbar-nav ms-auto px-3">
       <div class="nav-item text-nowrap">
         <select 
           class="form-select form-select-sm bg-dark text-white border-secondary" 
@@ -20,6 +16,13 @@
         </select>
       </div>
     </div>
+    <ul class="navbar-nav flex-row d-md-none">
+      <li class="nav-item text-nowrap">
+        <button class="nav-link px-3 text-white" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+          <i class="bi bi-list"></i>
+        </button>
+      </li>
+    </ul>
   </header>
 </template>
 
