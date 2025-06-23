@@ -127,5 +127,20 @@
     "level": "Level",
     "message": "Message",
     "details": "Details"
+  },
+  "fileUploader": {
+    "dragAndDrop": "Drag and drop your CSV or ZIP file here",
+    "or": "or",
+    "chooseFile": "Choose File",
+    "invalidFile": "Please upload a CSV or ZIP file",
+    "uploading": "Uploading file...",
+    "uploadSuccess": "File uploaded successfully! Starting analysis...",
+    "uploadError": "Error uploading file: {error}",
+    "unknownError": "Unknown error",
+    "analysisSuccess": "Analysis completed successfully!",
+    "analysisInProgress": "Analysis in progress... (Attempt {attempt}/{max})",
+    "analysisFailed": "Analysis failed: {message}",
+    "unknownStatus": "unknown status",
+    "analysisError": "Error during analysis: {error}"
   }
 } 

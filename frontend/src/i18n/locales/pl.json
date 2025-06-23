@@ -127,5 +127,20 @@
     "level": "Poziom",
     "message": "Wiadomość",
     "details": "Szczegóły"
+  },
+  "fileUploader": {
+    "dragAndDrop": "Przeciągnij plik CSV lub ZIP tutaj",
+    "or": "lub",
+    "chooseFile": "Wybierz plik",
+    "invalidFile": "Prześlij plik CSV lub ZIP",
+    "uploading": "Przesyłanie pliku...",
+    "uploadSuccess": "Plik przesłany pomyślnie! Rozpoczynanie analizy...",
+    "uploadError": "Błąd podczas przesyłania pliku: {error}",
+    "unknownError": "Nieznany błąd",
+    "analysisSuccess": "Analiza zakończona sukcesem!",
+    "analysisInProgress": "Analiza w toku... (Próba {attempt}/{max})",
+    "analysisFailed": "Analiza nie powiodła się: {message}",
+    "unknownStatus": "nieznany status",
+    "analysisError": "Błąd podczas analizy: {error}"
   }
 } 

@@ -10,10 +10,10 @@
         @drop.prevent="handleDrop"
       >
         <i class="bi bi-cloud-upload upload-icon"></i>
-        <h5 class="mb-3">Drag and drop your CSV or ZIP file here</h5>
-        <p class="text-muted mb-3">or</p>
+        <h5 class="mb-3">{{ t('fileUploader.dragAndDrop') }}</h5>
+        <p class="text-muted mb-3">{{ t('fileUploader.or') }}</p>
         <button class="btn btn-primary" @click="triggerFileInput">
-          <i class="bi bi-file-earmark-arrow-up me-2"></i>Choose File
+          <i class="bi bi-file-earmark-arrow-up me-2"></i>{{ t('fileUploader.chooseFile') }}
         </button>
         <input type="file" ref="fileInput" accept=".csv,.zip" @change="handleFileSelect" class="d-none" />
       </div>
@@ -28,6 +28,9 @@
 import { ref } from 'vue'
 import type { AnalysisData } from '@/types/analysis'
 import analyseService from '@/services/analyse.service'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const emit = defineEmits<{
   (e: 'analysis-complete', data: AnalysisData): void
@@ -76,21 +79,21 @@ const handleFiles = (files: FileList) => {
         file.type === 'application/zip' || file.name.endsWith('.zip')) {
       uploadFile(file)
     } else {
-      showStatus('Please upload a CSV or ZIP file', 'danger')
+      showStatus(t('fileUploader.invalidFile'), 'danger')
     }
   }
 }
 
 const uploadFile = async (file: File) => {
-  showStatus('Uploading file...', 'info')
+  showStatus(t('fileUploader.uploading'), 'info')
 
   try {
     const { ids } = await analyseService.uploadFile(file)
-    showStatus('File uploaded successfully! Starting analysis...', 'success')
+    showStatus(t('fileUploader.uploadSuccess'), 'success')
     await pollAnalysis(ids[0])
   } catch (error) {
     showStatus(
-      `Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      t('fileUploader.uploadError', { error: error instanceof Error ? error.message : t('fileUploader.unknownError') }),
       'danger',
     )
   }
@@ -104,18 +107,18 @@ const pollAnalysis = async (id: string, retryCount = 0): Promise<void> => {
     const data = await analyseService.getAnalysis(id)
 
     if (data.status === 'Success' && data.result) {
-      showStatus('Analysis completed successfully!', 'success')
+      showStatus(t('fileUploader.analysisSuccess'), 'success')
       emit('analysis-complete', data)
     } else if (data.status === 'pending' && retryCount < maxRetries) {
-      showStatus(`Analysis in progress... (Attempt ${retryCount + 1}/${maxRetries})`, 'info')
+      showStatus(t('fileUploader.analysisInProgress', { attempt: retryCount + 1, max: maxRetries }), 'info')
       setTimeout(() => pollAnalysis(id, retryCount + 1), retryDelay)
     } else {
-      throw new Error(`Analysis failed: ${data.message || 'unknown status'}`)
+      throw new Error(t('fileUploader.analysisFailed', { message: data.message || t('fileUploader.unknownStatus') }))
     }
   } catch (error) {
     if (retryCount >= maxRetries) {
       showStatus(
-        `Error during analysis: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        t('fileUploader.analysisError', { error: error instanceof Error ? error.message : t('fileUploader.unknownError') }),
         'danger',
       )
     }
