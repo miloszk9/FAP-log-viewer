@@ -1,6 +1,11 @@
 import logging
 import sys
 
+formatter = logging.Formatter(
+    "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+
 
 def setup_logger(name):
     logger = logging.getLogger(name)
@@ -11,12 +16,6 @@ def setup_logger(name):
 
     logger.setLevel(logging.INFO)
 
-    # Create formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
@@ -26,3 +25,13 @@ def setup_logger(name):
     logger.addHandler(console_handler)
 
     return logger
+
+
+def setup_uvicorn_logger():
+    for name in ("uvicorn", "uvicorn.error", "uvicorn.access"):
+        logger = logging.getLogger(name)
+        logger.handlers = []
+        handler = logging.StreamHandler()
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        logger.propagate = False
