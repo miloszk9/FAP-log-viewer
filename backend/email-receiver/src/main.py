@@ -11,8 +11,8 @@ logger = setup_logger(__name__)
 
 
 def main():
-    service = authenticate()
     while True:
+        service = authenticate()
         logger.info("Checking for unread emails...")
         messages = check_unread_emails(service)
 
