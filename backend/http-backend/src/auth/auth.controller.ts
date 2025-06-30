@@ -1,28 +1,32 @@
-import { Controller, Post, Body, UseGuards, Req } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import {
-  ApiTags,
+  ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
-  ApiBody,
-  ApiBearerAuth,
+  ApiTags,
 } from '@nestjs/swagger';
-import { AuthService } from './auth.service';
-import { LocalAuthGuard } from './guards/local-auth.guard';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { User } from '../database/entities/user.entity';
+import { EmailService } from '../email/email.service';
+import { AuthService } from './auth.service';
 import {
-  RegisterDto,
-  LoginDto,
   AuthResponseDto,
+  LoginDto,
   RefreshResponseDto,
+  RegisterDto,
 } from './dto/auth.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 import { RequestWithUser } from './interfaces/request.interface';
 
 @ApiTags('Authentication')
 @Controller('auth')
 @ApiBearerAuth()
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private emailService: EmailService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Register a new user' })
@@ -52,6 +56,7 @@ export class AuthController {
   })
   @ApiResponse({ status: 401, description: 'Invalid credentials' })
   async login(@Req() req: RequestWithUser): Promise<AuthResponseDto> {
+    this.emailService.refresh().catch(() => {});
     return this.authService.login(req.user);
   }
 
@@ -74,6 +79,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Invalid token' })
   @UseGuards(JwtAuthGuard)
   async logout(@Req() req: RequestWithUser): Promise<void> {
+    this.emailService.refresh().catch(() => {});
     return this.authService.logout(req.user);
   }
 }

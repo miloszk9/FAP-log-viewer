@@ -28,12 +28,16 @@ import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
 import { AnalyseRequestDto } from './dto/analyse-request.dto';
 import { GetAllAnalysisResponseDto } from './dto/get-all-analysis-response.dto';
 import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
+import { EmailService } from '../email/email.service';
 
 @ApiTags('Analyse')
 @Controller('analyse')
 @ApiBearerAuth()
 export class AnalysisController {
-  constructor(private readonly analysisService: AnalysisService) {}
+  constructor(
+    private readonly analysisService: AnalysisService,
+    private readonly emailService: EmailService,
+  ) {}
 
   @Post()
   @ApiOperation({
@@ -101,6 +105,7 @@ export class AnalysisController {
   async getAnalysisForUser(
     @Request() req: RequestWithUser,
   ): Promise<GetAllAnalysisResponseDto[]> {
+    this.emailService.refresh().catch(() => {});
     const analysis = await this.analysisService.getAnalysisForUser(
       req.user?.id,
     );
