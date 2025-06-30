@@ -3,11 +3,11 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime, timedelta
 
-from config import MIN_INTERVAL_SECONDS, SCHEDULE_INTERVAL_SECONDS
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
-from logger_setup import setup_logger, setup_uvicorn_logger
-from process_emails import process_emails
+from process_mail.process_emails import process_emails
+from setup.config import MIN_INTERVAL_SECONDS, SCHEDULE_INTERVAL_SECONDS
+from setup.logger_setup import setup_logger, setup_uvicorn_logger
 
 setup_uvicorn_logger()
 logger = setup_logger(__name__)

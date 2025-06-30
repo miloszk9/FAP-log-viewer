@@ -1,8 +1,8 @@
 import base64
 
 import requests
-from config import BACKEND_URL
-from logger_setup import setup_logger
+from setup.config import BACKEND_URL
+from setup.logger_setup import setup_logger
 
 logger = setup_logger(__name__)
 

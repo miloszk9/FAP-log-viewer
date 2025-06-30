@@ -1,8 +1,8 @@
-from attachment_processor import process_attachments
-from auth import authenticate
-from config import ENV
-from email_handler import check_unread_emails, get_message_data, mark_as_read
-from logger_setup import setup_logger
+from gmail.auth import authenticate
+from gmail.email_handler import check_unread_emails, get_message_data, mark_as_read
+from process_mail.attachment_processor import process_attachments
+from setup.config import ENV
+from setup.logger_setup import setup_logger
 
 # Set up logger with file output
 logger = setup_logger(__name__)

@@ -1,11 +1,11 @@
 import os.path
 
-from config import CREDENTIAL_JSON_PATH, ENV, TOKEN_PATH
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from logger_setup import setup_logger
+from setup.config import CREDENTIAL_JSON_PATH, ENV, TOKEN_PATH
+from setup.logger_setup import setup_logger
 
 logger = setup_logger(__name__)
 
