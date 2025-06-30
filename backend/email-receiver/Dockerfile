@@ -9,4 +9,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY production.env .env
 COPY src/ ./src/
 
-CMD ["python", "src/main.py"]
+WORKDIR /app/src
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
