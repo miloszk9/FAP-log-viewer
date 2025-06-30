@@ -20,4 +20,9 @@ export default () => ({
     expiresIn: process.env.JWT_EXPIRES_IN || '1h',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
+  email: {
+    url: process.env.EMAIL_URL || 'localhost',
+    port: process.env.EMAIL_PORT || '8000',
+    endpoint: process.env.EMAIL_ENDPOINT || 'process',
+  },
 });
