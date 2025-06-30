@@ -6,6 +6,7 @@ import { NatsModule } from './nats/nats.module';
 import { AuthModule } from './auth/auth.module';
 import configuration from './config/configuration';
 import { AverageModule } from './average/average.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -17,11 +18,12 @@ import { AverageModule } from './average/average.module';
       load: [configuration],
       isGlobal: true,
     }),
-    DatabaseModule,
     AnalysisModule,
-    AverageModule,
-    NatsModule,
     AuthModule,
+    AverageModule,
+    DatabaseModule,
+    EmailModule,
+    NatsModule,
   ],
   controllers: [],
   providers: [],

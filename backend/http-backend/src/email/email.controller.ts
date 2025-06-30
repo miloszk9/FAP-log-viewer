@@ -1,13 +1,12 @@
 import {
+  Body,
   Controller,
-  FileTypeValidator,
   MaxFileSizeValidator,
+  NotFoundException,
   ParseFilePipe,
   Post,
   UploadedFile,
   UseInterceptors,
-  Body,
-  NotFoundException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
@@ -17,10 +16,10 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { AnalysisService } from './analysis.service';
-import { AnalyseFileResponseDto } from './dto/analyse-file-response.dto';
-import { AnalyseRequestDto } from './dto/analyse-request.dto';
-import { UserService } from 'src/database/services/user.service';
+import { UserService } from '../database/services/user.service';
+import { AnalysisService } from '../analysis/analysis.service';
+import { AnalyseFileResponseDto } from '../analysis/dto/analyse-file-response.dto';
+import { AnalyseRequestDto } from '../analysis/dto/analyse-request.dto';
 
 @ApiTags('Email Analysis')
 @Controller('email')
