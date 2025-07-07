@@ -6,4 +6,10 @@ export class GetAllAnalysisResponseDto {
 
   @ApiProperty({ description: 'File name of the analysis' })
   fileName: string;
+
+  @ApiProperty({
+    description: 'Whether the analysis contains FAP regeneration',
+    example: true,
+  })
+  regen: boolean;
 }

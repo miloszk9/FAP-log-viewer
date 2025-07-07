@@ -15,4 +15,10 @@ export class GetAnalysisResponseDto {
 
   @ApiProperty({ description: 'Analysis results', required: false })
   result?: any;
+
+  @ApiProperty({
+    description: 'Whether the analysis contains FAP regeneration',
+    example: true,
+  })
+  regen: boolean;
 }

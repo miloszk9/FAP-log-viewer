@@ -168,4 +168,10 @@ export class AnalysisResultDto {
     },
   })
   analysis: any;
+
+  @ApiProperty({
+    description: 'Whether the analysis contains FAP regeneration',
+    example: true,
+  })
+  regen: boolean;
 }

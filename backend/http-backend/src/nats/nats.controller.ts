@@ -20,6 +20,7 @@ export class NatsController {
       status: data.status,
       message: data.message,
       analysis: data.analysis,
+      regen: data.regen,
     });
     const user = updatedAnalysis.user;
     if (user) {

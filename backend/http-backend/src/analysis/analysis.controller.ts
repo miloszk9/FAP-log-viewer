@@ -112,6 +112,7 @@ export class AnalysisController {
     return analysis.map((analysis) => ({
       id: analysis.id,
       fileName: analysis.fileName,
+      regen: analysis.regen,
     }));
   }
 }
