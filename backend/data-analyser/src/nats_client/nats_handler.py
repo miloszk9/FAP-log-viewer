@@ -52,6 +52,7 @@ class NatsHandler:
                     "status": "Success",
                     "message": "Analysis completed successfully.",
                     "analysis": analysis,
+                    "regen": bool(analysis.get("fapRegen")),
                 }
             )
 
