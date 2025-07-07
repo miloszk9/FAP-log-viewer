@@ -47,9 +47,17 @@
       </h6>
       <ul class="nav flex-column mb-auto">
         <li class="nav-item" v-for="report in reports" :key="report.id">
-          <router-link class="nav-link d-flex align-items-center gap-2" :to="`/analyse/${report.id}`" @click="closeSidebar">
-            <i class="bi bi-file-earmark-text"></i>
-            {{ report.fileName }}
+          <router-link class="nav-link d-flex align-items-center justify-content-between gap-2" :to="`/analyse/${report.id}`" @click="closeSidebar">
+            <span class="d-flex align-items-center gap-2">
+              <i class="bi bi-file-earmark-text"></i>
+              {{ report.fileName }}
+            </span>
+            <span v-if="report.regen" class="ms-1" title="FAP Regeneration">
+              <svg width="32" height="20" viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align: middle;">
+                <rect x="1" y="1" width="30" height="18" rx="8" stroke="#2470dc" stroke-width="1" fill="none"/>
+                <text x="16" y="14" text-anchor="middle" font-size="13" fill="#2470dc" font-weight="900">FAP</text>
+              </svg>
+            </span>
           </router-link>
         </li>
       </ul>

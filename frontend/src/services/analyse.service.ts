@@ -6,6 +6,7 @@ const ANALYSE_URL = '/analyse'
 export interface AllAnalysisResponse {
   id: string
   fileName: string
+  regen: boolean
 }
 
 class AnalyseService extends ApiService {
