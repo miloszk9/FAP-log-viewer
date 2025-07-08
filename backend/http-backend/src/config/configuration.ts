@@ -25,4 +25,7 @@ export default () => ({
     port: process.env.EMAIL_PORT || '8000',
     endpoint: process.env.EMAIL_ENDPOINT || 'process',
   },
+  dataAnalyser: {
+    version: process.env.DATA_ANALYSER_VERSION || '',
+  },
 });

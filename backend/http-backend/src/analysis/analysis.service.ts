@@ -3,6 +3,7 @@ import {
   Logger,
   NotFoundException,
   BadRequestException,
+  OnApplicationBootstrap,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createHash } from 'crypto';
@@ -15,9 +16,10 @@ import { FapAnalysisService } from 'src/database/services/fap-analysis.service';
 import { NatsService } from '../nats/nats.service';
 
 @Injectable()
-export class AnalysisService {
+export class AnalysisService implements OnApplicationBootstrap {
   private readonly logger = new Logger(AnalysisService.name);
   private readonly uploadDir: string;
+  private readonly dataAnalyserVersion: string;
 
   constructor(
     private readonly fapAnalysisService: FapAnalysisService,
@@ -26,8 +28,32 @@ export class AnalysisService {
   ) {
     this.uploadDir =
       this.configService.get<string>('app.uploadDir') || 'uploads';
+    this.dataAnalyserVersion =
+      this.configService.get<string>('dataAnalyser.version') || '';
     // Ensure upload directory exists
     fs.mkdir(this.uploadDir, { recursive: true }).catch(() => {});
+  }
+
+  async onApplicationBootstrap() {
+    this.logger.log(
+      `Checking if all analyses are up to date. Current version: ${this.dataAnalyserVersion}`,
+    );
+    const analyses = await this.fapAnalysisService.findAll();
+    for (const analysis of analyses) {
+      if (analysis.status === 'Success') {
+        const version = analysis.version;
+        if (version !== this.dataAnalyserVersion) {
+          this.logger.log(
+            `Analysis ${analysis.id} is not up to date. Current version: ${version}, required version: ${this.dataAnalyserVersion}`,
+          );
+          await this.fapAnalysisService.update(analysis.id, {
+            status: 'pending',
+            message: 'Analysis pending',
+          });
+          await this.natsService.sendAnalysisRequest({ id: analysis.id });
+        }
+      }
+    }
   }
 
   private async processZipFile(
@@ -129,6 +155,7 @@ export class AnalysisService {
     status: string;
     message: string;
     result: any;
+    regen: boolean;
   }> {
     const analysis = await this.fapAnalysisService.findOne(id);
     if (!analysis) {
@@ -147,6 +174,7 @@ export class AnalysisService {
       status: analysis.status,
       message: analysis.message,
       result: analysis.analysis,
+      regen: analysis.regen,
     };
   }
 

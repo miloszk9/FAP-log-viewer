@@ -30,4 +30,10 @@ export class FapAnalysis {
 
   @Column('jsonb')
   analysis: Record<string, any>;
+
+  @Column({ default: false })
+  regen: boolean;
+
+  @Column({ default: '' })
+  version: string;
 }

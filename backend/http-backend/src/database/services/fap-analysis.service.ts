@@ -2,15 +2,21 @@ import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { FapAnalysis } from '../entities/fap-analysis.entity';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class FapAnalysisService {
   private readonly logger = new Logger(FapAnalysisService.name);
+  private readonly dataAnalyserVersion: string;
 
   constructor(
     @InjectRepository(FapAnalysis)
     private fapAnalysisRepository: Repository<FapAnalysis>,
-  ) {}
+    private readonly configService: ConfigService,
+  ) {
+    this.dataAnalyserVersion =
+      this.configService.get<string>('dataAnalyser.version') || '';
+  }
 
   create(fapAnalysis: FapAnalysis): Promise<FapAnalysis> {
     this.logger.log(`Creating FapAnalysis for file ${fapAnalysis.fileName}`);
@@ -62,6 +68,7 @@ export class FapAnalysisService {
     this.logger.log(
       `Updating FapAnalysis ${id} with status ${fapAnalysis.status}`,
     );
+    fapAnalysis.version = this.dataAnalyserVersion;
     await this.fapAnalysisRepository.update(id, fapAnalysis);
     const updated = await this.findOne(id);
     if (!updated) {
