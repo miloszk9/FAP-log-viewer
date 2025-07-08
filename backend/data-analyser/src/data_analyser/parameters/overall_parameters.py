@@ -1,7 +1,8 @@
-from datetime import timedelta
 from json import dumps
 
 import pandas as pd
+
+from .utils import calculate_total_distance
 
 
 class OverallParameters:
@@ -20,20 +21,8 @@ class OverallParameters:
         return dumps(self.result)
 
     def _calculate_distance(self):
-        """
-        Approximate distance by summing Speed * Time_Diff.
-        Speed is in km/h, Time_Diff is in seconds -> convert to hours.
-        """
-        if (
-            not {"Speed", "Time_Diff"}.issubset(self.csv.columns)
-            or self.csv[["Speed", "Time_Diff"]].dropna().empty
-        ):
-            return None
-
-        self.csv["Distance"] = (
-            self.csv["Speed"].dropna() * self.csv["Time_Diff"].dropna()
-        ) / 3600.0
-        total_distance = self.csv["Distance"].sum()
+        """Calculate total distance in km."""
+        total_distance = calculate_total_distance(self.csv)
         return float(round(total_distance, 2))
 
     def _calculate_temp(self):

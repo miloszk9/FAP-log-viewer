@@ -2,6 +2,8 @@ from json import dumps
 
 import pandas as pd
 
+from .utils import calculate_fuel_consumption, calculate_total_distance
+
 
 class FapRegenParameters:
     def __init__(self, csv):
@@ -164,47 +166,29 @@ class FapRegenParameters:
         }
 
     def _calculate_fuel(self):
-        required_cols = {"InjFlow", "Revs", "Speed", "REGEN"}
-        if not required_cols.issubset(self.csv.columns):
-            return {"regen_l100km": None, "nonRegen_l100km": None}
+        regen_on_df = self.csv[self.csv["REGEN"] == 1]
+        regen_off_df = self.csv[self.csv["REGEN"] == 0]
 
-        diesel_density = 0.8375
-        cylinders = 4
+        regen_on_fuel = calculate_fuel_consumption(regen_on_df)
+        regen_on_distance = calculate_total_distance(regen_on_df)
 
-        try:
-            self.csv["FuelFlow_mg_per_min"] = (
-                self.csv["InjFlow"] * self.csv["Revs"] * (cylinders / 2)
-            )
-            self.csv["FuelFlow_L_per_min"] = (
-                self.csv["FuelFlow_mg_per_min"] / 1e6 / diesel_density
-            )
+        regen_l100km = None
+        if regen_on_distance > 0:
+            regen_l100km = (regen_on_fuel / regen_on_distance) * 100
 
-            self.csv["FuelConsumption_L_per_100km"] = (
-                (self.csv["FuelFlow_L_per_min"] * 60) / self.csv["Speed"]
-            ) * 100
+        regen_off_fuel = calculate_fuel_consumption(regen_off_df)
+        regen_off_distance = calculate_total_distance(regen_off_df)
 
-            self.csv["FuelConsumption_L_per_100km"] = self.csv[
-                "FuelConsumption_L_per_100km"
-            ].replace([float("inf"), -float("inf")], pd.NA)
+        non_regen_l100km = None
+        if regen_on_distance > 0:
+            non_regen_l100km = (regen_off_fuel / regen_off_distance) * 100
 
-            regen_on = self.csv[self.csv["REGEN"] == 1][
-                "FuelConsumption_L_per_100km"
-            ].dropna()
-            regen_off = self.csv[self.csv["REGEN"] == 0][
-                "FuelConsumption_L_per_100km"
-            ].dropna()
-
-            return {
-                "regen_l100km": float(round(regen_on.mean(), 2))
-                if not regen_on.empty
-                else None,
-                "nonRegen_l100km": float(round(regen_off.mean(), 2))
-                if not regen_off.empty
-                else None,
-            }
-
-        except Exception:
-            return {"regen_l100km": None, "nonRegen_l100km": None}
+        return {
+            "regen_l100km": float(round(regen_l100km, 2)) if regen_l100km else None,
+            "nonRegen_l100km": float(round(non_regen_l100km, 2))
+            if non_regen_l100km
+            else None,
+        }
 
 
 if __name__ == "__main__":

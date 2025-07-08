@@ -255,13 +255,13 @@ class DataAverage:
 
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
-    # export STORAGE_PATH=../data/peugeot
+    # export STORAGE_PATH=../data/ds4
     # Usage: python -m data_analyser.data_average
     from data_analyser.data_analyser import DataAnalyser
     import os
     from time import time
 
-    data_dir = "../data/peugeot/"
+    data_dir = "../data/ds4/"
     csv_files = [
         os.path.splitext(f)[0] for f in os.listdir(data_dir) if f.endswith(".csv")
     ]

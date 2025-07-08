@@ -2,6 +2,8 @@ from json import dumps
 
 import pandas as pd
 
+from .utils import calculate_fuel_consumption, calculate_total_distance
+
 
 class DrivingParameters:
     def __init__(self, csv):
@@ -42,35 +44,8 @@ class DrivingParameters:
 
     def _calculate_fuel(self):
         """Calculate total fuel consumption in liters and average fuel consumption in L/100 km."""
-        required_cols = {"InjFlow", "Revs", "Speed", "Time_Diff"}
-        if not required_cols.issubset(self.csv.columns):
-            return None
-
-        if self.csv[["InjFlow", "Revs", "Speed", "Time_Diff"]].dropna().empty:
-            return None
-
-        diesel_density = 0.8375  # kg/L for diesel fuel
-        cylinders = 4  # TODO: calculate from number of injectors
-
-        # Convert Revs to revolutions per second
-        revs_per_sec = self.csv["Revs"] / 60.0
-
-        # Number of revolutions in each interval
-        revolutions = revs_per_sec * self.csv["Time_Diff"]
-
-        # Number of injection events (for all cylinders)
-        injection_events = revolutions * (cylinders / 2)
-
-        # Total fuel in mg
-        self.csv["Fuel_mg"] = self.csv["InjFlow"] * injection_events
-
-        # Convert to liters
-        self.csv["Fuel_L"] = (self.csv["Fuel_mg"] / 1e6) / diesel_density
-
-        # Calculate distance in km
-        self.csv["Distance"] = (self.csv["Speed"] * self.csv["Time_Diff"]) / 3600.0
-        total_distance = self.csv["Distance"].sum()
-        total_fuel = self.csv["Fuel_L"].sum()
+        total_fuel = calculate_fuel_consumption(self.csv)
+        total_distance = calculate_total_distance(self.csv)
 
         total_fuel_per_distance = None
         if total_distance > 0:
