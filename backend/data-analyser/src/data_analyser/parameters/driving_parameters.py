@@ -42,7 +42,6 @@ class DrivingParameters:
 
     def _calculate_fuel(self):
         """Calculate total fuel consumption in liters and average fuel consumption in L/100 km."""
-        # Required columns
         required_cols = {"InjFlow", "Revs", "Speed", "Time_Diff"}
         if not required_cols.issubset(self.csv.columns):
             return None
@@ -53,16 +52,20 @@ class DrivingParameters:
         diesel_density = 0.8375  # kg/L for diesel fuel
         cylinders = 4  # TODO: calculate from number of injectors
 
-        # Calculate fuel in mg
-        self.csv["Fuel_mg"] = (
-            self.csv["InjFlow"]  # mg per stroke
-            * self.csv["Revs"]
-            * self.csv["Time_Diff"]
-            * (cylinders)
-        )
+        # Convert Revs to revolutions per second
+        revs_per_sec = self.csv["Revs"] / 60.0
+
+        # Number of revolutions in each interval
+        revolutions = revs_per_sec * self.csv["Time_Diff"]
+
+        # Number of injection events (for all cylinders)
+        injection_events = revolutions * (cylinders / 2)
+
+        # Total fuel in mg
+        self.csv["Fuel_mg"] = self.csv["InjFlow"] * injection_events
 
         # Convert to liters
-        self.csv["Fuel_L"] = (self.csv["Fuel_mg"] / 1e8) / diesel_density
+        self.csv["Fuel_L"] = (self.csv["Fuel_mg"] / 1e6) / diesel_density
 
         # Calculate distance in km
         self.csv["Distance"] = (self.csv["Speed"] * self.csv["Time_Diff"]) / 3600.0
@@ -70,7 +73,7 @@ class DrivingParameters:
         total_fuel = self.csv["Fuel_L"].sum()
 
         total_fuel_per_distance = None
-        if total_distance != 0:
+        if total_distance > 0:
             total_fuel_per_distance = (total_fuel / total_distance) * 100
 
         return {
@@ -117,7 +120,7 @@ class DrivingParameters:
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
     # Usage: python -m data_analyser.parameters.driving_parameters
-    file_path = "../data/ds4/DCM62v2_20250205.csv"
+    file_path = "../data/ds4/DCM62v2_20250626.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = ["Revs", "Speed", "InjFlow", "AccelPedalPos"]
