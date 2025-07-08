@@ -30,7 +30,7 @@ class FapRegenParameters:
         return dumps(self.result)
 
     def _calculate_previous_regen(self):
-        # Find index where REGEN changes from 0 → 1
+        # Get the last row where REGEN == 1 and return the 'LastRegen' value from that row
         if (
             "REGEN" not in self.csv.columns
             or self.csv["REGEN"].dropna().empty
@@ -39,19 +39,14 @@ class FapRegenParameters:
         ):
             return None
 
-        csv_regen_change = self.csv["REGEN"].diff().fillna(0)
-        regen_start_idx = self.csv.index[csv_regen_change == 1]
-
-        if regen_start_idx.empty:
+        regen_rows = self.csv[self.csv["REGEN"] == 1]
+        if regen_rows.empty:
             return None
 
-        first_regen_idx = regen_start_idx[0]
-        prev_idx = first_regen_idx - 1
-
-        if prev_idx in self.csv.index:
-            value = self.csv.at[prev_idx, "LastRegen"]
-            if pd.notna(value):
-                return int(value)
+        last_regen_row = regen_rows.iloc[-1]
+        value = last_regen_row["LastRegen"]
+        if pd.notna(value):
+            return int(value)
         return None
 
     def _calculate_duration_sec(self):

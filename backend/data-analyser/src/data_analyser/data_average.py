@@ -183,6 +183,7 @@ class DataAverage:
             return None
 
         return {
+            "numberOfRegens": fap_regen_duration.dropna().shape[0],
             "previousRegen_km": self._calculate("fapRegen.previousRegen_km", "mean", 2),
             "duration_sec": self._calculate("fapRegen.duration_sec", "mean", 2),
             "distance_km": self._weighted_average(
