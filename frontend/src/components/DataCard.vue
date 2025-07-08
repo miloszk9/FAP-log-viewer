@@ -183,6 +183,11 @@ const formatValue = (value: unknown, key: string | number): string => {
   const unit = parts.length > 1 ? parts[parts.length - 1] : undefined
   if (!unit) return value.toString()
 
+  // Use formatSeconds for values with unit 'sec'
+  if (unit === 'sec') {
+    return formatSeconds(value)
+  }
+
   const translatedUnit = t(`dataCard.units.${unit}`)
   return `${value.toFixed(1)} ${translatedUnit}`
 }
