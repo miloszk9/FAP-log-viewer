@@ -111,7 +111,7 @@ class EngineParameters:
             return {"coolant_sec": None, "oil_sec": None}
 
         initial_state = (
-            csv_valid[(csv_valid["Coolant"] < 50) | (csv_valid["OilTemp"] < 50)]
+            csv_valid[(csv_valid["Coolant"] < 40) | (csv_valid["OilTemp"] < 40)]
             .sort_values("Datetime")
             .head(1)
         )
