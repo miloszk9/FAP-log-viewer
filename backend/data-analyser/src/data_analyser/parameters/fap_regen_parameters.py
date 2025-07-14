@@ -52,22 +52,31 @@ class FapRegenParameters:
         return None
 
     def _calculate_duration_sec(self):
-        # TODO: Address multiple FAP regens scenario - will produce wrong duration time
-        if self.csv_regen is None or "Datetime" not in self.csv_regen.columns:
+        if (
+            self.csv is None
+            or "REGEN" not in self.csv.columns
+            or "Datetime" not in self.csv.columns
+        ):
             return None
 
-        datetimes = self.csv_regen["Datetime"].dropna()
-        if datetimes.empty:
-            return None
+        # Create a mask for REGEN==1
+        regen_mask = self.csv["REGEN"] == 1
+        # Block id increases when REGEN changes (from 0 to 1 or 1 to 0)
+        block_ids = (regen_mask != regen_mask.shift()).cumsum()
+        self.csv["_regen_block"] = block_ids
 
-        start_time = datetimes.iloc[0]
-        end_time = datetimes.iloc[-1]
+        # Filter only REGEN==1 blocks
+        regen_blocks = self.csv[regen_mask].groupby("_regen_block")
 
-        if pd.isna(start_time) or pd.isna(end_time):
-            return None
+        total_duration = 0
+        for _, group in regen_blocks:
+            datetimes = group["Datetime"].dropna()
+            if not datetimes.empty:
+                duration = (datetimes.iloc[-1] - datetimes.iloc[0]).total_seconds()
+                total_duration += duration
 
-        duration = (end_time - start_time).total_seconds()
-        return int(duration)
+        self.csv.drop(columns=["_regen_block"], inplace=True)
+        return int(total_duration) if total_duration > 0 else None
 
     def _calculate_distance(self):
         if (
@@ -194,7 +203,7 @@ class FapRegenParameters:
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
     # Usage: python -m data_analyser.parameters.fap_regen_parameters
-    file_path = "../data/ds4/DCM62v2_20250205.csv"
+    file_path = "../data/ds4/DCM62v2_20250328.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = [
