@@ -130,16 +130,15 @@ class EngineParameters:
         coolant_warm_time = after_start[after_start["Coolant"] >= 80]["Datetime"].min()
         oil_warm_time = after_start[after_start["OilTemp"] >= 90]["Datetime"].min()
 
-        result["coolant_sec"] = (
-            (coolant_warm_time - start_time).total_seconds()
-            if pd.notna(coolant_warm_time)
-            else None
-        )
-        result["oil_sec"] = (
-            (oil_warm_time - start_time).total_seconds()
-            if pd.notna(oil_warm_time)
-            else None
-        )
+        if pd.notna(coolant_warm_time):
+            coolant_sec = (coolant_warm_time - start_time).total_seconds()
+            if coolant_sec < 3600:
+                result["coolant_sec"] = coolant_sec
+
+        if pd.notna(oil_warm_time):
+            oil_sec = (oil_warm_time - start_time).total_seconds()
+            if oil_sec < 3600:
+                result["oil_sec"] = oil_sec
 
         return result
 
@@ -152,7 +151,7 @@ class EngineParameters:
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
     # Usage: python -m data_analyser.parameters.engine_parameters
-    file_path = "../data/ds4/DCM62v2_20250205.csv"
+    file_path = "../data/ds4/DCM62v2_20250326.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
     numeric_columns = [
