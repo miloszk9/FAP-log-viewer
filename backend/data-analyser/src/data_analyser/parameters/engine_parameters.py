@@ -102,13 +102,18 @@ class EngineParameters:
         return result
 
     def _calculate_warmup_time(self):
+        result = {
+            "coolant_sec": None,
+            "oil_sec": None,
+        }
+
         required_cols = {"Datetime", "Coolant", "OilTemp"}
         if not required_cols.issubset(self.csv.columns):
-            return {"coolant_sec": None, "oil_sec": None}
+            return result
 
         csv_valid = self.csv.dropna(subset=list(required_cols))
         if csv_valid.empty:
-            return {"coolant_sec": None, "oil_sec": None}
+            return result
 
         initial_state = (
             csv_valid[(csv_valid["Coolant"] < 40) | (csv_valid["OilTemp"] < 40)]
@@ -117,7 +122,7 @@ class EngineParameters:
         )
 
         if initial_state.empty:
-            return {"coolant_sec": None, "oil_sec": None}
+            return result
 
         start_time = initial_state["Datetime"].iloc[0]
         after_start = csv_valid[csv_valid["Datetime"] >= start_time]
@@ -125,21 +130,18 @@ class EngineParameters:
         coolant_warm_time = after_start[after_start["Coolant"] >= 80]["Datetime"].min()
         oil_warm_time = after_start[after_start["OilTemp"] >= 90]["Datetime"].min()
 
-        coolant_warmup_duration = (
+        result["coolant_sec"] = (
             (coolant_warm_time - start_time).total_seconds()
             if pd.notna(coolant_warm_time)
             else None
         )
-        oil_warmup_duration = (
+        result["oil_sec"] = (
             (oil_warm_time - start_time).total_seconds()
             if pd.notna(oil_warm_time)
             else None
         )
 
-        return {
-            "coolant_sec": coolant_warmup_duration if coolant_warmup_duration else None,
-            "oil_sec": oil_warmup_duration if oil_warmup_duration else None,
-        }
+        return result
 
     def _calculate_errors(self):
         if "Errors" not in self.csv.columns or self.csv["Errors"].dropna().empty:
