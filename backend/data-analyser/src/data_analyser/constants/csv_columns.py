@@ -1,4 +1,3 @@
-date_parameters = ["Datetime"]
 overall_parameters = ["Revs", "Speed", "ExternalTemp", "Datetime", "Time_Diff"]
 driving_parameters = [
     "Revs",

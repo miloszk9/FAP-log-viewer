@@ -12,6 +12,7 @@ class OverallParameters:
             "distance_km": self._calculate_distance(),
             "duration": self._calculate_duration(),
             "externalTemp": self._calculate_temp(),
+            "date": self._calculate_date(),
         }
 
     def __str__(self):
@@ -74,6 +75,20 @@ class OverallParameters:
             "engineOn_sec": int(engine_on_sec),
             "idle_sec": int(idle_time_sec),
             "driving_sec": int(driving_time_sec),
+        }
+
+    def _calculate_date(self):
+        """Calculate average and max speed."""
+        if "Datetime" not in self.csv.columns or self.csv["Datetime"].dropna().empty:
+            return None
+
+        min_date = self.csv["Datetime"].min()
+        max_date = self.csv["Datetime"].max()
+
+        return {
+            "date": min_date.strftime("%Y-%m-%d") if not pd.isna(min_date) else None,
+            "start": min_date.strftime("%H:%M:%S") if not pd.isna(min_date) else None,
+            "end": max_date.strftime("%H:%M:%S") if not pd.isna(max_date) else None,
         }
 
 
