@@ -45,3 +45,11 @@ fap_regen_parameters = [
     "Datetime",
     "Time_Diff",
 ]
+fuel_parameters = [
+    "Revs",
+    "Speed",
+    "InjFlow",
+    "AccelPedalPos",
+    "Datetime",
+    "Time_Diff",
+]

@@ -10,6 +10,7 @@ from data_analyser.constants.csv_columns import (
     engine_parameters,
     fap_parameters,
     fap_regen_parameters,
+    fuel_parameters,
     overall_parameters,
 )
 from data_analyser.exceptions.exceptions import DataAnalyseException
@@ -18,6 +19,7 @@ from data_analyser.parameters.driving_parameters import DrivingParameters
 from data_analyser.parameters.engine_parameters import EngineParameters
 from data_analyser.parameters.fap_parameters import FapParameters
 from data_analyser.parameters.fap_regen_parameters import FapRegenParameters
+from data_analyser.parameters.fuel_parameters import FuelParameters
 from data_analyser.parameters.overall_parameters import OverallParameters
 
 # Set up logger for this module
@@ -102,19 +104,21 @@ class DataAnalyser:
         """Preprocess the data."""
         csv_columns = self.csv.columns
         date_columns = list(set(csv_columns) & set(date_parameters))
-        overall_columns = list(set(csv_columns) & set(overall_parameters))
         driving_columns = list(set(csv_columns) & set(driving_parameters))
         engine_columns = list(set(csv_columns) & set(engine_parameters))
         fap_columns = list(set(csv_columns) & set(fap_parameters))
         fap_regen_columns = list(set(csv_columns) & set(fap_regen_parameters))
+        fuel_columns = list(set(csv_columns) & set(fuel_parameters))
+        overall_columns = list(set(csv_columns) & set(overall_parameters))
 
         return {
             "date": DateParameters(self.csv[date_columns].copy()).result,
-            "overall": OverallParameters(self.csv[overall_columns].copy()).result,
             "driving": DrivingParameters(self.csv[driving_columns].copy()).result,
             "engine": EngineParameters(self.csv[engine_columns].copy()).result,
             "fap": FapParameters(self.csv[fap_columns].copy()).result,
             "fapRegen": FapRegenParameters(self.csv[fap_regen_columns].copy()).result,
+            "fuelConsumption": FuelParameters(self.csv[fuel_columns].copy()).result,
+            "overall": OverallParameters(self.csv[overall_columns].copy()).result,
         }
 
 
