@@ -10,7 +10,6 @@ class DrivingParameters:
         self.csv = csv
         self.result = {
             "acceleration": self._calculate_acceleration(),
-            "fuelConsumption": self._calculate_fuel(),
             "revs": self._calculate_revs(),
             "speed": self._calculate_speed(),
         }
@@ -98,22 +97,19 @@ if __name__ == "__main__":
     file_path = "../data/ds4/DCM62v2_20250626.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
 
-    numeric_columns = ["Revs", "Speed", "InjFlow", "AccelPedalPos"]
+    numeric_columns = ["Revs", "Speed", "AccelPedalPos"]
     for col in numeric_columns:
         if col in csv.columns:
             csv[col] = pd.to_numeric(csv[col], errors="coerce")
 
     csv["Datetime"] = pd.to_datetime(csv["Date"] + " " + csv["Time"], errors="coerce")
     csv = csv.sort_values("Datetime")
-    csv["Time_Diff"] = csv["Datetime"].diff().dt.total_seconds().fillna(0)
 
     driving_parameters = [
         "Revs",
         "Speed",
-        "InjFlow",
         "AccelPedalPos",
         "Datetime",
-        "Time_Diff",
     ]
     filtered_csv = csv[driving_parameters].copy()
 
