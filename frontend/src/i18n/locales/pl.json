@@ -65,6 +65,7 @@
       "engine": "Silnik",
       "fap": "FAP",
       "fapRegen": "Regeneracja FAP",
+      "fuelConsumption": "Zużycie paliwa",
       "overall": "Ogólne"
     },
     "keys": {
@@ -74,6 +75,7 @@
       "avgDriving": "Średnia podczas jazdy",
       "battery": "Akumulator",
       "beforeDrive": "Przed jazdą",
+      "bySpeedRange": "W zakresach prędkości (km/h)",
       "coolant": "Płyn chłodniczy",
       "coolantTemp": "Temperatura płynu chłodniczego",
       "date": "Data",

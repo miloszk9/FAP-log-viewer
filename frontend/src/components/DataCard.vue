@@ -25,8 +25,8 @@
         </div>
       </div>
 
-      <template v-if="sortedResult">
-        <div v-for="(section, sectionKey) in sortedResult" :key="sectionKey" class="col-md-6 col-lg-4 mb-4">
+      <template v-if="filteredResult">
+        <div v-for="(section, sectionKey) in filteredResult" :key="sectionKey" class="col-md-6 col-lg-4 mb-4">
           <div class="card h-100">
             <div class="card-header">
               <h5 class="card-title mb-0">{{ formatSectionTitle(sectionKey) }}</h5>
@@ -85,7 +85,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 
-const sortedResult = computed(() => {
+const filteredResult = computed(() => {
   if (!props.result) return undefined
 
   const sortObject = (obj: any): any => {
@@ -96,8 +96,7 @@ const sortedResult = computed(() => {
     }
 
     return Object.entries(obj)
-      .filter(([_, value]) => value !== null)
-      .sort(([a], [b]) => a.localeCompare(b))
+      .filter(([key, value]) => value !== null && !String(key).startsWith('_'))
       .reduce((sorted: any, [key, value]) => {
         const sortedValue = sortObject(value)
         if (sortedValue !== null) {

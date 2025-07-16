@@ -65,6 +65,7 @@
       "engine": "Engine",
       "fap": "FAP",
       "fapRegen": "FAP Regeneration",
+      "fuelConsumption": "Fuel Consumption",
       "overall": "Overall"
     },
     "keys": {
@@ -74,6 +75,7 @@
       "avgDriving": "Average While Driving",
       "battery": "Battery",
       "beforeDrive": "Before Drive",
+      "bySpeedRange": "By Speed Range (km/h)",
       "coolant": "Coolant",
       "coolantTemp": "Coolant Temperature",
       "date": "Date",
