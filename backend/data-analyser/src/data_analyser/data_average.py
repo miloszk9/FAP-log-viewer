@@ -255,17 +255,13 @@ class DataAverage:
                 }
 
         return {
-            "fuelConsumption": {
-                "overall": {
-                    "total_l": self._calculate(
-                        "fuelConsumption.overall.total_l", "sum"
-                    ),
-                    "avg_l100km": self._weighted_average(
-                        "fuelConsumption.overall.avg_l100km", "overall.distance_km", 2
-                    ),
-                },
-                "bySpeedRanges": by_speed_ranges,
+            "overall": {
+                "total_l": self._calculate("fuelConsumption.overall.total_l", "sum"),
+                "avg_l100km": self._weighted_average(
+                    "fuelConsumption.overall.avg_l100km", "overall.distance_km", 2
+                ),
             },
+            "bySpeedRanges": by_speed_ranges,
         }
 
     def _weighted_average(self, values_key, weights_key, round_digits=0):
