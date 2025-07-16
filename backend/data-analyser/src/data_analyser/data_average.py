@@ -1,6 +1,7 @@
 import pandas as pd
 from logger_setup import setup_logger
 
+from data_analyser.constants.common import range_labels
 from data_analyser.exceptions.exceptions import DataAverageException
 
 # Set up logger for this module
@@ -51,6 +52,7 @@ class DataAverage:
         engine = self._calculate_engine()
         fap = self._calculate_fap()
         fap_regen = self._calculate_fap_regen()
+        fuel = self._calculate_fuel()
 
         return {
             "overall": overall,
@@ -58,6 +60,7 @@ class DataAverage:
             "engine": engine,
             "fap": fap,
             "fapRegen": fap_regen,
+            "fuelConsumption": fuel,
         }
 
     def _calculate_overall(self):
@@ -82,12 +85,6 @@ class DataAverage:
                 ),
                 "avg_perc": self._weighted_average(
                     "driving.acceleration.avg_perc", "overall.duration.driving_sec"
-                ),
-            },
-            "fuelConsumption": {
-                "total_l": self._calculate("driving.fuelConsumption.total_l", "sum"),
-                "avg_l100km": self._weighted_average(
-                    "driving.fuelConsumption.avg_l100km", "overall.distance_km", 2
                 ),
             },
             "revs": {
@@ -233,6 +230,44 @@ class DataAverage:
             },
         }
 
+    def _calculate_fuel(self):
+        by_speed_ranges = {}
+        for label in range_labels:
+            total_km = self._calculate(
+                f"fuelConsumption.bySpeedRanges.{label}.total_km", "sum"
+            )
+            avg_revs = self._weighted_average(
+                f"fuelConsumption.bySpeedRanges.{label}.avg_revs",
+                f"fuelConsumption.bySpeedRanges.{label}.total_km",
+                0,
+            )
+            avg_l100km = self._weighted_average(
+                f"fuelConsumption.bySpeedRanges.{label}.avg_l100km",
+                f"fuelConsumption.bySpeedRanges.{label}.total_km",
+                2,
+            )
+            # Only add if at least one value is not None
+            if any(v is not None for v in (total_km, avg_revs, avg_l100km)):
+                by_speed_ranges[label] = {
+                    "total_km": total_km,
+                    "avg_revs": avg_revs,
+                    "avg_l100km": avg_l100km,
+                }
+
+        return {
+            "fuelConsumption": {
+                "overall": {
+                    "total_l": self._calculate(
+                        "fuelConsumption.overall.total_l", "sum"
+                    ),
+                    "avg_l100km": self._weighted_average(
+                        "fuelConsumption.overall.avg_l100km", "overall.distance_km", 2
+                    ),
+                },
+                "bySpeedRanges": by_speed_ranges,
+            },
+        }
+
     def _weighted_average(self, values_key, weights_key, round_digits=0):
         values = self.analyses.get(values_key)
         weights = self.analyses.get(weights_key)
@@ -257,9 +292,10 @@ if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
     # export STORAGE_PATH=../data/ds4
     # Usage: python -m data_analyser.data_average
-    from data_analyser.data_analyser import DataAnalyser
     import os
     from time import time
+
+    from data_analyser.data_analyser import DataAnalyser
 
     data_dir = "../data/ds4/"
     csv_files = [
