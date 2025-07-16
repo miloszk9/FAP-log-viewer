@@ -11,7 +11,7 @@ class FuelParameters:
         self.csv = csv
         self.result = {
             "overall": self._calculate_overall(),
-            "bySpeedRanges": self._calculate_by_speed_ranges(),
+            "bySpeedRange": self._calculate_by_speed_range(),
         }
 
     def __str__(self):
@@ -36,10 +36,10 @@ class FuelParameters:
             else None,
         }
 
-    def _calculate_by_speed_ranges(self):
-        """Advanced fuel consumption analysis by speed ranges, filtering out REGEN == 1."""
-        # Define speed ranges
-        speed_ranges = [
+    def _calculate_by_speed_range(self):
+        """Advanced fuel consumption analysis by speed range, filtering out REGEN == 1."""
+        # Define speed range
+        speed_range = [
             (5, 20),
             (20, 30),
             (30, 40),
@@ -68,7 +68,7 @@ class FuelParameters:
             df = df[df["REGEN"] != 1]
 
         results = {}
-        for (low, high), label in zip(speed_ranges, range_labels):
+        for (low, high), label in zip(speed_range, range_labels):
             range_df = df[(df["Speed"] >= low) & (df["Speed"] < high)]
             if range_df.empty:
                 continue
@@ -92,25 +92,17 @@ class FuelParameters:
             else:
                 fuel = None
 
-            # Calculate average revs
-            avg_revs = (
-                range_df["Revs"].mean()
-                if "Revs" in range_df.columns and not range_df["Revs"].dropna().empty
-                else None
-            )
-
             # Calculate avg fuel per 100km
             avg_l100km = None
             if distance and distance > 0 and fuel is not None:
                 avg_l100km = (fuel / distance) * 100
 
-            results[label] = {
-                "total_km": float(round(distance, 2)) if distance is not None else None,
-                "avg_revs": float(round(avg_revs, 2)) if avg_revs is not None else None,
-                "avg_l100km": float(round(avg_l100km, 2))
-                if avg_l100km is not None
-                else None,
-            }
+            results[f"{label}_l100km"] = (
+                float(round(avg_l100km, 2)) if avg_l100km is not None else None
+            )
+            results[f"_{label}_km"] = (
+                float(round(distance, 2)) if distance is not None else None
+            )
         return results
 
 

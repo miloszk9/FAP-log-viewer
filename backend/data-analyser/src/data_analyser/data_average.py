@@ -231,28 +231,16 @@ class DataAverage:
         }
 
     def _calculate_fuel(self):
-        by_speed_ranges = {}
+        by_speed_range = {}
         for label in range_labels:
-            total_km = self._calculate(
-                f"fuelConsumption.bySpeedRanges.{label}.total_km", "sum"
-            )
-            avg_revs = self._weighted_average(
-                f"fuelConsumption.bySpeedRanges.{label}.avg_revs",
-                f"fuelConsumption.bySpeedRanges.{label}.total_km",
-                0,
-            )
             avg_l100km = self._weighted_average(
-                f"fuelConsumption.bySpeedRanges.{label}.avg_l100km",
-                f"fuelConsumption.bySpeedRanges.{label}.total_km",
+                f"fuelConsumption.bySpeedRange.{label}_l100km",
+                f"fuelConsumption.bySpeedRange._{label}_km",
                 2,
             )
             # Only add if at least one value is not None
-            if any(v is not None for v in (total_km, avg_revs, avg_l100km)):
-                by_speed_ranges[label] = {
-                    "total_km": total_km,
-                    "avg_revs": avg_revs,
-                    "avg_l100km": avg_l100km,
-                }
+            if avg_l100km is not None:
+                by_speed_range[f"{label}_l100km"] = avg_l100km
 
         return {
             "overall": {
@@ -261,7 +249,7 @@ class DataAverage:
                     "fuelConsumption.overall.avg_l100km", "overall.distance_km", 2
                 ),
             },
-            "bySpeedRanges": by_speed_ranges,
+            "bySpeedRange": by_speed_range,
         }
 
     def _weighted_average(self, values_key, weights_key, round_digits=0):
