@@ -40,18 +40,16 @@ export class AnalysisService implements OnApplicationBootstrap {
     );
     const analyses = await this.fapAnalysisService.findAll();
     for (const analysis of analyses) {
-      if (analysis.status === 'Success') {
-        const version = analysis.version;
-        if (version !== this.dataAnalyserVersion) {
-          this.logger.log(
-            `Analysis ${analysis.id} is not up to date. Current version: ${version}, required version: ${this.dataAnalyserVersion}`,
-          );
-          await this.fapAnalysisService.update(analysis.id, {
-            status: 'pending',
-            message: 'Analysis pending',
-          });
-          await this.natsService.sendAnalysisRequest({ id: analysis.id });
-        }
+      const version = analysis.version;
+      if (version !== this.dataAnalyserVersion) {
+        this.logger.log(
+          `Analysis ${analysis.id} is not up to date. Current version: ${version}, required version: ${this.dataAnalyserVersion}`,
+        );
+        await this.fapAnalysisService.update(analysis.id, {
+          status: 'pending',
+          message: 'Analysis pending',
+        });
+        await this.natsService.sendAnalysisRequest({ id: analysis.id });
       }
     }
   }
