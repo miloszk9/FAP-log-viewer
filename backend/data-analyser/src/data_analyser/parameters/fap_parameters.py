@@ -98,22 +98,48 @@ class FapParameters:
         }
 
     def _calculate_pressure_idle(self):
+        min_pressure = None
+        max_pressure = None
+        avg_pressure = None
+
         idle_csv = self.csv[(self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)]
-        min_pressure = idle_csv["FAPpressure"].min()
-        max_pressure = idle_csv["FAPpressure"].max()
-        avg_pressure = idle_csv["FAPpressure"].mean()
+        if (
+            "FAPpressure" in idle_csv.columns
+            and not idle_csv["FAPpressure"].dropna().empty
+        ):
+            min_pressure = idle_csv["FAPpressure"].min()
+            min_pressure = float(round(min_pressure, 1))
+            max_pressure = idle_csv["FAPpressure"].max()
+            max_pressure = float(round(max_pressure, 1))
+            avg_pressure = idle_csv["FAPpressure"].mean()
+            avg_pressure = float(round(avg_pressure, 1))
 
         return {
-            "avg_mbar": float(round(avg_pressure, 1)),
-            "max_mbar": float(round(max_pressure, 1)),
-            "min_mbar": float(round(min_pressure, 1)),
+            "avg_mbar": avg_pressure,
+            "max_mbar": max_pressure,
+            "min_mbar": min_pressure,
         }
 
     def _calculate_pressure(self):
+        min_pressure = None
+        max_pressure = None
+        avg_pressure = None
+
+        if (
+            "FAPpressure" in self.csv.columns
+            and not self.csv["FAPpressure"].dropna().empty
+        ):
+            min_pressure = self.csv["FAPpressure"].min()
+            min_pressure = float(round(min_pressure, 1))
+            max_pressure = self.csv["FAPpressure"].max()
+            max_pressure = float(round(max_pressure, 1))
+            avg_pressure = self.csv["FAPpressure"].mean()
+            avg_pressure = float(round(avg_pressure, 1))
+
         return {
-            "min_mbar": float(round(self.csv["FAPpressure"].min(), 1)),
-            "max_mbar": float(round(self.csv["FAPpressure"].max(), 1)),
-            "avg_mbar": float(round(self.csv["FAPpressure"].mean(), 1)),
+            "min_mbar": min_pressure,
+            "max_mbar": max_pressure,
+            "avg_mbar": avg_pressure,
         }
 
     def _calculate_soot(self):
