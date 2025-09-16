@@ -128,8 +128,7 @@ export class AnalysisService implements OnApplicationBootstrap {
       await fs.writeFile(filePath, Buffer.from(file.buffer));
     }
 
-    this.logger.log(`Sending NATS analysis request for ${id}`);
-    await this.natsService.sendAnalysisRequest({ id });
+    await this.sendAnalysisRequest(id);
 
     return id;
   }
@@ -142,6 +141,18 @@ export class AnalysisService implements OnApplicationBootstrap {
       return this.processZipFile(file, userId);
     } else {
       return this.saveCsvFile(file, userId);
+    }
+  }
+
+  async sendAnalysisRequest(id: string): Promise<void> {
+    try {
+      this.logger.log(`Sending NATS analysis request for ${id}`);
+      await this.natsService.sendAnalysisRequest({ id });
+      this.logger.log(`NATS analysis request sent for ${id}`);
+    } catch (error) {
+      this.logger.warn(
+        `NATS analysis request failed for ${id}: ${error?.message || error}`,
+      );
     }
   }
 

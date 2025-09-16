@@ -1,6 +1,5 @@
 import {
   Controller,
-  FileTypeValidator,
   Get,
   MaxFileSizeValidator,
   Param,
@@ -86,6 +85,9 @@ export class AnalysisController {
   ): Promise<GetAnalysisResponseDto> {
     // TODO: Fix scenario where analysis is uploaded by unauthenticated user, then the same is uploaded by authenticated user, unauthenticated user will not be able to access it
     const analysis = await this.analysisService.getAnalysis(id, req.user?.id);
+    if (analysis.status === 'pending') {
+      this.analysisService.sendAnalysisRequest(id).catch(() => {});
+    }
     return {
       id,
       ...analysis,
