@@ -1,0 +1,61 @@
+---
+alwaysApply: true
+---
+
+# AI Rules for FAP log viewer
+
+FAP Log Viewer is a web application for uploading and analyzing CSV log files from the FAP mobile app that can get logs from Citroën, Peugeot, and DS vehicles. It stores data in PostgreSQL, processes logs via Python/Pandas for engine parameters, filter stats, and calculations, and delivers insights through an Astro/React frontend. Backend services handle email ingestion, asynchronous analysis via NATS, and API access with NestJS.
+
+## Tech Stack
+
+- Astro 5.13.7
+- TypeScript 5.7.3
+- React 19.1.1 & React DOM 19.1.1
+- Tailwind CSS 4.1.13
+- NestJS 11.0.16
+- Python 3.x with Pandas 2.2.3 & NATS-Py 2.10.0
+- PostgreSQL
+- NATS Messaging
+
+## Project Structure
+
+The project follows a monorepo structure with separate frontend and backend directories:
+
+- `./frontend` - Frontend application built with Astro
+  - `./frontend/src` - Frontend source code
+  - `./frontend/src/layouts` - Astro layouts
+  - `./frontend/src/pages` - Astro pages (add API routes in `./frontend/src/pages/api` if needed)
+  - `./frontend/src/components` - Client-side components written in Astro (static) and React (dynamic)
+  - `./frontend/src/components/ui` - Client-side components from Shadcn/ui
+  - `./frontend/src/lib` - Frontend services and helpers
+  - `./frontend/src/styles` - Global styles (Tailwind config)
+  - `./frontend/src/db` - Database clients and types (PostgreSQL/Supabase integration)
+  - `./frontend/src/types.ts` - Shared types for frontend (Entities, DTOs)
+  - `./frontend/public` - Public assets for frontend
+- `./frontend-legacy` - Legacy frontend code (reference for migrations if needed)
+- `./backend` - Backend services
+  - `./backend/data-analyser` - Python data analysis service (Pandas/NATS-Py)
+  - `./backend/email-receiver` - Email receiving service (FastAPI-based)
+  - `./backend/http-backend` - HTTP backend API service (NestJS with TypeORM/PostgreSQL)
+- `./doc` - Documentation files (architecture diagrams, etc.)
+- Root level files: `docker-compose.yml` (Docker orchestration), `docker.mk` (Makefile helpers), `README.md` (overview)
+
+When modifying the directory structure, always update this section.
+
+When introducing changes to the project, always follow the directory structure above.
+
+When modifying the directory structure, always update this section.
+
+## Coding practices
+
+### Guidelines for clean code
+
+- Use feedback from linters to improve the code when making changes.
+- Prioritize error handling and edge cases.
+- Handle errors and edge cases at the beginning of functions.
+- Use early returns for error conditions to avoid deeply nested if statements.
+- Place the happy path last in the function for improved readability.
+- Avoid unnecessary else statements; use if-return pattern instead.
+- Use guard clauses to handle preconditions and invalid states early.
+- Implement proper error logging and user-friendly error messages.
+- Consider using custom error types or error factories for consistent error handling.
