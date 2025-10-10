@@ -52,6 +52,11 @@ Technically-inclined Citroen and Peugeot owners, car enthusiasts, and DIY mechan
   - Indicator if a FAP Regeneration event is present
 - Users can delete entries from their history.
 
+#### **Cross-log summary dashboard**
+
+- Min/max/average values for key parameters (Engine Temp, RPM, etc.).
+- Calculated metrics like Distance Travelled and Fuel Consumption.
+
 ---
 
 ### 4. User Experience & Design
@@ -66,7 +71,6 @@ Technically-inclined Citroen and Peugeot owners, car enthusiasts, and DIY mechan
 
 ### 5. Out of Scope for MVP
 
-- Cross-log "Summary Dashboard"
 - Password recovery mechanism
 - User ability to rename log files
 - Advanced user profile management
