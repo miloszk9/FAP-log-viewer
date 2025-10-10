@@ -21,6 +21,10 @@ This application enables users to upload `.csv` log files from the FAP mobile ap
 
 The target audience includes technically-inclined Citroen and Peugeot owners, car enthusiasts, and DIY mechanics who want advanced tools for analyzing and interpreting log data.
 
+## Component diagram
+
+![System Diagram](doc/chart.png)
+
 ## Tech Stack
 
 The project uses a modern, decoupled architecture:
