@@ -1,0 +1,66 @@
+---
+globs: backend/email-receiver/*,backend/data-analyser/*
+alwaysApply: false
+---
+
+# Python Best Practices (2025 Edition)
+
+These guidelines ensure clean, maintainable, performant Python code in the FAP Log Viewer project. Focus on Python 3.12+ features, type safety, and project tech (FastAPI for email-receiver, Pandas/NATS for data-analyser). When AI generates code, prioritize modularity (small functions/classes), testability (pytest-friendly), and edge-case handling. Use vectorized ops in data code; async for I/O.
+
+## General Coding Standards
+
+- **Version & Environment**: Target Python 3.12+. Use virtual environments (venv or Poetry for dependency management). Pin versions in `requirements.txt` or `pyproject.toml` (e.g., `pandas>=2.2,<3.0`). Load env vars with `python-dotenv` but validate with Pydantic `BaseSettings`.
+- **Style & Formatting**:
+
+  - Follow PEP 8: 88-char lines, snake_case for vars/functions, CapWords for classes.
+  - Auto-format with Black (default settings) and isort (profile=black).
+  - Use mypy for static type checking (--strict); ruff for linting (replaces flake8/pylint).
+  - Docstrings: Google style for functions/classes; include params, returns, raises.
+
+- **Type Hints** (Mandatory):
+
+  - Annotate everything: functions (`def func(a: int) -> str:`), vars (`x: float = 1.0`), classes (`dataclass` with `field` types).
+  - Use modern typing: `list[int]` (PEP 585), `Self` (PEP 673), generics with `TypeVar`/`Protocol`.
+  - For unions: Prefer `typing.Literal`, `Annotated` for metadata (e.g., validators).
+  - In Pandas: Annotate DataFrames (`pd.DataFrame[dict[str, Any]]`) and Series.
+
+- **Control Flow & Features**:
+
+  - Prefer `match` statements (PEP 634) over if-elif chains for pattern matching (e.g., error types, CSV column checks).
+  - Use f-strings for all formatting; avoid `%` or `.format()`.
+  - Path handling: `pathlib.Path` over `os.path`.
+  - Iterables: `list/dict/set` comprehensions; `walrus` operator (`:=`) for assignments in expressions.
+  - Context managers: Always for files/DB/connections (`with open(...) as f:`; async equivalents).
+
+- **Error Handling & Logging**:
+
+  - Raise specific exceptions (custom subclasses like `DataAnalyseException`); use `match` for handling.
+  - Early returns/guard clauses; avoid deep nesting.
+  - Logging: Standard `logging` module (project pattern). Levels: DEBUG for internals, INFO for progress, ERROR with `exc_info=True`.
+  - User errors: Friendly messages; log full tracebacks internally.
+
+- **Testing**:
+
+  - Use pytest for units/integration; cover 80%+ (focus on params like FAP regen calcs).
+  - Mock externalities (e.g., NATS with `pytest-asyncio`, Pandas with `pd.testing`).
+  - Parametrize tests for edge cases (e.g., missing CSV columns, empty DataFrames).
+
+- **Performance & Security**:
+  - Vectorize: No loops in Pandas (use `apply` sparingly; prefer `groupby`/`agg`).
+  - Async: Use `asyncio` for I/O (NATS, API calls); `ThreadPoolExecutor` for CPU (Pandas ops).
+  - Security: Validate inputs (Pydantic); sanitize logs; no hard-coded secrets (use env).
+  - Dependencies: Audit with `pip-audit`; keep minimal.
+
+## Project-Specific Guidelines
+
+### email-receiver (FastAPI Service)
+
+- Endpoints: Async where possible (Gmail API); use dependencies for auth/DB.
+- Validation: Pydantic models for requests/responses (e.g., email payloads).
+- Background: `BackgroundTasks` for non-blocking (e.g., attachment uploads); rate-limit with `slowapi`.
+- Gmail: Batch fetches; handle OAuth refresh securely.
+
+### data-analyser (Pandas/NATS Service)
+
+- NATS: Async handlers; publish results to response queues (e.g., `analyse.response`).
+- Edge Cases: Handle NaNs (`fillna` or `dropna`); idle/driving splits based on speed/revs thresholds.
