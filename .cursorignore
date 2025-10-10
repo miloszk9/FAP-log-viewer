@@ -2,3 +2,4 @@
 *.pem
 *secret.yaml
 token*.json
+frontend-legacy/*
