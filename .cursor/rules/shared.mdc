@@ -35,7 +35,6 @@ The project follows a monorepo structure with separate frontend and backend dire
 - `./frontend-legacy` - Legacy frontend code (reference for migrations if needed)
 - `./backend` - Backend services
   - `./backend/data-analyser` - Python data analysis service (Pandas/NATS-Py)
-  - `./backend/email-receiver` - Email receiving service (FastAPI-based)
   - `./backend/http-backend` - HTTP backend API service (NestJS with TypeORM/PostgreSQL)
 - `./doc` - Documentation files (architecture diagrams, etc.)
 - Root level files: `docker-compose.yml` (Docker orchestration), `docker.mk` (Makefile helpers), `README.md` (overview)

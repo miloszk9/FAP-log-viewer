@@ -114,8 +114,148 @@ This resource requires several adjustments to meet PRD requirements and improve 
     "fapRegen": true,
     "distance": 123.45,
     "analysis": {
-      "engineTemp": { "min": 80, "max": 95, "avg": 90 },
-      "rpm": { "min": 750, "max": 4000, "avg": 2100 }
+      "date": {
+        "date": "2025-03-11",
+        "start": "07:32:34",
+        "end": "08:21:49"
+      },
+      "overall": {
+        "distance_km": 18.91,
+        "duration": {
+          "overall_sec": 2376,
+          "engineOff_sec": 170,
+          "engineOn_sec": 2206,
+          "idle_sec": 589,
+          "driving_sec": 1616
+        },
+        "externalTemp": {
+          "avg_c": 10.5,
+          "max_c": 12,
+          "min_c": 10
+        }
+      },
+      "driving": {
+        "acceleration": {
+          "max_perc": 39,
+          "avg_perc": 18.89
+        },
+        "fuelConsumption": {
+          "total_l": 2.25,
+          "avg_l100km": 11.9
+        },
+        "revs": {
+          "min": 0,
+          "max": 2906,
+          "avg": 1457,
+          "avgDriving": 1679
+        },
+        "speed": {
+          "avg_kmh": 23.2,
+          "max_kmh": 74,
+          "min_kmh": 0
+        }
+      },
+      "engine": {
+        "battery": {
+          "beforeDrive": {
+            "min_v": 12.3,
+            "max_v": 12.3,
+            "avg_v": 12.3
+          },
+          "engineRunning": {
+            "min_v": 12.3,
+            "max_v": 14.58,
+            "avg_v": 14.45
+          }
+        },
+        "coolantTemp": {
+          "min_c": 11,
+          "max_c": 97,
+          "avg_c": 76
+        },
+        "engineWarmup": {
+          "coolant_sec": 20.37,
+          "oil_sec": 23.73
+        },
+        "errors": 0,
+        "oilCarbonate_perc": 1,
+        "oilDilution_perc": 3,
+        "oilTemp": {
+          "min_c": 12,
+          "max_c": 100,
+          "avg_c": 76
+        }
+      },
+      "fap": {
+        "additive": {
+          "vol_ml": 1260,
+          "remain_ml": 752
+        },
+        "deposits": {
+          "percentage_perc": 3,
+          "weight_gram": 2
+        },
+        "lastRegen_km": 3,
+        "last10Regen_km": 751,
+        "life": {
+          "life_km": 11469,
+          "left_km": 142560
+        },
+        "pressure_idle": {
+          "avg_mbar": 10.1,
+          "max_mbar": 37,
+          "min_mbar": 0
+        },
+        "pressure": {
+          "min_mbar": 0,
+          "max_mbar": 133,
+          "avg_mbar": 29.2
+        },
+        "soot": {
+          "start_gl": 17.5,
+          "end_gl": 0.74,
+          "diff_gl": -16.76
+        },
+        "temp": {
+          "min_c": 7,
+          "max_c": 440,
+          "avg_c": 225
+        }
+      },
+      "fapRegen": {
+        "previousRegen_km": 868,
+        "duration_sec": 905,
+        "distance_km": 8.5,
+        "speed": {
+          "min_kmh": 0,
+          "max_kmh": 70,
+          "avg_kmh": 33.7
+        },
+        "fapTemp": {
+          "min_c": 225,
+          "max_c": 440,
+          "avg_c": 341.21
+        },
+        "fapPressure": {
+          "min_mbar": 11,
+          "max_mbar": 133,
+          "avg_mbar": 44.75
+        },
+        "revs": {
+          "min": 756,
+          "max": 2906,
+          "avg": 1943.92
+        },
+        "fapSoot": {
+          "start_gl": 17.66,
+          "end_gl": 1.77,
+          "diff_gl": -15.89
+        },
+        "fuelConsumption": {
+          "regen_l100km": 17.64,
+          "nonRegen_l100km": 9.47
+        }
+      }
     },
     "version": "1.0.0"
   }
@@ -161,8 +301,121 @@ The existing endpoint is mostly compliant but will be moved to the new versioned
     "status": "SUCCESS",
     "message": "Calculation complete",
     "average": {
-      "totalDistance": 500.5,
-      "avgEngineTemp": 91.2
+      "overall": {
+        "distance_km": 18.91,
+        "duration": {
+          "overall_sec": 2376,
+          "engineOff_sec": 170,
+          "engineOn_sec": 2206,
+          "idle_sec": 589,
+          "driving_sec": 1616
+        }
+      },
+      "driving": {
+        "acceleration": {
+          "max_perc": 39,
+          "avg_perc": 18.89
+        },
+        "fuelConsumption_l100km": 12.48,
+        "revs": {
+          "min": 0,
+          "max": 2906,
+          "avg": 1457,
+          "avgDriving": 1679
+        },
+        "speed": {
+          "avg_kmh": 23.2,
+          "max_kmh": 74
+        }
+      },
+      "engine": {
+        "battery": {
+          "beforeDrive": {
+            "avg_v": 12.3
+          },
+          "engineRunning": {
+            "avg_v": 14.45
+          }
+        },
+        "coolantTemp": {
+          "min_c": 11,
+          "max_c": 97,
+          "avg_c": 76
+        },
+        "engineWarmup": {
+          "coolant_sec": 20.37,
+          "oil_sec": 23.73
+        },
+        "errors": {
+          "min": 0,
+          "max": 2
+        },
+        "oilCarbonate": {
+          "min_perc": 0,
+          "max_perc": 3
+        },
+        "oilDilution": {
+          "min_perc": 0,
+          "max_perc": 2
+        },
+        "oilTemp": {
+          "min_c": 12,
+          "max_c": 100,
+          "avg_c": 76
+        }
+      },
+      "fap": {
+        "pressure": {
+          "min_mbar": 0,
+          "max_mbar": 100,
+          "avg_mbar": 10.1
+        },
+        "pressure_idle": {
+          "avg_mbar": 10.1
+        },
+        "soot": {
+          "min_gl": 0.74,
+          "max_gl": 17.5
+        },
+        "temp": {
+          "min_c": 7,
+          "max_c": 440,
+          "avg_c": 224
+        }
+      },
+      "fapRegen": {
+        "previousRegen_km": 868,
+        "duration_sec": 905,
+        "distance_km": 8.5,
+        "speed": {
+          "min_kmh": 0,
+          "max_kmh": 70,
+          "avg_kmh": 33.7
+        },
+        "fapTemp": {
+          "min_c": 225,
+          "max_c": 440,
+          "avg_c": 341.21
+        },
+        "fapPressure": {
+          "min_mbar": 11,
+          "max_mbar": 133,
+          "avg_mbar": 44.75
+        },
+        "revs": {
+          "min": 756,
+          "max": 2906,
+          "avg": 1943.92
+        },
+        "fapSoot": {
+          "start_gl": 17.66,
+          "end_gl": 1.77
+        },
+        "fuelConsumption": {
+          "regen_l100km": 17.64,
+          "nonRegen_l100km": 9.47
+        }
+      }
     }
   }
   ```

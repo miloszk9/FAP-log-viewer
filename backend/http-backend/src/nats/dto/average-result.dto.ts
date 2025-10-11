@@ -2,13 +2,14 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AverageResultDto {
   @ApiProperty({
-    description: 'User ID of the analysis files',
+    description: 'User ID',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
   id: string;
 
   @ApiProperty({
-    description: 'Sha256 of the analysis',
+    description:
+      'SHA256 hash of the concatenated analysis JSONs used for this average calculation',
     example: '2cf24dba5fb3a713146449fd4b813712e8d6d41b5bb4f4d8f011c0148fd4b329',
   })
   sha256: string;
