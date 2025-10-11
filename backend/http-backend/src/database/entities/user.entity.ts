@@ -1,41 +1,58 @@
 import {
-  Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
-  UpdateDateColumn,
+  Entity,
   OneToMany,
   OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { FapAnalysis } from './fap-analysis.entity';
 import { FapAverage } from './fap-average.entity';
 
-@Entity('users')
+@Entity({ name: 'users' })
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true, nullable: false })
   email: string;
 
-  @Column()
-  password: string;
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'password_hash',
+    nullable: false,
+  })
+  passwordHash: string;
 
-  @Column({ nullable: true })
+  @Column({
+    type: 'varchar',
+    length: 255,
+    name: 'refresh_token',
+    nullable: false,
+  })
   refreshToken: string;
 
-  @Column({ default: true })
-  isActive: boolean;
+  @CreateDateColumn({
+    type: 'timestamp with time zone',
+    name: 'created_at',
+    default: () => 'NOW()',
+    nullable: false,
+  })
+  createdAt: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp with time zone',
+    name: 'updated_at',
+    default: () => 'NOW()',
+    nullable: false,
+  })
+  updatedAt: Date;
 
   @OneToMany(() => FapAnalysis, (analysis) => analysis.user)
   analyses: FapAnalysis[];
 
   @OneToOne(() => FapAverage, (average) => average.user, { cascade: true })
   average: FapAverage;
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
 }
