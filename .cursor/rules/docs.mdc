@@ -8,4 +8,4 @@ alwaysApply: true
 
 #### DOC_UPDATES
 
-- Keep README.md in sync with new capabilities
+- Keep .md docs in the .ai/ directory in sync with the architecture changes.
