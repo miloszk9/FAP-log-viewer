@@ -18,7 +18,7 @@ async function bootstrap() {
   });
 
   // Set global prefix for all routes
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix('/api/v1');
 
   app.connectMicroservice({
     transport: Transport.NATS,
