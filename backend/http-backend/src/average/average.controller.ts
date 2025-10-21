@@ -43,8 +43,8 @@ export class AverageController {
 
     return {
       status: average.status,
-      message: average.message,
-      average: average.average,
+      message: average.message ?? '',
+      average: average.average ?? {},
     };
   }
 }

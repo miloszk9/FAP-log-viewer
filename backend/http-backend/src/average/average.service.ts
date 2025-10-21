@@ -3,6 +3,7 @@ import { createHash } from 'crypto';
 import { FapAnalysisService } from '../database/services/fap-analysis.service';
 import { FapAverageService } from '../database/services/fap-average.service';
 import { NatsService } from '../nats/nats.service';
+import { AnalysisStatusEnum } from 'src/database/entities/enums';
 
 @Injectable()
 export class AverageService {
@@ -22,7 +23,7 @@ export class AverageService {
 
     // Check if any analysis is pending
     const hasPending = analyses.some(
-      (analysis) => analysis.status === 'pending',
+      (analysis) => analysis.status === AnalysisStatusEnum.PROCESSING,
     );
     if (hasPending) {
       this.logger.log(
@@ -33,7 +34,7 @@ export class AverageService {
 
     // Build array of successful analyses
     const successfulAnalyses = analyses
-      .filter((analysis) => analysis.status === 'Success')
+      .filter((analysis) => analysis.status === AnalysisStatusEnum.SUCCESS)
       .map((analysis) => analysis.analysis);
 
     if (successfulAnalyses.length === 0) {
@@ -56,7 +57,7 @@ export class AverageService {
     await this.natsService.sendAverageRequest({
       id: userId,
       analysis_sha: sha256,
-      analysis: successfulAnalyses,
+      analysis: successfulAnalyses as Record<string, any>[],
     });
 
     this.logger.log(`Average request sent for user ${userId}`);
