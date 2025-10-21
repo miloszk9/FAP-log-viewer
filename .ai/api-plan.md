@@ -39,8 +39,8 @@ This resource requires several adjustments to meet PRD requirements and improve 
 
 - **HTTP Method:** `POST`
 - **URL Path:** `/api/v1/analyses`
-- **Description:** Uploads a `.csv` or `.zip` file for asynchronous analysis. This endpoint can be used by both authenticated and unauthenticated users.
-- **Authentication:** Optional (JWT Bearer Token).
+- **Description:** Uploads a `.csv` or `.zip` file for asynchronous analysis.
+- **Authentication:** Required (JWT Bearer Token).
 - **JSON Request Payload:** `multipart/form-data` with a `file` field.
 - **JSON Response Payload:**
 
@@ -102,8 +102,8 @@ This resource requires several adjustments to meet PRD requirements and improve 
 
 - **HTTP Method:** `GET`
 - **URL Path:** `/api/v1/analyses/:id`
-- **Description:** Retrieves the detailed results of a single log analysis.
-- **Authentication:** Optional (JWT Bearer Token).
+- **Description:** Retrieves the detailed results of a single log analysis. All fields within the `analysis` object are optional and will only be present if the corresponding data is available from the user's logs.
+- **Authentication:** Required (JWT Bearer Token).
 - **JSON Response Payload:**
   ```json
   {
@@ -293,7 +293,7 @@ The existing endpoint is mostly compliant but will be moved to the new versioned
 
 - **HTTP Method:** `GET`
 - **URL Path:** `/api/v1/average`
-- **Description:** Retrieves the aggregated, cross-log average data for the authenticated user.
+- **Description:** Retrieves the aggregated, cross-log average data for the authenticated user. All fields within the `average` object are optional and will only be present if the corresponding data is available from the user's logs.
 - **Authentication:** Required (JWT Bearer Token).
 - **JSON Response Payload:**
   ```json

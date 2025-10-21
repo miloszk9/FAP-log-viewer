@@ -15,7 +15,7 @@ This document outlines the planned changes to the NestJS backend API, based on t
 
 - **`POST /` (Upload File)**
 
-  - **Auth**: Will remain as is, using `OptionalJwtAuthGuard` to allow uploads from both authenticated and unauthenticated users.
+  - **Auth**: Will be changed to `JwtAuthGuard` to require authentication for all uploads.
   - **Success Code**: The success status code will be changed from `201 Created` to `202 Accepted` to better signify that the file has been queued for asynchronous processing.
 
 - **`GET /` (Get Log History)**
@@ -24,11 +24,10 @@ This document outlines the planned changes to the NestJS backend API, based on t
   - **Functionality**: Implement pagination and sorting.
     - **Query Params**: Add support for `page`, `limit`, `sortBy`, and `order`.
     - **Response**: The response will be updated to a structured object containing a `data` array with analysis items and a `pagination` object.
-  - **Cleanup**: The `emailService.refresh()` call will be removed.
 
 - **`GET /:id` (Get Single Analysis)**
 
-  - **Auth**: Will remain as is, using `OptionalJwtAuthGuard`.
+  - **Auth**: Will be changed to `JwtAuthGuard` to require authentication.
   - **Logic**: The side-effect that re-triggers a pending analysis will be removed. A `GET` request should not have side-effects.
 
 - **`DELETE /:id` (Delete Analysis)**
