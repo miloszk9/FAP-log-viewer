@@ -36,6 +36,29 @@ export class FapAnalysisService {
     });
   }
 
+  async findAndCountByUserId(
+    userId: string,
+    options: {
+      skip: number;
+      take: number;
+      sortBy: 'fileName' | 'createdAt';
+      order: 'ASC' | 'DESC';
+    },
+  ): Promise<[FapAnalysis[], number]> {
+    this.logger.log(
+      `Finding FapAnalyses for user ${userId} with pagination: skip=${options.skip}, take=${options.take}, sortBy=${options.sortBy}, order=${options.order}`,
+    );
+    return this.fapAnalysisRepository.findAndCount({
+      where: { user: { id: userId } },
+      relations: ['user'],
+      skip: options.skip,
+      take: options.take,
+      order: {
+        [options.sortBy]: options.order,
+      },
+    });
+  }
+
   async findOne(id: string): Promise<FapAnalysis | null> {
     this.logger.log(`Finding FapAnalysis ${id}`);
     const result = await this.fapAnalysisRepository.findOne({

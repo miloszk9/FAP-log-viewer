@@ -1,15 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { AnalysisHistoryItemDto } from './analysis-history-item.dto';
+import { PaginationDto } from './pagination.dto';
 
 export class GetAllAnalysisResponseDto {
-  @ApiProperty({ description: 'Unique identifier of the analysis' })
-  id: string;
-
-  @ApiProperty({ description: 'File name of the analysis' })
-  fileName: string;
+  @ApiProperty({
+    description: 'Array of analysis items',
+    type: [AnalysisHistoryItemDto],
+  })
+  data: AnalysisHistoryItemDto[];
 
   @ApiProperty({
-    description: 'Whether the analysis contains FAP regeneration',
-    example: true,
+    description: 'Pagination metadata',
+    type: PaginationDto,
   })
-  regen: boolean;
+  pagination: PaginationDto;
 }

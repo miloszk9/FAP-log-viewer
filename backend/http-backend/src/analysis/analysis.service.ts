@@ -12,6 +12,7 @@ import * as path from 'path';
 import * as AdmZip from 'adm-zip';
 import { Readable } from 'stream';
 import { FapAnalysis } from 'src/database/entities/fap-analysis.entity';
+import { AnalysisStatusEnum } from 'src/database/entities/enums';
 import { FapAnalysisService } from 'src/database/services/fap-analysis.service';
 import { NatsService } from '../nats/nats.service';
 
@@ -46,7 +47,7 @@ export class AnalysisService implements OnApplicationBootstrap {
           `Analysis ${analysis.id} is not up to date. Current version: ${version}, required version: ${this.dataAnalyserVersion}`,
         );
         await this.fapAnalysisService.update(analysis.id, {
-          status: 'pending',
+          status: AnalysisStatusEnum.PROCESSING,
           message: 'Analysis pending',
         });
         await this.natsService.sendAnalysisRequest({ id: analysis.id });
@@ -108,17 +109,21 @@ export class AnalysisService implements OnApplicationBootstrap {
     let id: string;
     if (existingAnalysis) {
       id = existingAnalysis.id;
-      if (existingAnalysis.status === 'Success') {
+      if (existingAnalysis.status === AnalysisStatusEnum.SUCCESS) {
         return existingAnalysis.id;
       }
     } else {
       const newAnalysis = await this.fapAnalysisService.create({
-        status: 'pending',
+        status: AnalysisStatusEnum.PROCESSING,
         message: 'Analysis pending',
         sha256,
-        analysis: {},
+        analysis: null,
         user: userId ? ({ id: userId } as any) : undefined,
         fileName: file.originalname,
+        logDate: null,
+        fapRegen: false,
+        distance: null,
+        version: null,
       } as FapAnalysis);
       id = newAnalysis.id;
       const filePath = path.join(this.uploadDir, `${id}.csv`);
@@ -156,16 +161,7 @@ export class AnalysisService implements OnApplicationBootstrap {
     }
   }
 
-  async getAnalysis(
-    id: string,
-    userId?: string,
-  ): Promise<{
-    fileName: string;
-    status: string;
-    message: string;
-    result: any;
-    regen: boolean;
-  }> {
+  async getAnalysis(id: string, userId?: string): Promise<FapAnalysis> {
     const analysis = await this.fapAnalysisService.findOne(id);
     if (!analysis) {
       this.logger.log(`FapAnalysis ${id} not found`);
@@ -173,21 +169,64 @@ export class AnalysisService implements OnApplicationBootstrap {
     }
 
     // If analysis has a user and it doesn't match the requesting user, return not found
-    if (analysis.user && analysis.user.id !== userId) {
+    if (!analysis.user || analysis.user.id !== userId) {
       this.logger.warn(`Denied access to FapAnalysis ${id} for user ${userId}`);
       throw new NotFoundException('Analysis for given ID not found.');
     }
 
-    return {
-      fileName: analysis.fileName,
-      status: analysis.status,
-      message: analysis.message,
-      result: analysis.analysis,
-      regen: analysis.regen,
-    };
+    return analysis;
   }
 
   async getAnalysisForUser(userId: string): Promise<FapAnalysis[]> {
     return this.fapAnalysisService.findAllByUserId(userId);
+  }
+
+  async getAnalysisForUserPaginated(
+    userId: string,
+    options: {
+      page?: number;
+      limit?: number;
+      sortBy?: 'fileName' | 'createdAt';
+      order?: 'asc' | 'desc';
+    },
+  ): Promise<{ data: FapAnalysis[]; total: number }> {
+    const page = options.page || 1;
+    const limit = options.limit || 10;
+    const sortBy = options.sortBy || 'createdAt';
+    const order = options.order || 'desc';
+
+    const skip = (page - 1) * limit;
+
+    const [data, total] = await this.fapAnalysisService.findAndCountByUserId(
+      userId,
+      {
+        skip,
+        take: limit,
+        sortBy,
+        order: order.toUpperCase() as 'ASC' | 'DESC',
+      },
+    );
+
+    return { data, total };
+  }
+
+  async deleteAnalysis(id: string, userId: string): Promise<void> {
+    const analysis = await this.fapAnalysisService.findOne(id);
+
+    if (!analysis) {
+      this.logger.log(`FapAnalysis ${id} not found`);
+      throw new NotFoundException('Analysis for given ID not found.');
+    }
+
+    // If analysis has a user and it doesn't match the requesting user, return not found
+    if (!analysis.user || analysis.user.id !== userId) {
+      this.logger.warn(
+        `Denied deletion of FapAnalysis ${id} for user ${userId}`,
+      );
+      throw new NotFoundException('Analysis for given ID not found.');
+    }
+
+    await this.fapAnalysisService.remove(id);
+    this.logger.log(`Deleted FapAnalysis ${id} for user ${userId}`);
   }
 }
