@@ -15,7 +15,7 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async create(email: string, password: string): Promise<User> {
+  async create(email: string, password: string): Promise<void> {
     this.logger.log(`Creating new user with email: ${email}`);
     return this.userService.create(email, password);
   }

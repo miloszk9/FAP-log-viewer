@@ -6,7 +6,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { User } from '../database/entities/user.entity';
 import { EmailService } from '../email/email.service';
 import { AuthService } from './auth.service';
 import {
@@ -34,15 +33,10 @@ export class AuthController {
   @ApiResponse({
     status: 201,
     description: 'User registered successfully',
-    type: User,
   })
   @ApiResponse({ status: 409, description: 'Email already exists' })
-  async register(@Body() registerDto: RegisterDto): Promise<User> {
-    const user = await this.authService.create(
-      registerDto.email,
-      registerDto.password,
-    );
-    return user;
+  async register(@Body() registerDto: RegisterDto): Promise<void> {
+    await this.authService.create(registerDto.email, registerDto.password);
   }
 
   @UseGuards(LocalAuthGuard)

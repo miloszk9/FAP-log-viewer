@@ -20,7 +20,7 @@ export class UserService {
     private userRepository: Repository<User>,
   ) {}
 
-  async create(email: string, password: string): Promise<User> {
+  async create(email: string, password: string): Promise<void> {
     this.logger.log(`Attempting to create user with email: ${email}`);
     const existingUser = await this.userRepository.findOne({
       where: { email },
@@ -48,9 +48,8 @@ export class UserService {
       passwordHash: hashedPassword,
       average: fapAverage,
     });
-    const savedUser = await this.userRepository.save(user);
+    await this.userRepository.save(user);
     this.logger.log(`Successfully created user with email: ${email}`);
-    return savedUser;
   }
 
   async findByEmail(email: string): Promise<User> {
