@@ -9,6 +9,7 @@ import { genSalt, hash, compare } from 'bcryptjs';
 import { Repository } from 'typeorm';
 import { FapAverage } from '../entities/fap-average.entity';
 import { User } from '../entities/user.entity';
+import { FapAverageStatusEnum } from '../entities/enums';
 
 @Injectable()
 export class UserService {
@@ -37,14 +38,14 @@ export class UserService {
     this.logger.log('Password hashed successfully');
 
     const fapAverage = new FapAverage();
-    fapAverage.status = '';
-    fapAverage.message = '';
-    fapAverage.sha256 = '';
+    fapAverage.status = FapAverageStatusEnum.CALCULATING;
+    fapAverage.message = null;
+    fapAverage.sha256 = null;
     fapAverage.average = {};
 
     const user = this.userRepository.create({
       email,
-      password: hashedPassword,
+      passwordHash: hashedPassword,
       average: fapAverage,
     });
     const savedUser = await this.userRepository.save(user);
@@ -69,7 +70,7 @@ export class UserService {
     this.logger.log(`Validating user credentials for email: ${email}`);
     const user = await this.findByEmail(email);
 
-    const isPasswordValid = await compare(password, user.password);
+    const isPasswordValid = await compare(password, user.passwordHash);
 
     if (!isPasswordValid) {
       this.logger.warn(`Invalid password attempt for user: ${email}`);

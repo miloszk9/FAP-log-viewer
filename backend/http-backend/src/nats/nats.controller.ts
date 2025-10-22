@@ -14,14 +14,21 @@ export class NatsController {
     private readonly fapAverageService: FapAverageService,
   ) {}
 
-  @MessagePattern('analyse.result')
+  @MessagePattern('analysis.result')
   async handleAnalysisResult(@Payload() data: AnalysisResultDto) {
-    const updatedAnalysis = await this.fapAnalysisService.update(data.id, {
-      status: data.status,
-      message: data.message,
-      analysis: data.analysis,
-      regen: data.regen,
-    });
+    const logDate = data.logDate ? new Date(data.logDate) : null;
+
+    const updatedAnalysis = await this.fapAnalysisService.update(
+      data.analysisId,
+      {
+        status: data.status,
+        message: data.message,
+        analysis: data.analysis,
+        fapRegen: Boolean(data.fapRegen),
+        logDate: logDate,
+        distance: data.distance ?? data.analysis?.overall?.distance ?? null,
+      },
+    );
     const user = updatedAnalysis.user;
     if (user) {
       await this.averageService.update(user.id);
@@ -30,8 +37,8 @@ export class NatsController {
 
   @MessagePattern('average.result')
   async handleAverageResult(@Payload() data: AverageResultDto) {
-    await this.fapAverageService.update(data.id, {
-      sha256: data.sha256,
+    await this.fapAverageService.update(data.userId, {
+      sha256: data.analysisSha,
       status: data.status,
       message: data.message,
       average: data.average,

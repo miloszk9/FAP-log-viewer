@@ -75,7 +75,7 @@ Published by the Python service with the outcome of a single analysis.
 }
 ```
 
-_(The `analysis` object contains the full single analysis JSON as defined in the API plan. The `fapRegen`, `logDate`, and `distance` fields are extracted for direct database updates.)_
+_(The `analysis` object contains the full single analysis JSON as defined in the API plan. The analyser must include `logDate` directly in the payload (legacy `date` support has been removed), along with the optional `distance` field when available.)_
 
 ### Topic: `average.request`
 
@@ -105,4 +105,4 @@ Published by the Python service with the newly calculated average data.
 }
 ```
 
-_(The `average` object contains the full user average JSON as defined in the API plan. The `analysisSha` field contains the SHA256 hash of the concatenated analysis JSONs used for this average calculation.)_
+_(The `average` object contains the full user average JSON as defined in the API plan. The backend validates that the object is non-empty before persisting it, and the `analysisSha` field contains the SHA256 hash of the concatenated analysis JSONs used for this average calculation.)_

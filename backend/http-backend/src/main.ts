@@ -1,4 +1,4 @@
-import { RequestMethod } from '@nestjs/common';
+import { RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -11,6 +11,9 @@ async function bootstrap() {
   const port = configService.get<number>('app.port') || 3000;
   const natsUrl =
     configService.get<string>('nats.url') || 'nats://localhost:4222';
+
+  // Enable validation for all incoming requests
+  app.useGlobalPipes(new ValidationPipe());
 
   // Enable CORS
   app.enableCors({

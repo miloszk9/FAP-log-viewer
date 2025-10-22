@@ -1,31 +1,44 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsObject,
+  IsNotEmptyObject,
+} from 'class-validator';
+import { FapAverageStatusEnum } from 'src/database/entities/enums';
 
 export class AverageResultDto {
   @ApiProperty({
     description: 'User ID',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  id: string;
+  @IsString()
+  userId: string;
 
   @ApiProperty({
     description:
       'SHA256 hash of the concatenated analysis JSONs used for this average calculation',
     example: '2cf24dba5fb3a713146449fd4b813712e8d6d41b5bb4f4d8f011c0148fd4b329',
   })
-  sha256: string;
+  @IsString()
+  analysisSha: string;
 
   @ApiProperty({
     description: 'Status of the average analysis',
-    example: 'Success',
-    enum: ['Success', 'Failed'],
+    example: 'SUCCESS',
+    enum: ['SUCCESS', 'FAILED'],
   })
-  status: string;
+  @IsEnum(FapAverageStatusEnum)
+  status: FapAverageStatusEnum;
 
   @ApiProperty({
     description: 'Description for the status',
     example: 'Average analysis completed successfully.',
   })
-  message: string;
+  @IsOptional()
+  @IsString()
+  message?: string;
 
   @ApiProperty({
     description: 'Average analysis results',
@@ -147,5 +160,7 @@ export class AverageResultDto {
       },
     },
   })
-  average: any;
+  @IsNotEmptyObject()
+  @IsObject()
+  average: Record<string, any>;
 }

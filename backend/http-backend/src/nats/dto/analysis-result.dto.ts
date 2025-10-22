@@ -1,27 +1,41 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AnalysisStatusEnum } from 'src/database/entities/enums';
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNotEmptyObject,
+  IsNumber,
+  IsObject,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class AnalysisResultDto {
   @ApiProperty({
-    description: 'ID of the analyzed file',
+    description: 'ID of the analysed file (same as fileName)',
     example: '123e4567-e89b-12d3-a456-426614174000',
   })
-  id: string;
+  @IsString()
+  analysisId: string;
 
   @ApiProperty({
     description: 'Status of the analysis',
     example: 'Success',
     enum: ['Success', 'Failed'],
   })
-  status: string;
+  @IsEnum(AnalysisStatusEnum)
+  status: AnalysisStatusEnum;
 
   @ApiProperty({
     description: 'Description for the status',
     example: 'Analysis completed successfully.',
   })
+  @IsString()
   message: string;
 
   @ApiProperty({
-    description: 'Analysis results',
+    description: 'Analysis results payload',
     example: {
       date: {
         date: '2025-03-11',
@@ -167,11 +181,30 @@ export class AnalysisResultDto {
       },
     },
   })
-  analysis: any;
+  @IsNotEmptyObject()
+  @IsObject()
+  analysis: Record<string, any>;
 
   @ApiProperty({
     description: 'Whether the analysis contains FAP regeneration',
     example: true,
   })
-  regen: boolean;
+  @IsBoolean()
+  fapRegen: boolean;
+
+  @ApiPropertyOptional({
+    description: 'Date of the log associated with the analysis',
+    example: '2025-10-10T00:00:00.000Z',
+  })
+  @IsOptional()
+  @IsDateString()
+  logDate?: string;
+
+  @ApiPropertyOptional({
+    description: 'Distance travelled in the analysed log in kilometres',
+    example: 123.45,
+  })
+  @IsOptional()
+  @IsNumber()
+  distance?: number;
 }

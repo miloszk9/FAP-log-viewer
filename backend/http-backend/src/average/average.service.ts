@@ -55,8 +55,8 @@ export class AverageService {
 
     // Send average request
     await this.natsService.sendAverageRequest({
-      id: userId,
-      analysis_sha: sha256,
+      userId,
+      analysisSha: sha256,
       analysis: successfulAnalyses as Record<string, any>[],
     });
 

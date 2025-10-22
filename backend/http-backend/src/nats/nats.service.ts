@@ -10,19 +10,19 @@ export class NatsService {
     @Inject('NATS_SERVICE') private readonly natsClient: ClientProxy,
   ) {}
 
-  async sendAnalysisRequest(data: { id: string }): Promise<void> {
-    this.logger.log(`Sending analysis request for ${data.id}`);
-    await firstValueFrom(this.natsClient.emit('analyse.request', data));
-    this.logger.log(`Analysis request sent for ${data.id}`);
+  async sendAnalysisRequest(data: { fileName: string }): Promise<void> {
+    this.logger.log(`Sending analysis request for ${data.fileName}`);
+    await firstValueFrom(this.natsClient.emit('analysis.request', data));
+    this.logger.log(`Analysis request sent for ${data.fileName}`);
   }
 
   async sendAverageRequest(data: {
-    id: string;
-    analysis_sha: string;
+    userId: string;
+    analysisSha: string;
     analysis: Record<string, any>[];
   }): Promise<void> {
-    this.logger.log(`Sending average request for ${data.id}`);
+    this.logger.log(`Sending average request for ${data.userId}`);
     await firstValueFrom(this.natsClient.emit('average.request', data));
-    this.logger.log(`Average request sent for ${data.id}`);
+    this.logger.log(`Average request sent for ${data.userId}`);
   }
 }

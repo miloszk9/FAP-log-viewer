@@ -50,7 +50,7 @@ export class AnalysisService implements OnApplicationBootstrap {
           status: AnalysisStatusEnum.PROCESSING,
           message: 'Analysis pending',
         });
-        await this.natsService.sendAnalysisRequest({ id: analysis.id });
+        await this.natsService.sendAnalysisRequest({ fileName: analysis.id });
       }
     }
   }
@@ -152,7 +152,7 @@ export class AnalysisService implements OnApplicationBootstrap {
   async sendAnalysisRequest(id: string): Promise<void> {
     try {
       this.logger.log(`Sending NATS analysis request for ${id}`);
-      await this.natsService.sendAnalysisRequest({ id });
+      await this.natsService.sendAnalysisRequest({ fileName: id });
       this.logger.log(`NATS analysis request sent for ${id}`);
     } catch (error) {
       this.logger.warn(
