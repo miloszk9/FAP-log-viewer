@@ -1,6 +1,6 @@
 ---
 description:
-globs: backend/email-receiver/*
+globs: backend/email-receiver/**/*
 alwaysApply: false
 ---
 

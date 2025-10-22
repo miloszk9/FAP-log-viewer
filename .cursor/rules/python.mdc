@@ -1,5 +1,5 @@
 ---
-globs: backend/email-receiver/*,backend/data-analyser/*
+globs: backend/email-receiver/**/*,backend/data-analyser/**/*
 alwaysApply: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 description:
-globs: backend/http-backend/*
+globs: backend/http-backend/**/*
 alwaysApply: false
 ---
 
