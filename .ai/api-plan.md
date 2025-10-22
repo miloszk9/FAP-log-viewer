@@ -19,12 +19,93 @@ The following adjustments are proposed to the existing endpoints. All endpoints 
 **Controller:** `auth.controller.ts`
 **Base Path:** `/api/v1/auth`
 
-The existing authentication endpoints are well-designed and require no changes. They align with the PRD for registration, login, logout, and token refresh.
+---
 
-- **`POST /register`**
-- **`POST /login`**
-- **`POST /refresh`**
-- **`POST /logout`**
+#### Register
+
+- **HTTP Method:** `POST`
+- **URL Path:** `/api/v1/auth/register`
+- **Description:** Creates a new user account.
+- **Authentication:** Not required.
+- **JSON Request Payload:**
+  ```json
+  {
+    "email": "user@example.com",
+    "password": "password123"
+  }
+  ```
+- **JSON Response Payload:**
+  - No response body.
+- **Success Codes:**
+  - `201 Created`: User registered successfully.
+- **Error Codes:**
+  - `409 Conflict`: Email already exists.
+
+---
+
+#### Login
+
+- **HTTP Method:** `POST`
+- **URL Path:** `/api/v1/auth/login`
+- **Description:** Authenticates a user and returns an access token.
+- **Authentication:** Not required.
+- **JSON Request Payload:**
+  ```json
+  {
+    "email": "user@example.com",
+    "password": "password123"
+  }
+  ```
+- **JSON Response Payload:**
+  ```json
+  {
+    "access_token": "<JWT>"
+  }
+  ```
+- **Success Codes:**
+  - `200 OK`: Login successful.
+- **Error Codes:**
+  - `401 Unauthorized`: Invalid credentials.
+
+---
+
+#### Refresh Access Token
+
+- **HTTP Method:** `POST`
+- **URL Path:** `/api/v1/auth/refresh`
+- **Description:** Issues a new access token for the authenticated user.
+- **Authentication:** Required (JWT Bearer Token via `Authorization: Bearer <access_token>`).
+- **JSON Request Payload:**
+  - No request body.
+- **JSON Response Payload:**
+  ```json
+  {
+    "access_token": "<JWT>"
+  }
+  ```
+- **Success Codes:**
+  - `200 OK`: Token refreshed successfully.
+- **Error Codes:**
+  - `401 Unauthorized`: Invalid or expired token.
+
+Note: This endpoint requires a valid access token to succeed.
+
+---
+
+#### Logout
+
+- **HTTP Method:** `POST`
+- **URL Path:** `/api/v1/auth/logout`
+- **Description:** Logs out the current user and invalidates server-stored refresh token.
+- **Authentication:** Required (JWT Bearer Token via `Authorization: Bearer <access_token>`).
+- **JSON Request Payload:**
+  - No request body.
+- **JSON Response Payload:**
+  - No response body.
+- **Success Codes:**
+  - `200 OK`: Logout successful.
+- **Error Codes:**
+  - `401 Unauthorized`: Invalid token.
 
 ### Resource: Analyses
 
