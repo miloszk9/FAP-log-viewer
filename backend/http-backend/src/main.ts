@@ -1,3 +1,4 @@
+import { RequestMethod } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -17,8 +18,15 @@ async function bootstrap() {
     credentials: true,
   });
 
-  // Set global prefix for all routes
-  app.setGlobalPrefix('/api/v1');
+  // Set global prefix for all routes, except for health and email routes
+  app.setGlobalPrefix('/api/v1', {
+    exclude: [
+      { path: 'health', method: RequestMethod.ALL },
+      { path: 'health/(.*)', method: RequestMethod.ALL },
+      { path: 'email', method: RequestMethod.ALL },
+      { path: 'email/(.*)', method: RequestMethod.ALL },
+    ],
+  });
 
   app.connectMicroservice({
     transport: Transport.NATS,
