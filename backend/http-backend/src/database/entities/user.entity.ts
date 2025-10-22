@@ -30,7 +30,7 @@ export class User {
     type: 'varchar',
     length: 255,
     name: 'refresh_token',
-    nullable: false,
+    nullable: true,
   })
   refreshToken: string;
 

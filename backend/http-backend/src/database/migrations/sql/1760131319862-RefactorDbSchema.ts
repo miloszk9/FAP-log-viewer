@@ -10,7 +10,7 @@ export class RefactorDbSchema1760131319862 implements MigrationInterface {
       `ALTER TABLE "users" RENAME COLUMN "password" TO "password_hash";`,
     );
 
-    // Refactor refreshToken to refresh_token and make NOT NULL
+    // Refactor refreshToken to refresh_token
     await queryRunner.query(
       `ALTER TABLE "users" RENAME COLUMN "refreshToken" TO "refresh_token";`,
     );
@@ -21,9 +21,6 @@ export class RefactorDbSchema1760131319862 implements MigrationInterface {
     // Update any NULLs to empty string to allow NOT NULL
     await queryRunner.query(
       `UPDATE "users" SET "refresh_token" = '' WHERE "refresh_token" IS NULL;`,
-    );
-    await queryRunner.query(
-      `ALTER TABLE "users" ALTER COLUMN "refresh_token" SET NOT NULL;`,
     );
 
     // Drop unused columns (isActive remains dropped as per plan)
@@ -376,10 +373,7 @@ export class RefactorDbSchema1760131319862 implements MigrationInterface {
     );
 
     // Reverse users
-    // Reverse refresh_token to refreshToken and make nullable
-    await queryRunner.query(
-      `ALTER TABLE "users" ALTER COLUMN "refresh_token" DROP NOT NULL;`,
-    );
+    // Reverse refresh_token to refreshToken
     await queryRunner.query(
       `ALTER TABLE "users" RENAME COLUMN "refresh_token" TO "refreshToken";`,
     );
