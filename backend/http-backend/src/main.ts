@@ -24,10 +24,8 @@ async function bootstrap() {
   // Set global prefix for all routes, except for health and email routes
   app.setGlobalPrefix('/api/v1', {
     exclude: [
-      { path: 'health', method: RequestMethod.ALL },
-      { path: 'health/(.*)', method: RequestMethod.ALL },
-      { path: 'email', method: RequestMethod.ALL },
-      { path: 'email/(.*)', method: RequestMethod.ALL },
+      { path: '/health/*path', method: RequestMethod.ALL },
+      { path: '/email', method: RequestMethod.ALL },
     ],
   });
 
