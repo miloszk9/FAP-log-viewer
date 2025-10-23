@@ -18,7 +18,16 @@ This approach ensures that user averages are always kept up-to-date without requ
 1.  A user uploads a `.csv` or `.zip` file via the `POST /api/v1/analyses` endpoint. If a `.zip` is provided, it is unarchived, and a separate analysis is triggered for each `.csv` file within it.
 2.  For each log file, the **NestJS backend** creates a new record in the `fap_analysis` table with a unique `id`.
 3.  The backend saves the file to a persistent volume, using the `id` as the new filename (e.g., `<uuid>.csv`).
-4.  The backend publishes a message to the `analysis.request` topic for each file.
+4.  The backend publishes a message to the `analysis.request` topic for each file using the following envelope:
+
+    ```json
+    {
+      "pattern": "analysis.request",
+      "data": {
+        "fileName": "<uuid-of-the-analysis-record>"
+      }
+    }
+    ```
 
 ### Step 2: Python Service Performs Analysis
 
@@ -34,7 +43,18 @@ This approach ensures that user averages are always kept up-to-date without requ
 2.  It updates the corresponding `fap_analysis` record in the database with the status, message, and result JSON.
 3.  If the analysis was successful, the backend check if any of the user's analysis is pending (to avoid average calculation multiple times in a short period of time). If not, proceeds to trigger the user average calculation.
 4.  Backend check if the average needs to be updated, by comparing sha256 of the analysis jsons that were taken to average calculation, with the new list of jsons, if the sha256 is different, backend continues with the average update.
-5.  It then publishes a message to the `average.request` topic, containing the user's ID, all of the user's analysis, and the analysis jsons sha256.
+5.  It then publishes a message to the `average.request` topic, containing the user's ID, all of the user's analysis, and the analysis jsons sha256, wrapped in the same NATS envelope format:
+
+    ```json
+    {
+      "pattern": "average.request",
+      "data": {
+        "userId": "uuid-of-the-user",
+        "analysisSha": "sha256-hash-of-the-analyses",
+        "analysis": [{ "...": "..." }, { "...": "..." }]
+      }
+    }
+    ```
 
 ### Step 4: Python Service Calculates New Average
 
@@ -55,7 +75,10 @@ Published by the NestJS backend to request analysis of a file.
 
 ```json
 {
-  "fileName": "uuid-of-the-analysis-record"
+  "pattern": "analysis.request",
+  "data": {
+    "fileName": "uuid-of-the-analysis-record"
+  }
 }
 ```
 
@@ -83,9 +106,12 @@ Published by the NestJS backend to request an update to a user's average data.
 
 ```json
 {
-  "userId": "uuid-of-the-user",
-  "analysisSha": "sha256-hash-of-the-analyses",
-  "analysis": [{ "...": "..." }, { "...": "..." }]
+  "pattern": "average.request",
+  "data": {
+    "userId": "uuid-of-the-user",
+    "analysisSha": "sha256-hash-of-the-analyses",
+    "analysis": [{ "...": "..." }, { "...": "..." }]
+  }
 }
 ```
 
