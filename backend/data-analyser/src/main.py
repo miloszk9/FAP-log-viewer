@@ -17,7 +17,7 @@ async def main():
     nats_handler = NatsHandler(nats_client)
     await nats_client.subscribe("analysis.request", nats_handler.handle_message)
     await nats_client.subscribe("average.request", nats_handler.handle_message)
-    logger.info("Subscribed to nats")
+    logger.debug("Subscribed to NATS topics")
 
     # Create an event for shutdown
     shutdown_event = asyncio.Event()

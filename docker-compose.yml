@@ -3,6 +3,8 @@ services:
     build:
       context: ./backend/data-analyser
       dockerfile: Dockerfile
+    environment:
+      LOG_LEVEL: DEBUG
     volumes:
       - /tmp/uploads:/data/uploads:ro,z
     depends_on:

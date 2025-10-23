@@ -1,6 +1,8 @@
 import logging
 import sys
 
+from config import LOG_LEVEL
+
 
 def setup_logger(name):
     logger = logging.getLogger(name)
@@ -9,7 +11,7 @@ def setup_logger(name):
     if logger.handlers:
         return logger
 
-    logger.setLevel(logging.INFO)
+    logger.setLevel(LOG_LEVEL)
 
     # Create formatter
     formatter = logging.Formatter(
@@ -20,7 +22,7 @@ def setup_logger(name):
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
-    console_handler.setLevel(logging.INFO)
+    console_handler.setLevel(LOG_LEVEL)
 
     # Add handler to logger
     logger.addHandler(console_handler)
