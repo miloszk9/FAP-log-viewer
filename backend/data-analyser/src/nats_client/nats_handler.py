@@ -18,7 +18,7 @@ class NatsHandler:
         self.nats_client = nats_client
         self.executor = ThreadPoolExecutor(max_workers=max_workers)
         self.topic_handlers = {
-            "analyse.request": self.handle_analyse_request,
+            "analysis.request": self.handle_analysis_request,
             "average.request": self.handle_average_request,
         }
 
@@ -37,84 +37,72 @@ class NatsHandler:
         except Exception as e:
             logger.error(f"Failed to handle message: {e}", exc_info=True)
 
-    async def handle_analyse_request(self, _, payload):
+    async def handle_analysis_request(self, _, payload):
+        logger.debug(f"Received analysis request: {payload}")
         try:
-            print(payload)
-            file_id = payload.get("data").get("id")
+            file_id = payload.get("data", {}).get("fileName")
             if not file_id:
-                raise ValueError("Missing 'id' in message")
+                raise ValueError("Missing 'fileName' in message")
 
             analysis = await self.data_analyser_async(file_id)
 
+            fap_regen = bool(analysis.get("fapRegen"))
+            date = analysis.get("overall", {}).get("date", {}).get("date")
+            distance = analysis.get("overall", {}).get("distance_km")
+
             response = json.dumps(
                 {
-                    "id": file_id,
+                    "analysisId": file_id,
                     "status": "Success",
                     "message": "Analysis completed successfully.",
                     "analysis": analysis,
-                    "regen": bool(analysis.get("fapRegen")),
+                    "fapRegen": fap_regen,
+                    "logDate": date,
+                    "distance": distance,
                 }
             )
 
-            await self.nats_client.publish("analyse.result", response)
+            await self.nats_client.publish("analysis.result", response)
             logger.info(f"Replied with result for {file_id}")
 
         except DataAnalyseException as e:
-            response = json.dumps(
-                {
-                    "id": file_id,
-                    "status": "Failed",
-                    "message": str(e),
-                    "analysis": {},
-                }
-            )
-
-            await self.nats_client.publish("analyse.result", response)
+            await self._publish_analysis_failure(file_id, str(e))
             logger.warning(
                 f"Replied with failed status for analysis of {file_id}: {str(e)}"
             )
-
         except Exception as e:
-            logger.error(f"Analyse error: {e}", exc_info=True)
+            logger.error(f"Analysis error: {e}", exc_info=True)
+            await self._publish_analysis_failure(file_id, str(e))
 
     async def handle_average_request(self, _, payload):
+        logger.debug(f"Received average request: {payload}")
         try:
-            analysis = payload["data"]["analysis"]
-            user_id = payload["data"]["id"]
-            sha = payload["data"]["analysis_sha"]
-            if isinstance(analysis, str):
-                analysis = json.loads(analysis)
-            if not analysis or not isinstance(analysis, list):
-                raise ValueError("Invalid or missing 'analysis' in message")
+            payload = payload["data"]
+            user_id = payload["userId"]
+            sha = payload["analysisSha"]
+            analysis = self._ensure_analysis_list(payload["analysis"])
 
             average = await self.data_average_async(analysis)
 
             response = json.dumps(
                 {
-                    "id": user_id,
-                    "sha256": sha,
-                    "status": "Success",
+                    "userId": user_id,
+                    "analysisSha": sha,
+                    "status": "SUCCESS",
                     "message": "Average calculated successfully.",
                     "average": average,
                 }
             )
 
             await self.nats_client.publish("average.result", response)
-            logger.info(f"Replied with average result: {average}")
+            logger.info(f"Replied with average result for user {user_id}")
 
         except DataAverageException as e:
-            response = json.dumps(
-                {
-                    "status": "Failed",
-                    "message": str(e),
-                }
-            )
-
-            await self.nats_client.publish("average.result", response)
+            await self._publish_average_failure(user_id, sha, str(e))
             logger.warning(f"Replied with failed status for average request: {str(e)}")
-
         except Exception as e:
             logger.error(f"Average error: {e}", exc_info=True)
+            await self._publish_average_failure(user_id, sha, str(e))
 
     async def data_analyser_async(self, file_id):
         loop = asyncio.get_event_loop()
@@ -125,3 +113,44 @@ class NatsHandler:
         loop = asyncio.get_event_loop()
         dataAverage = await loop.run_in_executor(self.executor, DataAverage, analysis)
         return dataAverage.result
+
+    async def _publish_analysis_failure(self, analysis_id, message):
+        response = json.dumps(
+            {
+                "analysisId": analysis_id,
+                "status": "Failed",
+                "message": message,
+                "analysis": {},
+                "fapRegen": False,
+                "logDate": None,
+                "distance": None,
+            }
+        )
+
+        await self.nats_client.publish("analysis.result", response)
+
+    @staticmethod
+    def _ensure_analysis_list(raw_analysis):
+        if raw_analysis is None:
+            raise ValueError("Missing 'analysis' in message")
+
+        if isinstance(raw_analysis, str):
+            raw_analysis = json.loads(raw_analysis)
+
+        if not isinstance(raw_analysis, list) or not raw_analysis:
+            raise ValueError("Invalid or empty 'analysis' in message")
+
+        return raw_analysis
+
+    async def _publish_average_failure(self, user_id, sha, message):
+        response = json.dumps(
+            {
+                "userId": user_id,
+                "analysisSha": sha,
+                "status": "FAILED",
+                "message": message,
+                "average": {},
+            }
+        )
+
+        await self.nats_client.publish("average.result", response)
