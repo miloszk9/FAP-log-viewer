@@ -370,7 +370,7 @@ The existing endpoint is mostly compliant but will be moved to the new versioned
 
 ---
 
-#### **Get User Average Data**
+#### **Get User Summary (Averages)**
 
 - **HTTP Method:** `GET`
 - **URL Path:** `/api/v1/average`
