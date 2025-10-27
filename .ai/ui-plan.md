@@ -168,3 +168,8 @@ PRD user story coverage:
 - Single file analysis dashboard – `Analysis` with sections.
 - Cross-log summary – `Summary`.
 - Error and state handling (“N/A”, 400/401/404/409/5xx) – appropriate views/components and toasts.
+
+## 6. Component library: shadcn/ui
+
+- **Purpose**: Provide a consistent, accessible set of React UI primitives built on Radix UI and styled with Tailwind CSS. Components are generated into the codebase for full control, theming, and long‑term maintainability.
+- **Why here**: Works seamlessly with Astro islands and React, aligns with our Tailwind design tokens, and keeps bundle size minimal by importing only used components.

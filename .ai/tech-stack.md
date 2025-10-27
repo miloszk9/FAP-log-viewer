@@ -6,10 +6,11 @@ This project utilizes a modern, decoupled architecture designed for scalability,
 
 ## Frontend
 
-**Astro** with **Tailwind CSS**
+**Astro** with **Tailwind CSS** and **shadcn/ui**
 
 - _Astro_ is chosen for its high performance and developer-friendly approach to building fast, content-focused web interfaces.
 - _Tailwind CSS_ enables rapid, utility-first, and responsive UI development.
+- _shadcn/ui_ provides a headless, accessible set of React components built on Radix UI and styled with Tailwind CSS, enabling consistent, composable UI building blocks. Components are generated into the codebase for full control and theming.
 
 ## Backend (Main API)
 
