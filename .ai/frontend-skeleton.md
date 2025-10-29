@@ -5,8 +5,7 @@
 - Purpose: Build a fast, accessible Astro + React app for uploading FAP logs, tracking processing status, viewing detailed single‑analysis metrics, and a cross‑log summary.
 - Public views: Login, Register.
 - Protected views: Upload, History, Analysis, Summary.
-- Global shell: Navbar (Upload, History, Summary, Logout), Theme toggle, Language switcher, Toasts, Protected routing via in‑memory JWT (hydrated from sessionStorage).
-- Global shell: Navbar (Upload, History, Summary, Logout), Theme toggle, Language switcher, Toasts (Sonner via shadcn/ui), Protected routing via in‑memory JWT (hydrated from sessionStorage). UI components are sourced from `frontend/src/components/ui` and imported via the `@/` alias.
+- Global shell: Protected routes use shadcn/ui `dashboard-01` (sidebar + header). Sidebar items: "Summary", "Upload new log", "Sign out". Below, a "Saved Report" section lists user reports (name + fapRegen icon when present) with a three-dots menu offering a "Delete" action (calls `DELETE /analyses/:id`). Theme toggle, Language switcher, and Toasts (Sonner via shadcn/ui) are integrated into the layout. Protected routing via in‑memory JWT (hydrated from sessionStorage). UI components are sourced from `frontend/src/components/ui` and imported via the `@/` alias.
 
 ## 2. View Routing
 
@@ -24,12 +23,12 @@
 
 ## 3. Component Structure (High‑level tree)
 
-- `AppShell`
-  - `Navbar`
-    - `NavLinks`
+- `AppShell` (protected uses shadcn `dashboard-01`)
+  - `DashboardSidebar`
+    - `NavLinks` (Summary, Upload new log, Sign out)
+    - `SavedReportsNav` (list of saved reports with fapRegen icon + menu)
     - `ThemeToggle`
     - `LanguageSwitcher`
-    - `LogoutButton`
   - `Toaster` (Sonner)
   - `ProtectedRoute` (wraps protected pages)
 - Public Pages
@@ -71,14 +70,23 @@
   - Types: none
   - Props: `{ children: ReactNode }`
 
-- Navbar
+- DashboardSidebar
 
-  - Purpose: Main navigation + actions.
-  - Elements: `NavLinks` (Upload/History/Summary), `ThemeToggle`, `LanguageSwitcher`, `LogoutButton`.
-  - Events: logout click.
+  - Purpose: Sidebar navigation (shadcn/ui `dashboard-01`).
+  - Elements: `NavLinks` (Summary, Upload new log, Sign out), `SavedReportsNav` (below), `ThemeToggle`, `LanguageSwitcher`.
+  - Events: navigate (Summary, Upload), logout click.
   - Validation: N/A
   - Types: none
   - Props: none
+
+- SavedReportsNav
+
+  - Purpose: Show "Saved Report" section in sidebar.
+  - Elements: list of saved analyses; each item shows report name; displays a fapRegen indicator icon when `fapRegen` is present; three-dots menu with a "Delete" option.
+  - Events: item click → navigate to detail; menu → delete (calls `DELETE /analyses/:id`) with optimistic UI.
+  - Validation: disable delete while pending.
+  - Types: `AnalysisHistoryItemDto`
+  - Props: `{ items: AnalysisHistoryItemDto[], onDelete: (id: string) => Promise<void> }`
 
 - ProtectedRoute
 
@@ -97,7 +105,7 @@
 
 - AuthForm (shared)
 
-  - Purpose: Login/Register form.
+  - Purpose: Login/Register form (rendered using shadcn/ui templates `login-01` and `signup-01`).
   - Elements: email, password inputs; submit button; error area.
   - Events: `onSubmit(values)`
   - Validation:
@@ -298,7 +306,8 @@
 - `frontend/src/pages`
   - `login.astro`, `register.astro`, `upload.astro`, `history.astro`, `analyses/[id].astro`, `summary.astro`
 - `frontend/src/components`
-  - `AppShell.tsx`, `Navbar.tsx`, `ProtectedRoute.tsx`
+  - `AppShell.tsx`, `ProtectedRoute.tsx`
+  - `dashboard/DashboardSidebar.tsx`, `dashboard/SavedReportsNav.tsx`
   - `auth/AuthForm.tsx`
   - `upload/UploadCard.tsx`, `upload/FileDropzone.tsx`
   - `history/AnalysisList.tsx`, `history/AnalysisListItem.tsx`, `history/SortControls.tsx`, `history/DeleteButton.tsx`, `history/StatusBadge.tsx`, `history/InfiniteScroll.tsx`
@@ -317,7 +326,11 @@ This skeleton aligns with the PRD and UI plan and leverages types defined in `fr
 
 ## 12. UI Library (shadcn/ui)
 
-- Components live in `frontend/src/components/ui` and are imported with the `@/` alias, e.g. `import { Button } from '@/components/ui/button'`.
-- Use the CLI to add components as needed: `npx shadcn@latest add button card tabs sonner`.
+- Components live in `frontend/src/components/ui` and are imported with the `@/` alias, e.g. `import { Button } from '@/components/ui/button`.
+- Use the CLI to add components and templates as needed:
+  - `npx shadcn@latest add button card tabs sonner`
+  - `npx shadcn@latest add login-01` (A simple login form)
+  - `npx shadcn@latest add signup-01` (A simple signup form)
+  - `npx shadcn@latest add dashboard-01` (Dashboard with sidebar, charts, data table)
 - Toasts use Sonner: render `Toaster` from `@/components/ui/sonner` once in `AppShell`.
 - Project uses the "new-york" style with "neutral" base color and CSS variables as configured in `components.json`.

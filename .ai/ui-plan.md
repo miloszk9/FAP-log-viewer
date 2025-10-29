@@ -2,11 +2,11 @@
 
 ## 1. Overview of the UI Structure
 
-A web application built with Astro (shell/layout) and React (dynamic views), using client-side navigation and route protection based on JWT stored in memory (hydrated from sessionStorage). The interface provides:
+A web application built with Astro (shell/layout) and React (dynamic views), using client-side navigation and route protection based on JWT stored in memory (hydrated from sessionStorage). The interface uses shadcn/ui templates for auth and dashboard shells and provides:
 
-- **Public views**: `Login`, `Register`.
+- **Public views**: `Login` (shadcn `login-01`), `Register` (shadcn `signup-01`).
 - **Protected views**: `Upload`, `History`, `Analysis`, `Summary`.
-- **Global shell**: navigation bar (Upload, History, Summary, Logout), language and theme switchers, global toasts for errors/actions.
+- **Global shell**: shadcn `dashboard-01` layout for protected routes (sidebar + header), language and theme switchers, global toasts for errors/actions.
 - **State and data**: `@tanstack/react-query` with keys and cache/staleTime policies per planning notes; retry behavior only for GET 5xx.
 - **Accessibility and RWD**: mobile-first, aria-live for status updates, focus management, tables with `scope` and horizontal scrolling ≥ md, metric cards in a grid.
 - **Security**: JWT in memory (hydrated from sessionStorage), clearing on 401, protected routes, file type/size validation (CSV/ZIP ≤ 20MB), no cookies.
@@ -26,7 +26,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **Path**: `/login`
 - **Primary goal**: Authenticate the user and issue a session (JWT in memory).
 - **Key information**: Email/password fields, link to registration, error messages (401).
-- **Key components**: `AuthForm`, `Button`, `Input`, `FormField`, `Toast`.
+- **Key components**: shadcn `login-01` template (wrapped with our `AuthForm` handlers), `Toast`.
 - **API calls**: `POST /api/v1/auth/login`.
 - **UX/a11y/security**: Field validation (zod), inline error messages, focus after error, keyboard submit, soft redirect after 401 from protected views, redirect to `/history` on success.
 - **Mapped PRD requirements**: “User Authentication” (login), “Logout” (navigation flow after login).
@@ -36,7 +36,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **Path**: `/register`
 - **Primary goal**: Create a new account.
 - **Key information**: Email/password fields, confirmations, conflict messages (409 if email exists).
-- **Key components**: `AuthForm`, `Button`, `Input`, `FormField`, `Toast`.
+- **Key components**: shadcn `signup-01` template (wrapped with our `AuthForm` handlers), `Toast`.
 - **API calls**: `POST /api/v1/auth/register`.
 - **UX/a11y/security**: Password patterns, password masking, accessible error messages, redirect to `/login` after 201.
 - **Mapped PRD requirements**: “User Authentication” (register).
@@ -126,16 +126,17 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 
 ## 4. Layout and Navigation Structure
 
-- **Global AppShell (protected routes)**: top navbar with links `Upload`, `History`, `Summary`, `Logout` button, `ThemeToggle`, `LanguageSwitcher`. On mobile, hamburger/overflow menu.
-- **Public AppShell**: minimal header (logo/title), link toggling `Login`/`Register`.
+- **Global AppShell (protected routes)**: shadcn `dashboard-01` with sidebar + header. Sidebar items: `Summary`, `Upload new log`, `Sign out`. Below the main items, a `Saved Report` section lists user reports; each shows the report name, an icon when `fapRegen` is present, and a three-dots menu with a `Delete` option.
+- **Public AppShell**: minimal header (logo/title) using shadcn `login-01` and `signup-01` templates for respective pages.
 - **Route protection**: `ProtectedRoute` wrapper validating JWT (in memory; hydrated from sessionStorage on load). 401 triggers: clear and redirect.
 - **Status indicators**: global `Toast` (stack up to 3, auto-dismiss ~3–5s); per-view `LoadingBar`/skeletons; aria-live for statuses.
-- **Local navigation**: links to details in `History`; in `Upload` CTA to `History` after success; in detail view “Refresh status” after polling limit.
+- **Local navigation**: links to details in `History`; in `Upload` CTA to `History` after success; in detail view “Refresh status” after polling limit. The sidebar `Summary` and `Upload new log` items navigate to `/summary` and `/upload`; `Sign out` triggers logout.
 
 ## 5. Key Components
 
-- **AppShell**: public/protected layout, navbar, content slot.
-- **Navbar**: main links, `LogoutButton`, `ThemeToggle`, `LanguageSwitcher`.
+- **AppShell**: public/protected layout; protected uses shadcn `dashboard-01` (sidebar + header), content slot.
+- **DashboardSidebar**: `Summary`, `Upload new log`, `Sign out`, `ThemeToggle`, `LanguageSwitcher`.
+- **SavedReportsNav**: below main nav; shows saved reports (name, optional fapRegen icon), three-dots menu with `Delete` that calls `DELETE /analyses/:id` (optimistic UI).
 - **ProtectedRoute / AuthProvider**: JWT stored in memory, hydrated from sessionStorage, soft redirect on 401; may proactively refresh via `POST /api/v1/auth/refresh`.
 - **ToastProvider**: global error/success toasts.
 - **FileDropzone (Upload)**: CSV/ZIP support, type/size validation, DnD/keyboard.
@@ -146,7 +147,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **AnalysisDetail**: `StatusBanner`, `PollingController`, `RefreshButton`, `Section` and `MetricCard` sections, `KeyValueList`, `ThresholdIndicator` (FAP thresholds: idle >15/>50, driving >300/>400 mbar).
 - **SummaryGrid**: grid of metric cards with optional fields.
 - **EmptyState / ErrorState**: variants for no data and errors (links to retry/navigate back).
-- **Forms (Login/Register)**: `Form`, `FormField`, `Input`, `PasswordInput`, `Button`.
+- **Forms (Login/Register)**: shadcn templates `login-01` and `signup-01` integrated with our `AuthForm` logic (submit handlers, validation, toasts).
 - **Loaders/Skeletons**: loading states for lists/details/summary.
 - **ThemeToggle**: light/dark (respect `prefers-color-scheme`, persist in localStorage), `dark` class on `html`.
 - **LanguageSwitcher (PL/EN)**: language selection, UI dictionary, `Intl` formatters (metric units, dates DD‑MM‑YYYY).
@@ -173,3 +174,9 @@ PRD user story coverage:
 
 - **Purpose**: Provide a consistent, accessible set of React UI primitives built on Radix UI and styled with Tailwind CSS. Components are generated into the codebase for full control, theming, and long‑term maintainability.
 - **Why here**: Works seamlessly with Astro islands and React, aligns with our Tailwind design tokens, and keeps bundle size minimal by importing only used components.
+
+Installation templates and components to add for this UI:
+
+- `npx shadcn@latest add login-01` (A simple login form)
+- `npx shadcn@latest add signup-01` (A simple signup form)
+- `npx shadcn@latest add dashboard-01` (Dashboard with sidebar, charts, data table)
