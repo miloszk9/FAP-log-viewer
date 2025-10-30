@@ -1,37 +1,15 @@
-import React, { useMemo } from "react";
+import React from "react";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 
 interface AppShellProps {
   children: React.ReactNode;
   requireAuth?: boolean;
-  headerContent?: React.ReactNode;
   onNavigate?: (path: string) => void;
   onSignOut?: () => void;
 }
 
-const DefaultHeader: React.FC = () => (
-  <div className="flex w-full items-center justify-between">
-    <div>
-      <p className="text-sm font-medium text-foreground">FAP Log Viewer</p>
-      <p className="text-xs text-muted-foreground">Insights for PSA diesel fleets</p>
-    </div>
-    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-      <span className="hidden sm:inline">Account</span>
-      <div className="h-8 w-8 rounded-full bg-primary/10" aria-hidden />
-    </div>
-  </div>
-);
-
-export const AppShell: React.FC<AppShellProps> = ({
-  children,
-  requireAuth = true,
-  headerContent,
-  onNavigate,
-  onSignOut,
-}) => {
-  const resolvedHeader = useMemo(() => headerContent ?? <DefaultHeader />, [headerContent]);
-
+export const AppShell: React.FC<AppShellProps> = ({ children, requireAuth = true, onNavigate, onSignOut }) => {
   const content = requireAuth ? <ProtectedRoute>{children}</ProtectedRoute> : children;
 
   return (
@@ -39,9 +17,6 @@ export const AppShell: React.FC<AppShellProps> = ({
       <div className="flex min-h-screen flex-col lg:flex-row">
         <DashboardSidebar onNavigate={onNavigate} onSignOut={onSignOut} />
         <div className="flex flex-1 flex-col">
-          <header className="sticky top-0 z-10 border-b bg-background/80 px-6 py-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            {resolvedHeader}
-          </header>
           <main className="flex-1 px-4 py-6 sm:px-6 lg:px-8">{content}</main>
         </div>
       </div>
