@@ -126,7 +126,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 
 ## 4. Layout and Navigation Structure
 
-- **Global AppShell (protected routes)**: shadcn `dashboard-01` with sidebar + header. Sidebar items: `Summary`, `Upload new log`, `Sign out`. Below the main items, a `Saved Report` section lists user reports; each shows the report name, an icon when `fapRegen` is present, and a three-dots menu with a `Delete` option.
+- **Global AppShell (protected routes)**: shadcn `dashboard-01` with sidebar + header. Sidebar items: `Summary`, `Upload new log`, `Sign out`.
 - **Public AppShell**: minimal header (logo/title) using shadcn `login-01` and `signup-01` templates for respective pages.
 - **Route protection**: `ProtectedRoute` wrapper validating JWT (in memory; hydrated from sessionStorage on load). 401 triggers: clear and redirect.
 - **Status indicators**: global `Toast` (stack up to 3, auto-dismiss ~3–5s); per-view `LoadingBar`/skeletons; aria-live for statuses.
@@ -136,7 +136,6 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 
 - **AppShell**: public/protected layout; protected uses shadcn `dashboard-01` (sidebar + header), content slot.
 - **DashboardSidebar**: `Summary`, `Upload new log`, `Sign out`, `ThemeToggle`, `LanguageSwitcher`.
-- **SavedReportsNav**: below main nav; shows saved reports (name, optional fapRegen icon), three-dots menu with `Delete` that calls `DELETE /analyses/:id` (optimistic UI).
 - **ProtectedRoute / AuthProvider**: JWT stored in memory, hydrated from sessionStorage, soft redirect on 401; may proactively refresh via `POST /api/v1/auth/refresh`.
 - **ToastProvider**: global error/success toasts.
 - **FileDropzone (Upload)**: CSV/ZIP support, type/size validation, DnD/keyboard.

@@ -5,7 +5,7 @@
 - Purpose: Build a fast, accessible Astro + React app for uploading FAP logs, tracking processing status, viewing detailed single‑analysis metrics, and a cross‑log summary.
 - Public views: Login, Register.
 - Protected views: Upload, History, Analysis, Summary.
-- Global shell: Protected routes use shadcn/ui `dashboard-01` (sidebar + header). Sidebar items: "Summary", "Upload new log", "Sign out". Below, a "Saved Report" section lists user reports (name + fapRegen icon when present) with a three-dots menu offering a "Delete" action (calls `DELETE /analyses/:id`). Theme toggle, Language switcher, and Toasts (Sonner via shadcn/ui) are integrated into the layout. Protected routing via in‑memory JWT (hydrated from sessionStorage). UI components are sourced from `frontend/src/components/ui` and imported via the `@/` alias.
+- Global shell: Protected routes use shadcn/ui `dashboard-01` (sidebar + header). Sidebar items: "Summary", "Upload new log", "Sign out". Theme toggle, Language switcher, and Toasts (Sonner via shadcn/ui) are integrated into the layout. Protected routing via in‑memory JWT (hydrated from sessionStorage). UI components are sourced from `frontend/src/components/ui` and imported via the `@/` alias.
 
 ## 2. View Routing
 
@@ -26,7 +26,6 @@
 - `AppShell` (protected uses shadcn `dashboard-01`)
   - `DashboardSidebar`
     - `NavLinks` (Summary, Upload new log, Sign out)
-    - `SavedReportsNav` (list of saved reports with fapRegen icon + menu)
     - `ThemeToggle`
     - `LanguageSwitcher`
   - `Toaster` (Sonner)
@@ -73,20 +72,11 @@
 - DashboardSidebar
 
   - Purpose: Sidebar navigation (shadcn/ui `dashboard-01`).
-  - Elements: `NavLinks` (Summary, Upload new log, Sign out), `SavedReportsNav` (below), `ThemeToggle`, `LanguageSwitcher`.
+  - Elements: `NavLinks` (Summary, Upload new log, Sign out), `ThemeToggle`, `LanguageSwitcher`.
   - Events: navigate (Summary, Upload), logout click.
   - Validation: N/A
   - Types: none
   - Props: none
-
-- SavedReportsNav
-
-  - Purpose: Show "Saved Report" section in sidebar.
-  - Elements: list of saved analyses; each item shows report name; displays a fapRegen indicator icon when `fapRegen` is present; three-dots menu with a "Delete" option.
-  - Events: item click → navigate to detail; menu → delete (calls `DELETE /analyses/:id`) with optimistic UI.
-  - Validation: disable delete while pending.
-  - Types: `AnalysisHistoryItemDto`
-  - Props: `{ items: AnalysisHistoryItemDto[], onDelete: (id: string) => Promise<void> }`
 
 - ProtectedRoute
 
@@ -307,7 +297,7 @@
   - `login.astro`, `register.astro`, `upload.astro`, `history.astro`, `analyses/[id].astro`, `summary.astro`
 - `frontend/src/components`
   - `AppShell.tsx`, `ProtectedRoute.tsx`
-  - `dashboard/DashboardSidebar.tsx`, `dashboard/SavedReportsNav.tsx`
+  - `dashboard/DashboardSidebar.tsx`
   - `auth/AuthForm.tsx`
   - `upload/UploadCard.tsx`, `upload/FileDropzone.tsx`
   - `history/AnalysisList.tsx`, `history/AnalysisListItem.tsx`, `history/SortControls.tsx`, `history/DeleteButton.tsx`, `history/StatusBadge.tsx`, `history/InfiniteScroll.tsx`
