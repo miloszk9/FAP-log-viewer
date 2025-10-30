@@ -1,13 +1,18 @@
 import React, { useMemo } from "react";
-import { Monitor, Moon, Sun } from "lucide-react";
+import { Monitor, Moon, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { useThemePreference } from "@/components/hooks/useThemePreference";
 import type { ThemePreference } from "@/components/hooks/useThemePreference";
 import { useAuth } from "@/lib/auth";
 
-interface DashboardSidebarProps {
+type DashboardSidebarVariant = "desktop" | "overlay";
+
+interface DashboardSidebarProps extends React.HTMLAttributes<HTMLElement> {
   onNavigate?: (path: string) => void;
   onSignOut?: () => void;
+  variant?: DashboardSidebarVariant;
+  onClose?: () => void;
 }
 
 interface NavItem {
@@ -15,7 +20,14 @@ interface NavItem {
   href: string;
 }
 
-export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onNavigate, onSignOut }) => {
+export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
+  onNavigate,
+  onSignOut,
+  className,
+  variant = "desktop",
+  onClose,
+  ...rest
+}) => {
   const { clearSession } = useAuth();
   const { preference, resolvedTheme, setPreference, themeOptions } = useThemePreference();
 
@@ -72,13 +84,31 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onNavigate, 
     }
   };
 
+  const containerClasses =
+    variant === "overlay"
+      ? "flex h-full w-72 flex-none flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground shadow-lg"
+      : "hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:sticky lg:top-0 lg:block lg:h-screen lg:w-72 lg:flex-none lg:overflow-y-auto";
+
   return (
-    <aside className="hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:sticky lg:top-0 lg:block lg:h-screen lg:w-72 lg:flex-none lg:overflow-y-auto">
+    <aside className={cn(containerClasses, className)} {...rest}>
       <div className="flex h-full flex-col justify-between px-5 py-6">
         <div className="space-y-8">
-          <div className="space-y-2">
-            <p className="text-lg font-semibold">FAP Log Viewer</p>
-            <p className="text-sm text-muted-foreground">Citroën · Peugeot · DS</p>
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2">
+              <p className="text-lg font-semibold">FAP Log Viewer</p>
+              <p className="text-sm text-muted-foreground">Citroën · Peugeot · DS</p>
+            </div>
+            {variant === "overlay" ? (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => onClose?.()}
+                aria-label="Close navigation"
+              >
+                <X aria-hidden="true" className="h-4 w-4" />
+              </Button>
+            ) : null}
           </div>
 
           <nav className="space-y-1">
