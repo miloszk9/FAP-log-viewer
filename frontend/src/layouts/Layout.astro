@@ -15,6 +15,43 @@ const { title = "10x Astro Starter" } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <meta name="generator" content={Astro.generator} />
+    <script is:inline>
+      (function () {
+        const storageKey = "fap-log-viewer-theme";
+        const mediaQuery = "(prefers-color-scheme: dark)";
+        const root = document.documentElement;
+
+        const applyTheme = (theme) => {
+          root.classList.toggle("dark", theme === "dark");
+          root.dataset.theme = theme;
+          root.style.colorScheme = theme === "dark" ? "dark light" : "light dark";
+        };
+
+        const setPreferenceDataset = (preference) => {
+          root.dataset.themePreference = preference;
+        };
+
+        const safelyReadStorage = () => {
+          try {
+            const stored = window.localStorage.getItem(storageKey);
+            return stored === "light" || stored === "dark" ? stored : null;
+          } catch (error) {
+            return null;
+          }
+        };
+
+        const storedPreference = safelyReadStorage();
+        const media = window.matchMedia ? window.matchMedia(mediaQuery) : null;
+        const systemPrefersDark = media ? media.matches : false;
+
+        const preference = storedPreference ?? "system";
+        const resolvedTheme =
+          preference === "system" ? (systemPrefersDark ? "dark" : "light") : preference;
+
+        applyTheme(resolvedTheme);
+        setPreferenceDataset(preference);
+      })();
+    </script>
     <title>{title}</title>
   </head>
   <body>
