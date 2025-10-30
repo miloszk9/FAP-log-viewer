@@ -73,7 +73,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ onNavigate, 
   };
 
   return (
-    <aside className="hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:block lg:w-72">
+    <aside className="hidden border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:sticky lg:top-0 lg:block lg:h-screen lg:w-72 lg:flex-none lg:overflow-y-auto">
       <div className="flex h-full flex-col justify-between px-5 py-6">
         <div className="space-y-8">
           <div className="space-y-2">

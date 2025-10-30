@@ -1,10 +1,13 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useMutation, useQueryClient, type InfiniteData, type QueryKey } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
 import { AppProviders } from "@/components/AppProviders";
 import { Button } from "@/components/ui/button";
-import { useAnalyses } from "@/lib/queries";
+import { EllipsisVertical, Trash2 } from "lucide-react";
+import { useAnalyses, analysesKeys } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
-import { ApiError } from "@/lib/apiClient";
+import { ApiError, deleteAnalysis } from "@/lib/apiClient";
+import type { GetAnalysesResponseDto } from "@/types";
 
 export const HistoryPage: React.FC = () => {
   return (
@@ -15,11 +18,58 @@ export const HistoryPage: React.FC = () => {
 };
 
 const HistoryPageContent: React.FC = () => {
-  const { clearSession } = useAuth();
+  const { accessToken, clearSession } = useAuth();
   const analysesQuery = useAnalyses();
+  const queryClient = useQueryClient();
+  const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const menuRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const { items, isLoading, isError, error, hasMore, fetchNextPage, isFetchingNextPage, isRefetching, refetch } =
     analysesQuery;
+
+  const assignMenuRef = useCallback((id: string, node: HTMLDivElement | null) => {
+    if (node) {
+      menuRefs.current.set(id, node);
+      return;
+    }
+
+    menuRefs.current.delete(id);
+  }, []);
+
+  useEffect(() => {
+    if (!activeMenuId) {
+      return;
+    }
+
+    const handlePointerDown = (event: MouseEvent) => {
+      const menuNode = menuRefs.current.get(activeMenuId);
+
+      if (!menuNode) {
+        return;
+      }
+
+      if (menuNode.contains(event.target as Node)) {
+        return;
+      }
+
+      setActiveMenuId(null);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setActiveMenuId(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeMenuId]);
 
   useEffect(() => {
     if (error instanceof ApiError && error.isUnauthorized) {
@@ -27,7 +77,76 @@ const HistoryPageContent: React.FC = () => {
     }
   }, [clearSession, error]);
 
-  const sidebarReports = useMemo(() => items.slice(0, 5), [items]);
+  const analysesQueryKey = useMemo<QueryKey>(() => {
+    return analysesQuery.queryKey ?? analysesKeys.list({});
+  }, [analysesQuery.queryKey]);
+
+  interface DeleteVariables {
+    id: string;
+  }
+  type DeleteContext = {
+    queryKey: QueryKey;
+    previousData: InfiniteData<GetAnalysesResponseDto, number> | undefined;
+  } | null;
+
+  const deleteMutation = useMutation<undefined, ApiError, DeleteVariables, DeleteContext>({
+    mutationFn: async ({ id }) => {
+      if (!accessToken) {
+        throw new ApiError("Not authenticated", 401, null);
+      }
+
+      await deleteAnalysis({ id, accessToken });
+      return undefined;
+    },
+    onMutate: async ({ id }) => {
+      setDeleteError(null);
+      setActiveMenuId(null);
+
+      await queryClient.cancelQueries({ queryKey: analysesQueryKey });
+
+      const previousData = queryClient.getQueryData<InfiniteData<GetAnalysesResponseDto, number>>(analysesQueryKey);
+
+      if (!previousData) {
+        return { previousData, queryKey: analysesQueryKey };
+      }
+
+      const nextPages = previousData.pages.map((page) => ({
+        ...page,
+        data: page.data.filter((analysis) => analysis.id !== id),
+      }));
+
+      const nextData: InfiniteData<GetAnalysesResponseDto, number> = {
+        pageParams: previousData.pageParams,
+        pages: nextPages,
+      };
+
+      queryClient.setQueryData(analysesQueryKey, nextData);
+
+      return { previousData, queryKey: analysesQueryKey };
+    },
+    onError: (mutationError, _variables, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(context.queryKey, context.previousData);
+      }
+
+      if (mutationError.isUnauthorized) {
+        clearSession();
+        return;
+      }
+
+      setDeleteError(mutationError.message || "Unable to delete analysis. Please try again.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: analysesQueryKey });
+    },
+  });
+
+  const handleDeleteAnalysis = useCallback(
+    (id: string) => {
+      deleteMutation.mutate({ id });
+    },
+    [deleteMutation]
+  );
 
   const handleNavigateToAnalysis = (id: string) => {
     if (typeof window !== "undefined") {
@@ -83,39 +202,25 @@ const HistoryPageContent: React.FC = () => {
 
     return (
       <div className="space-y-4">
+        {deleteError ? (
+          <div
+            className="rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive"
+            role="status"
+          >
+            {deleteError}
+          </div>
+        ) : null}
         <ul className="space-y-3">
           {items.map((item) => (
-            <li
+            <AnalysisListItem
               key={item.id}
-              className="rounded-lg border border-muted-foreground/30 bg-background/80 p-4 transition hover:border-primary/40 hover:bg-background"
-            >
-              <button type="button" className="w-full text-left" onClick={() => handleNavigateToAnalysis(item.id)}>
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-foreground line-clamp-1" title={item.fileName}>
-                      {item.fileName}
-                    </p>
-                    <p className="text-sm text-muted-foreground">{new Date(item.createdAt).toLocaleString()}</p>
-                  </div>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium">
-                    {item.status}
-                  </span>
-                </div>
-                <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
-                  {item.fapRegen ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-600">
-                      <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-                      FAP regeneration detected
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 font-medium text-muted-foreground">
-                      No FAP regeneration flag
-                    </span>
-                  )}
-                  <span className="hidden sm:inline">Click to view analysis details</span>
-                </div>
-              </button>
-            </li>
+              item={item}
+              onNavigate={handleNavigateToAnalysis}
+              onDelete={handleDeleteAnalysis}
+              isMenuOpen={activeMenuId === item.id}
+              onMenuToggle={() => setActiveMenuId((current) => (current === item.id ? null : item.id))}
+              registerMenuRef={(node) => assignMenuRef(item.id, node)}
+            />
           ))}
         </ul>
         {hasMore ? (
@@ -130,7 +235,7 @@ const HistoryPageContent: React.FC = () => {
   };
 
   return (
-    <AppShell savedReports={sidebarReports} onSelectReport={handleNavigateToAnalysis}>
+    <AppShell>
       <section className="space-y-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-semibold tracking-tight">Log history</h1>
@@ -142,5 +247,96 @@ const HistoryPageContent: React.FC = () => {
         {content()}
       </section>
     </AppShell>
+  );
+};
+
+interface AnalysisListItemProps {
+  item: GetAnalysesResponseDto["data"][number];
+  onNavigate: (id: string) => void;
+  onDelete: (id: string) => void;
+  isMenuOpen: boolean;
+  onMenuToggle: () => void;
+  registerMenuRef: (node: HTMLDivElement | null) => void;
+}
+
+const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
+  item,
+  onNavigate,
+  onDelete,
+  isMenuOpen,
+  onMenuToggle,
+  registerMenuRef,
+}) => {
+  const formattedDate = new Date(item.createdAt).toLocaleString();
+
+  return (
+    <li className="rounded-lg border border-muted-foreground/30 bg-background/80 p-4 transition hover:border-primary/40 hover:bg-background">
+      <div className="flex items-start justify-between gap-3">
+        <button type="button" className="flex-1 text-left" onClick={() => onNavigate(item.id)}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="font-semibold text-foreground line-clamp-1" title={item.fileName}>
+                {item.fileName}
+              </p>
+              <p className="text-sm text-muted-foreground">{formattedDate}</p>
+            </div>
+            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium">
+              {item.status}
+            </span>
+          </div>
+          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+            {item.fapRegen ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-600">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
+                FAP regeneration detected
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 font-medium text-muted-foreground">
+                No FAP regeneration flag
+              </span>
+            )}
+            <span className="hidden sm:inline">Click to view analysis details</span>
+          </div>
+        </button>
+        <div className="relative" ref={registerMenuRef}>
+          <button
+            type="button"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-transparent text-muted-foreground transition hover:bg-muted/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+            aria-haspopup="menu"
+            aria-expanded={isMenuOpen}
+            aria-controls={`analysis-actions-${item.id}`}
+            id={`analysis-actions-trigger-${item.id}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              onMenuToggle();
+            }}
+          >
+            <EllipsisVertical className="h-4 w-4" aria-hidden />
+            <span className="sr-only">Open actions menu for {item.fileName}</span>
+          </button>
+          {isMenuOpen ? (
+            <div
+              id={`analysis-actions-${item.id}`}
+              role="menu"
+              aria-labelledby={`analysis-actions-trigger-${item.id}`}
+              className="absolute right-0 z-10 mt-2 w-40 rounded-md border border-muted-foreground/30 bg-background/95 p-1 text-sm shadow-lg backdrop-blur"
+            >
+              <button
+                type="button"
+                role="menuitem"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-destructive transition hover:bg-destructive/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  onDelete(item.id);
+                }}
+              >
+                <Trash2 className="h-4 w-4" aria-hidden />
+                Delete
+              </button>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </li>
   );
 };
