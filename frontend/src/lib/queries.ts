@@ -1,12 +1,33 @@
-import { useInfiniteQuery, type InfiniteData, type UseInfiniteQueryResult } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  type InfiniteData,
+  type UseInfiniteQueryResult,
+  type UseQueryResult,
+} from "@tanstack/react-query";
 import { useMemo } from "react";
-import { fetchAnalyses, type FetchAnalysesParams, ApiError } from "@/lib/apiClient";
+import {
+  fetchAnalyses,
+  fetchAnalysisDetail,
+  fetchUserAverage,
+  type FetchAnalysesParams,
+  ApiError,
+} from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth";
-import type { GetAnalysesQueryDto, GetAnalysesResponseDto } from "@/types";
+import type { AnalysisDetailDto, GetAnalysesQueryDto, GetAnalysesResponseDto, UserAverageDto } from "@/types";
 
 export const analysesKeys = {
   all: ["analyses"] as const,
   list: (params: Partial<GetAnalysesQueryDto>) => ["analyses", params] as const,
+};
+
+export const analysisKeys = {
+  all: ["analysis"] as const,
+  detail: (id: string) => ["analysis", id] as const,
+};
+
+export const averageKeys = {
+  all: ["average"] as const,
 };
 
 const DEFAULT_PAGE_SIZE = 10;
@@ -97,5 +118,52 @@ export const useAnalyses = (options: UseAnalysesOptions = {}): UseAnalysesResult
     items,
     hasMore,
     queryKey,
+  });
+};
+
+export interface UseAnalysisDetailOptions {
+  enabled?: boolean;
+  staleTime?: number;
+  refetchOnWindowFocus?: boolean;
+}
+
+export type UseAnalysisDetailResult = UseQueryResult<AnalysisDetailDto, ApiError>;
+
+export const useAnalysisDetail = (
+  id: string,
+  { enabled = true, staleTime = 1_000, refetchOnWindowFocus = false }: UseAnalysisDetailOptions = {}
+): UseAnalysisDetailResult => {
+  const { accessToken } = useAuth();
+
+  return useQuery<AnalysisDetailDto, ApiError>({
+    queryKey: analysisKeys.detail(id),
+    queryFn: ({ signal }) => fetchAnalysisDetail({ id, accessToken, signal }),
+    enabled: Boolean(accessToken) && enabled,
+    staleTime,
+    refetchOnWindowFocus,
+  });
+};
+
+export interface UseUserAverageOptions {
+  enabled?: boolean;
+  staleTime?: number;
+  refetchOnWindowFocus?: boolean;
+}
+
+export type UseUserAverageResult = UseQueryResult<UserAverageDto, ApiError>;
+
+export const useUserAverage = ({
+  enabled = true,
+  staleTime = 30_000,
+  refetchOnWindowFocus = false,
+}: UseUserAverageOptions = {}): UseUserAverageResult => {
+  const { accessToken } = useAuth();
+
+  return useQuery<UserAverageDto, ApiError>({
+    queryKey: averageKeys.all,
+    queryFn: ({ signal }) => fetchUserAverage({ accessToken, signal }),
+    enabled: Boolean(accessToken) && enabled,
+    staleTime,
+    refetchOnWindowFocus,
   });
 };

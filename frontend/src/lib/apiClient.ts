@@ -1,4 +1,4 @@
-import type { GetAnalysesQueryDto, GetAnalysesResponseDto } from "@/types";
+import type { AnalysisDetailDto, GetAnalysesQueryDto, GetAnalysesResponseDto, UserAverageDto } from "@/types";
 
 const normalizeBaseUrl = (baseUrl: string): string => baseUrl.replace(/\/+$/, "");
 
@@ -134,5 +134,39 @@ export const deleteAnalysis = async ({ id, accessToken }: DeleteAnalysisParams):
   await apiRequest<void>(`/api/v1/analyses/${id}`, {
     method: "DELETE",
     accessToken,
+  });
+};
+
+export interface FetchAnalysisDetailParams {
+  id: string;
+  accessToken?: string | null;
+  signal?: AbortSignal;
+}
+
+export const fetchAnalysisDetail = async ({
+  id,
+  accessToken,
+  signal,
+}: FetchAnalysisDetailParams): Promise<AnalysisDetailDto> => {
+  return apiRequest<AnalysisDetailDto>(`/api/v1/analyses/${id}`, {
+    method: "GET",
+    accessToken,
+    signal,
+  });
+};
+
+export interface FetchUserAverageParams {
+  accessToken?: string | null;
+  signal?: AbortSignal;
+}
+
+export const fetchUserAverage = async ({
+  accessToken,
+  signal,
+}: FetchUserAverageParams = {}): Promise<UserAverageDto> => {
+  return apiRequest<UserAverageDto>("/api/v1/average", {
+    method: "GET",
+    accessToken,
+    signal,
   });
 };
