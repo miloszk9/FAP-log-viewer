@@ -1,7 +1,13 @@
+import { useMemo } from "react";
 import { combineFieldDefinitions, type FieldDefinition, type MetricsDictionary } from "@/lib/metrics";
-import { commonFieldDefinitions, commonSectionDefinitions } from "@/i18n/common";
+import { getCommonFieldDefinitions, getCommonSectionDefinitions } from "@/i18n/common";
+import type { SupportedLanguage } from "@/lib/i18n";
+import { useLanguage } from "@/lib/i18n";
 
-const sectionDefinitions: Record<string, FieldDefinition> = {
+type DefinitionMap = Record<string, FieldDefinition>;
+type DefinitionOverrides = Partial<Record<string, Partial<FieldDefinition>>>;
+
+const baseSectionDefinitions: DefinitionMap = {
   overall: { label: "Overall metrics" },
   "overall.duration": { label: "Duration breakdown" },
   driving: { label: "Driving" },
@@ -32,7 +38,41 @@ const sectionDefinitions: Record<string, FieldDefinition> = {
   date: { label: "Log timestamps" },
 };
 
-const fieldOverrides: Record<string, FieldDefinition> = {
+const sectionOverrides: Record<SupportedLanguage, DefinitionOverrides> = {
+  en: {},
+  pl: {
+    overall: { label: "Metryki ogólne" },
+    "overall.duration": { label: "Podział czasu" },
+    driving: { label: "Jazda" },
+    "driving.acceleration": { label: "Przyspieszenie" },
+    "driving.fuelConsumption": { label: "Zużycie paliwa" },
+    "driving.revs": { label: "Obroty silnika" },
+    "driving.speed": { label: "Prędkość" },
+    engine: { label: "Silnik" },
+    "engine.battery": { label: "Akumulator" },
+    "engine.coolantTemp": { label: "Temperatura płynu chłodzącego" },
+    "engine.engineWarmup": { label: "Rozgrzewanie silnika" },
+    "engine.oilTemp": { label: "Temperatura oleju" },
+    fap: { label: "Filtr FAP" },
+    "fap.additive": { label: "Dodatek" },
+    "fap.deposits": { label: "Osady" },
+    "fap.life": { label: "Żywotność filtra" },
+    "fap.pressure": { label: "Ciśnienie podczas jazdy" },
+    "fap.pressure_idle": { label: "Ciśnienie na biegu jałowym" },
+    "fap.soot": { label: "Sadza" },
+    "fap.temp": { label: "Temperatura" },
+    fapRegen: { label: "Regeneracja FAP" },
+    "fapRegen.speed": { label: "Prędkość" },
+    "fapRegen.fapTemp": { label: "Temperatura" },
+    "fapRegen.fapPressure": { label: "Ciśnienie" },
+    "fapRegen.revs": { label: "Obroty silnika" },
+    "fapRegen.fapSoot": { label: "Sadza" },
+    "fapRegen.fuelConsumption": { label: "Zużycie paliwa" },
+    date: { label: "Znaczniki czasu logu" },
+  },
+};
+
+const baseFieldOverrides: DefinitionMap = {
   "fap.pressure_idle.avg_mbar": {
     label: "Average idle pressure",
     unit: "mbar",
@@ -73,33 +113,115 @@ const fieldOverrides: Record<string, FieldDefinition> = {
   "overall.duration.overall_sec": { label: "Total duration", formatter: "duration" },
 };
 
-const getSectionMeta = (path: string[]): FieldDefinition | undefined => {
-  if (!path.length) {
-    return undefined;
-  }
-
-  const pathKey = path.join(".");
-  const fallbackKey = path[path.length - 1];
-  const specific = sectionDefinitions[pathKey];
-  const generic = commonSectionDefinitions[fallbackKey];
-
-  return combineFieldDefinitions(specific, generic, fallbackKey);
+const fieldOverridesByLanguage: Record<SupportedLanguage, DefinitionOverrides> = {
+  en: {},
+  pl: {
+    "fap.pressure_idle.avg_mbar": { label: "Średnie ciśnienie na biegu jałowym" },
+    "fap.pressure.avg_mbar": { label: "Średnie ciśnienie podczas jazdy" },
+    "fap.additive.vol_ml": { label: "Objętość dodatku" },
+    "fap.additive.remain_ml": { label: "Pozostało dodatku" },
+    "fap.deposits.percentage_perc": { label: "Osady" },
+    "fap.deposits.weight_gram": { label: "Masa osadów" },
+    "fap.life.life_km": { label: "Szacowana żywotność" },
+    "fap.life.left_km": { label: "Pozostały dystans" },
+    "fap.soot.start_gl": { label: "Sadza na początku" },
+    "fap.soot.end_gl": { label: "Sadza na końcu" },
+    "fap.soot.diff_gl": { label: "Zmiana ilości sadzy" },
+    "fap.temp.avg_c": { label: "Średnia temperatura" },
+    "fap.temp.max_c": { label: "Maksymalna temperatura" },
+    "fap.temp.min_c": { label: "Minimalna temperatura" },
+    "fapRegen.duration_sec": { label: "Czas trwania" },
+    "fapRegen.distance_km": { label: "Dystans" },
+    "fapRegen.speed.avg_kmh": { label: "Średnia prędkość" },
+    "fapRegen.fapTemp.avg_c": { label: "Średnia temperatura" },
+    "fapRegen.fapTemp.max_c": { label: "Maksymalna temperatura" },
+    "fapRegen.fapPressure.avg_mbar": { label: "Średnie ciśnienie" },
+    "fapRegen.fapPressure.max_mbar": { label: "Maksymalne ciśnienie" },
+    "fapRegen.fapPressure.min_mbar": { label: "Minimalne ciśnienie" },
+    "fapRegen.fuelConsumption.regen_l100km": { label: "Spalanie podczas regeneracji" },
+    "fapRegen.fuelConsumption.nonRegen_l100km": { label: "Spalanie poza regeneracją" },
+    "overall.duration.overall_sec": { label: "Całkowity czas trwania" },
+  },
 };
 
-const getFieldMeta = (path: string[]): FieldDefinition | undefined => {
-  if (!path.length) {
-    return undefined;
+const mergeDefinitionMaps = (base: DefinitionMap, overrides?: DefinitionOverrides): DefinitionMap => {
+  if (!overrides || Object.keys(overrides).length === 0) {
+    return base;
   }
 
-  const pathKey = path.join(".");
-  const fallbackKey = path[path.length - 1];
-  const specific = fieldOverrides[pathKey];
-  const generic = commonFieldDefinitions[fallbackKey];
+  const merged: DefinitionMap = {};
+  const keys = new Set([...Object.keys(base), ...Object.keys(overrides)]);
 
-  return combineFieldDefinitions(specific, generic, fallbackKey);
+  for (const key of keys) {
+    const baseDefinition = base[key];
+    const overrideDefinition = overrides[key];
+
+    if (baseDefinition) {
+      merged[key] = {
+        ...baseDefinition,
+        ...(overrideDefinition ?? {}),
+      };
+      continue;
+    }
+
+    if (overrideDefinition) {
+      merged[key] = { ...(overrideDefinition as FieldDefinition) };
+    }
+  }
+
+  return merged;
 };
 
-export const analysisDictionary: MetricsDictionary = {
-  getSectionMeta,
-  getFieldMeta,
+const sectionDefinitionsByLanguage: Record<SupportedLanguage, DefinitionMap> = {
+  en: baseSectionDefinitions,
+  pl: mergeDefinitionMaps(baseSectionDefinitions, sectionOverrides.pl),
+};
+
+const fieldDefinitionsByLanguage: Record<SupportedLanguage, DefinitionMap> = {
+  en: baseFieldOverrides,
+  pl: mergeDefinitionMaps(baseFieldOverrides, fieldOverridesByLanguage.pl),
+};
+
+export const createAnalysisDictionary = (language: SupportedLanguage): MetricsDictionary => {
+  const sectionDefinitions = sectionDefinitionsByLanguage[language];
+  const fieldOverrides = fieldDefinitionsByLanguage[language];
+  const commonSections = getCommonSectionDefinitions(language);
+  const commonFields = getCommonFieldDefinitions(language);
+
+  const getSectionMeta = (path: string[]): FieldDefinition | undefined => {
+    if (!path.length) {
+      return undefined;
+    }
+
+    const pathKey = path.join(".");
+    const fallbackKey = path[path.length - 1];
+    const specific = sectionDefinitions[pathKey];
+    const generic = commonSections[fallbackKey];
+
+    return combineFieldDefinitions(specific, generic, fallbackKey);
+  };
+
+  const getFieldMeta = (path: string[]): FieldDefinition | undefined => {
+    if (!path.length) {
+      return undefined;
+    }
+
+    const pathKey = path.join(".");
+    const fallbackKey = path[path.length - 1];
+    const specific = fieldOverrides[pathKey];
+    const generic = commonFields[fallbackKey];
+
+    return combineFieldDefinitions(specific, generic, fallbackKey);
+  };
+
+  return {
+    getSectionMeta,
+    getFieldMeta,
+  };
+};
+
+export const useAnalysisDictionary = (): MetricsDictionary => {
+  const { language } = useLanguage();
+
+  return useMemo(() => createAnalysisDictionary(language), [language]);
 };

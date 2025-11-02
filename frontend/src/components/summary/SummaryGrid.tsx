@@ -1,6 +1,6 @@
 import React from "react";
 import { MetricsTree } from "@/components/shared/MetricsTree";
-import { summaryDictionary } from "@/i18n/summary";
+import { useSummaryDictionary } from "@/i18n/summary";
 import type { FapAverageJson } from "@/types";
 
 interface SummaryGridProps {
@@ -8,5 +8,7 @@ interface SummaryGridProps {
 }
 
 export const SummaryGrid: React.FC<SummaryGridProps> = ({ data }) => {
-  return <MetricsTree data={data as Record<string, unknown> | null | undefined} dictionary={summaryDictionary} />;
+  const dictionary = useSummaryDictionary();
+
+  return <MetricsTree data={data as Record<string, unknown> | null | undefined} dictionary={dictionary} />;
 };

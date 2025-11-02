@@ -45,8 +45,7 @@ const { title = "10x Astro Starter" } = Astro.props;
         const systemPrefersDark = media ? media.matches : false;
 
         const preference = storedPreference ?? "system";
-        const resolvedTheme =
-          preference === "system" ? (systemPrefersDark ? "dark" : "light") : preference;
+        const resolvedTheme = preference === "system" ? (systemPrefersDark ? "dark" : "light") : preference;
 
         applyTheme(resolvedTheme);
         setPreferenceDataset(preference);

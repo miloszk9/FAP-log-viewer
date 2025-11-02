@@ -1,6 +1,10 @@
 import type { FieldDefinition } from "@/lib/metrics";
+import type { SupportedLanguage } from "@/lib/i18n";
 
-export const commonSectionDefinitions: Record<string, FieldDefinition> = {
+type DefinitionMap = Record<string, FieldDefinition>;
+type DefinitionOverrides = Partial<Record<string, Partial<FieldDefinition>>>;
+
+const baseCommonSectionDefinitions: DefinitionMap = {
   date: { label: "Timestamps" },
   duration: { label: "Duration" },
   acceleration: { label: "Acceleration" },
@@ -25,7 +29,35 @@ export const commonSectionDefinitions: Record<string, FieldDefinition> = {
   bySpeedRange: { label: "Speed ranges" },
 };
 
-export const commonFieldDefinitions: Record<string, FieldDefinition> = {
+const commonSectionOverrides: Record<SupportedLanguage, DefinitionOverrides> = {
+  en: {},
+  pl: {
+    date: { label: "Znaczniki czasu" },
+    duration: { label: "Czas trwania" },
+    acceleration: { label: "Przyspieszenie" },
+    fuelConsumption: { label: "Zużycie paliwa" },
+    revs: { label: "Obroty silnika" },
+    speed: { label: "Prędkość" },
+    battery: { label: "Akumulator" },
+    coolantTemp: { label: "Temperatura płynu chłodzącego" },
+    engineWarmup: { label: "Rozgrzewanie silnika" },
+    oilTemp: { label: "Temperatura oleju" },
+    additive: { label: "Dodatek" },
+    deposits: { label: "Osady" },
+    life: { label: "Żywotność filtra" },
+    pressure: { label: "Ciśnienie" },
+    pressure_idle: { label: "Ciśnienie na biegu jałowym" },
+    soot: { label: "Sadza" },
+    temp: { label: "Temperatura" },
+    speedDriving: { label: "Jazda" },
+    externalTemp: { label: "Temperatura zewnętrzna" },
+    beforeDrive: { label: "Przed jazdą" },
+    engineRunning: { label: "Praca silnika" },
+    bySpeedRange: { label: "Zakresy prędkości" },
+  },
+};
+
+const baseCommonFieldDefinitions: DefinitionMap = {
   date: { label: "Date", formatter: "datetime" },
   start: { label: "Start time" },
   end: { label: "End time" },
@@ -104,3 +136,130 @@ export const commonFieldDefinitions: Record<string, FieldDefinition> = {
   "195-200_l100km": { label: "Consumption at 195-200 km/h", unit: "L/100km" },
   "200+_l100km": { label: "Consumption at 200+ km/h", unit: "L/100km" },
 };
+
+const commonFieldOverrides: Record<SupportedLanguage, DefinitionOverrides> = {
+  en: {},
+  pl: {
+    date: { label: "Data" },
+    start: { label: "Czas rozpoczęcia" },
+    end: { label: "Czas zakończenia" },
+    distance_km: { label: "Dystans" },
+    overall_sec: { label: "Całkowity czas trwania" },
+    engineOff_sec: { label: "Silnik wyłączony" },
+    engineOn_sec: { label: "Silnik włączony" },
+    idle_sec: { label: "Czas na biegu jałowym" },
+    driving_sec: { label: "Czas jazdy" },
+    avg_c: { label: "Średnia temperatura" },
+    max_c: { label: "Maksymalna temperatura" },
+    min_c: { label: "Minimalna temperatura" },
+    avg_perc: { label: "Średnio" },
+    max_perc: { label: "Maksymalnie" },
+    min_perc: { label: "Minimalnie" },
+    total_l: { label: "Całkowita ilość paliwa" },
+    avg_l100km: { label: "Średnie spalanie" },
+    min: { label: "Minimum" },
+    max: { label: "Maksimum" },
+    avg: { label: "Średnia" },
+    avgDriving: { label: "Średnia podczas jazdy" },
+    avg_kmh: { label: "Średnia prędkość" },
+    max_kmh: { label: "Maksymalna prędkość" },
+    min_kmh: { label: "Minimalna prędkość" },
+    min_v: { label: "Minimalne napięcie" },
+    max_v: { label: "Maksymalne napięcie" },
+    avg_v: { label: "Średnie napięcie" },
+    beforeDrive_v: { label: "Napięcie przed jazdą" },
+    engineRunning_v: { label: "Napięcie przy pracującym silniku" },
+    coolant_sec: { label: "Czas nagrzewania płynu chłodzącego" },
+    oil_sec: { label: "Czas nagrzewania oleju" },
+    errors: { label: "Błędy" },
+    oilCarbonate_perc: { label: "Zawartość węglanów w oleju" },
+    oilDilution_perc: { label: "Rozcieńczenie oleju" },
+    vol_ml: { label: "Objętość" },
+    remain_ml: { label: "Pozostało" },
+    percentage_perc: { label: "Procent" },
+    weight_gram: { label: "Masa" },
+    lastRegen_km: { label: "Dystans od ostatniej regeneracji" },
+    last10Regen_km: { label: "Ostatnie 10 regeneracji" },
+    life_km: { label: "Żywotność filtra" },
+    left_km: { label: "Pozostała żywotność" },
+    avg_mbar: { label: "Średnie ciśnienie" },
+    max_mbar: { label: "Maksymalne ciśnienie" },
+    min_mbar: { label: "Minimalne ciśnienie" },
+    start_gl: { label: "Stan początkowy" },
+    end_gl: { label: "Stan końcowy" },
+    diff_gl: { label: "Różnica" },
+    min_gl: { label: "Minimalna ilość sadzy" },
+    max_gl: { label: "Maksymalna ilość sadzy" },
+    regen_l100km: { label: "Spalanie podczas regeneracji" },
+    nonRegen_l100km: { label: "Spalanie poza regeneracją" },
+    previousRegen_km: { label: "Dystans poprzedniej regeneracji" },
+    duration_sec: { label: "Czas trwania" },
+    distance_km_total: { label: "Dystans" },
+    distance: { label: "Dystans" },
+    "5-15_l100km": { label: "Spalanie przy 5-15 km/h" },
+    "15-25_l100km": { label: "Spalanie przy 15-25 km/h" },
+    "25-35_l100km": { label: "Spalanie przy 25-35 km/h" },
+    "35-45_l100km": { label: "Spalanie przy 35-45 km/h" },
+    "45-55_l100km": { label: "Spalanie przy 45-55 km/h" },
+    "55-65_l100km": { label: "Spalanie przy 55-65 km/h" },
+    "65-75_l100km": { label: "Spalanie przy 65-75 km/h" },
+    "75-85_l100km": { label: "Spalanie przy 75-85 km/h" },
+    "85-95_l100km": { label: "Spalanie przy 85-95 km/h" },
+    "95-105_l100km": { label: "Spalanie przy 95-105 km/h" },
+    "105-115_l100km": { label: "Spalanie przy 105-115 km/h" },
+    "115-125_l100km": { label: "Spalanie przy 115-125 km/h" },
+    "125-135_l100km": { label: "Spalanie przy 125-135 km/h" },
+    "135-145_l100km": { label: "Spalanie przy 135-145 km/h" },
+    "145-155_l100km": { label: "Spalanie przy 145-155 km/h" },
+    "155-165_l100km": { label: "Spalanie przy 155-165 km/h" },
+    "165-175_l100km": { label: "Spalanie przy 165-175 km/h" },
+    "175-185_l100km": { label: "Spalanie przy 175-185 km/h" },
+    "185-195_l100km": { label: "Spalanie przy 185-195 km/h" },
+    "195-200_l100km": { label: "Spalanie przy 195-200 km/h" },
+    "200+_l100km": { label: "Spalanie powyżej 200 km/h" },
+  },
+};
+
+const mergeDefinitionMaps = (base: DefinitionMap, overrides?: DefinitionOverrides): DefinitionMap => {
+  if (!overrides || Object.keys(overrides).length === 0) {
+    return base;
+  }
+
+  const merged: DefinitionMap = {};
+  const keys = new Set([...Object.keys(base), ...Object.keys(overrides)]);
+
+  for (const key of keys) {
+    const baseDefinition = base[key];
+    const overrideDefinition = overrides[key];
+
+    if (baseDefinition) {
+      merged[key] = {
+        ...baseDefinition,
+        ...(overrideDefinition ?? {}),
+      };
+      continue;
+    }
+
+    if (overrideDefinition) {
+      merged[key] = { ...(overrideDefinition as FieldDefinition) };
+    }
+  }
+
+  return merged;
+};
+
+const commonSectionDefinitionsByLanguage: Record<SupportedLanguage, DefinitionMap> = {
+  en: baseCommonSectionDefinitions,
+  pl: mergeDefinitionMaps(baseCommonSectionDefinitions, commonSectionOverrides.pl),
+};
+
+const commonFieldDefinitionsByLanguage: Record<SupportedLanguage, DefinitionMap> = {
+  en: baseCommonFieldDefinitions,
+  pl: mergeDefinitionMaps(baseCommonFieldDefinitions, commonFieldOverrides.pl),
+};
+
+export const getCommonSectionDefinitions = (language: SupportedLanguage): DefinitionMap =>
+  commonSectionDefinitionsByLanguage[language];
+
+export const getCommonFieldDefinitions = (language: SupportedLanguage): DefinitionMap =>
+  commonFieldDefinitionsByLanguage[language];

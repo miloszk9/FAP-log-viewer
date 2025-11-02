@@ -1,12 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AuthForm } from "@/components/auth/AuthForm";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
@@ -17,8 +11,7 @@ const educationalPoints = [
   },
   {
     title: "All-in-one dashboard",
-    description:
-      "Monitor regeneration cycles, engine stats, and FAP pressure thresholds in one place.",
+    description: "Monitor regeneration cycles, engine stats, and FAP pressure thresholds in one place.",
   },
   {
     title: "Privacy-first",
@@ -68,7 +61,8 @@ export const RegisterView: React.FC = () => {
               <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
                 <p className="font-medium">Why do we ask for a password?</p>
                 <p>
-                  We encrypt every uploaded report and require strong authentication to keep your fleet data confidential.
+                  We encrypt every uploaded report and require strong authentication to keep your fleet data
+                  confidential.
                 </p>
               </div>
 
@@ -105,11 +99,10 @@ export const RegisterView: React.FC = () => {
 
           <div className="space-y-8">
             <header className="space-y-2">
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Optimise every regeneration
-              </h2>
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Optimise every regeneration</h2>
               <p className="max-w-sm text-base text-muted-foreground">
-                Give your workshop or fleet team the data advantage—register now to unlock comprehensive vehicle analytics.
+                Give your workshop or fleet team the data advantage—register now to unlock comprehensive vehicle
+                analytics.
               </p>
             </header>
 
@@ -117,9 +110,7 @@ export const RegisterView: React.FC = () => {
               {educationalPoints.map((point) => (
                 <article key={point.title} className="rounded-xl border border-border/60 bg-card/80 p-4 shadow-sm">
                   <h3 className="text-sm font-semibold text-foreground">{point.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                    {point.description}
-                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{point.description}</p>
                 </article>
               ))}
             </div>

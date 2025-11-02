@@ -1,13 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import type { AuthTokenResponseDto } from "@/types";
 import { AuthForm } from "@/components/auth/AuthForm";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
@@ -63,7 +57,7 @@ export const LoginView: React.FC = () => {
 
       window.location.replace(destination);
     },
-    [completeLogin],
+    [completeLogin]
   );
 
   const registrationToast = useMemo(() => {
@@ -99,9 +93,7 @@ export const LoginView: React.FC = () => {
 
           <div className="space-y-8">
             <header className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-                Welcome back
-              </h1>
+              <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Welcome back</h1>
               <p className="max-w-sm text-base text-muted-foreground">
                 Sign in to continue analysing diesel particulate filter health across your fleet.
               </p>
@@ -128,9 +120,7 @@ export const LoginView: React.FC = () => {
           <Card className="w-full max-w-md shadow-lg">
             <CardHeader className="space-y-3">
               <CardTitle>Sign in</CardTitle>
-              <CardDescription>
-                Enter your email and password to access your analysis dashboard.
-              </CardDescription>
+              <CardDescription>Enter your email and password to access your analysis dashboard.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <Button

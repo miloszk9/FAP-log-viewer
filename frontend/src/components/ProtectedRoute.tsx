@@ -13,11 +13,7 @@ const defaultFallback = (
   </div>
 );
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  fallback,
-  redirectTo = "/login",
-}) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, fallback, redirectTo = "/login" }) => {
   const { isAuthenticated, isHydrating, clearSession } = useAuth();
 
   useEffect(() => {
@@ -38,9 +34,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       searchParams.set("redirect", currentPath);
     }
 
-    window.location.replace(
-      searchParams.size > 0 ? `${redirectTo}?${searchParams.toString()}` : redirectTo,
-    );
+    window.location.replace(searchParams.size > 0 ? `${redirectTo}?${searchParams.toString()}` : redirectTo);
   }, [clearSession, isAuthenticated, isHydrating, redirectTo]);
 
   const resolvedFallback = useMemo(() => fallback ?? defaultFallback, [fallback]);

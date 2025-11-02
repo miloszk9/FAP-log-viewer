@@ -1,11 +1,4 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import type { AuthTokenResponseDto } from "@/types";
 
 export const AUTH_STORAGE_KEY = "fap:access-token";
@@ -73,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       setAccessToken(token.access_token);
     },
-    [clearSession, setAccessToken],
+    [clearSession, setAccessToken]
   );
 
   const value = useMemo<AuthContextValue>(
@@ -85,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       completeLogin,
       clearSession,
     }),
-    [accessToken, clearSession, isHydrating, setAccessToken, completeLogin],
+    [accessToken, clearSession, isHydrating, setAccessToken, completeLogin]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

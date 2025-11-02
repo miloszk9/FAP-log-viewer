@@ -1,7 +1,13 @@
+import { useMemo } from "react";
 import { combineFieldDefinitions, type FieldDefinition, type MetricsDictionary } from "@/lib/metrics";
-import { commonFieldDefinitions, commonSectionDefinitions } from "@/i18n/common";
+import { getCommonFieldDefinitions, getCommonSectionDefinitions } from "@/i18n/common";
+import type { SupportedLanguage } from "@/lib/i18n";
+import { useLanguage } from "@/lib/i18n";
 
-const sectionDefinitions: Record<string, FieldDefinition> = {
+type DefinitionMap = Record<string, FieldDefinition>;
+type DefinitionOverrides = Partial<Record<string, Partial<FieldDefinition>>>;
+
+const baseSectionDefinitions: DefinitionMap = {
   overall: { label: "Overall averages" },
   "overall.duration": { label: "Duration" },
   driving: { label: "Driving" },
@@ -26,7 +32,35 @@ const sectionDefinitions: Record<string, FieldDefinition> = {
   "fapRegen.fuelConsumption": { label: "Fuel consumption" },
 };
 
-const fieldOverrides: Record<string, FieldDefinition> = {
+const sectionOverrides: Record<SupportedLanguage, DefinitionOverrides> = {
+  en: {},
+  pl: {
+    overall: { label: "Średnie ogólne" },
+    "overall.duration": { label: "Czas trwania" },
+    driving: { label: "Jazda" },
+    "driving.acceleration": { label: "Przyspieszenie" },
+    engine: { label: "Silnik" },
+    "engine.battery": { label: "Akumulator" },
+    "engine.coolantTemp": { label: "Temperatura płynu chłodzącego" },
+    "engine.engineWarmup": { label: "Rozgrzewanie silnika" },
+    "engine.oilCarbonate": { label: "Zawartość węglanów w oleju" },
+    "engine.oilDilution": { label: "Rozcieńczenie oleju" },
+    "engine.oilTemp": { label: "Temperatura oleju" },
+    fap: { label: "Filtr FAP" },
+    "fap.pressure": { label: "Ciśnienie podczas jazdy" },
+    "fap.pressure_idle": { label: "Ciśnienie na biegu jałowym" },
+    "fap.soot": { label: "Sadza" },
+    "fap.temp": { label: "Temperatura" },
+    fapRegen: { label: "Regeneracja FAP" },
+    "fapRegen.speed": { label: "Prędkość" },
+    "fapRegen.fapTemp": { label: "Temperatura" },
+    "fapRegen.fapPressure": { label: "Ciśnienie" },
+    "fapRegen.fapSoot": { label: "Sadza" },
+    "fapRegen.fuelConsumption": { label: "Zużycie paliwa" },
+  },
+};
+
+const baseFieldOverrides: DefinitionMap = {
   "driving.fuelConsumption_l100km": { label: "Fuel consumption", unit: "L/100km" },
   "fap.pressure_idle.avg_mbar": {
     label: "Average idle pressure",
@@ -42,33 +76,93 @@ const fieldOverrides: Record<string, FieldDefinition> = {
   },
 };
 
-const getSectionMeta = (path: string[]): FieldDefinition | undefined => {
-  if (!path.length) {
-    return undefined;
-  }
-
-  const pathKey = path.join(".");
-  const fallbackKey = path[path.length - 1];
-  const specific = sectionDefinitions[pathKey];
-  const generic = commonSectionDefinitions[fallbackKey];
-
-  return combineFieldDefinitions(specific, generic, fallbackKey);
+const fieldOverridesByLanguage: Record<SupportedLanguage, DefinitionOverrides> = {
+  en: {},
+  pl: {
+    "driving.fuelConsumption_l100km": { label: "Zużycie paliwa" },
+    "fap.pressure_idle.avg_mbar": { label: "Średnie ciśnienie na biegu jałowym" },
+    "fap.pressure.avg_mbar": { label: "Średnie ciśnienie podczas jazdy" },
+  },
 };
 
-const getFieldMeta = (path: string[]): FieldDefinition | undefined => {
-  if (!path.length) {
-    return undefined;
+const mergeDefinitionMaps = (base: DefinitionMap, overrides?: DefinitionOverrides): DefinitionMap => {
+  if (!overrides || Object.keys(overrides).length === 0) {
+    return base;
   }
 
-  const pathKey = path.join(".");
-  const fallbackKey = path[path.length - 1];
-  const specific = fieldOverrides[pathKey];
-  const generic = commonFieldDefinitions[fallbackKey];
+  const merged: DefinitionMap = {};
+  const keys = new Set([...Object.keys(base), ...Object.keys(overrides)]);
 
-  return combineFieldDefinitions(specific, generic, fallbackKey);
+  for (const key of keys) {
+    const baseDefinition = base[key];
+    const overrideDefinition = overrides[key];
+
+    if (baseDefinition) {
+      merged[key] = {
+        ...baseDefinition,
+        ...(overrideDefinition ?? {}),
+      };
+      continue;
+    }
+
+    if (overrideDefinition) {
+      merged[key] = { ...(overrideDefinition as FieldDefinition) };
+    }
+  }
+
+  return merged;
 };
 
-export const summaryDictionary: MetricsDictionary = {
-  getSectionMeta,
-  getFieldMeta,
+const sectionDefinitionsByLanguage: Record<SupportedLanguage, DefinitionMap> = {
+  en: baseSectionDefinitions,
+  pl: mergeDefinitionMaps(baseSectionDefinitions, sectionOverrides.pl),
+};
+
+const fieldDefinitionsByLanguage: Record<SupportedLanguage, DefinitionMap> = {
+  en: baseFieldOverrides,
+  pl: mergeDefinitionMaps(baseFieldOverrides, fieldOverridesByLanguage.pl),
+};
+
+export const createSummaryDictionary = (language: SupportedLanguage): MetricsDictionary => {
+  const sectionDefinitions = sectionDefinitionsByLanguage[language];
+  const fieldOverrides = fieldDefinitionsByLanguage[language];
+  const commonSections = getCommonSectionDefinitions(language);
+  const commonFields = getCommonFieldDefinitions(language);
+
+  const getSectionMeta = (path: string[]): FieldDefinition | undefined => {
+    if (!path.length) {
+      return undefined;
+    }
+
+    const pathKey = path.join(".");
+    const fallbackKey = path[path.length - 1];
+    const specific = sectionDefinitions[pathKey];
+    const generic = commonSections[fallbackKey];
+
+    return combineFieldDefinitions(specific, generic, fallbackKey);
+  };
+
+  const getFieldMeta = (path: string[]): FieldDefinition | undefined => {
+    if (!path.length) {
+      return undefined;
+    }
+
+    const pathKey = path.join(".");
+    const fallbackKey = path[path.length - 1];
+    const specific = fieldOverrides[pathKey];
+    const generic = commonFields[fallbackKey];
+
+    return combineFieldDefinitions(specific, generic, fallbackKey);
+  };
+
+  return {
+    getSectionMeta,
+    getFieldMeta,
+  };
+};
+
+export const useSummaryDictionary = (): MetricsDictionary => {
+  const { language } = useLanguage();
+
+  return useMemo(() => createSummaryDictionary(language), [language]);
 };

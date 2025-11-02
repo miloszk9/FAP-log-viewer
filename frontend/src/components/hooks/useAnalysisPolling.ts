@@ -181,5 +181,3 @@ export const useAnalysisPolling = ({
     refreshNow,
   };
 };
-
-
