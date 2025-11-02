@@ -174,23 +174,23 @@
 
 - PollingController
 
-  - Purpose: Poll `GET /analyses/:id` every ~1.5s for ≤ 60s; exposes manual refresh.
-  - Props: `{ id: string, enabled: boolean, onData: (dto: AnalysisDetailDto) => void, onTimeout: () => void }`
+  - Purpose: Poll `GET /analyses/:id` every ~1.5s (≤ 60s); exposes manual refresh and pause/resume hooks.
+  - Props: `{ enabled: boolean, intervalMs?: number, timeoutMs?: number, onPoll: () => Promise<unknown>, onTimeout?: () => void }`
 
-- Section
+- MetricsTree (shared)
 
-  - Purpose: Semantic container with title/description.
-  - Props: `{ title: string, children: ReactNode }`
+  - Purpose: Render nested metric sections dynamically using dictionary metadata.
+  - Props: `{ data: Record<string, unknown> | null | undefined, dictionary: MetricsDictionary }`
 
 - MetricCard
 
-  - Purpose: Display label/value/unit; supports N/A.
-  - Props: `{ label: string, value: string | number | null | undefined, unit?: string }`
+  - Purpose: Display label/value/unit; supports fallback formatting.
+  - Props: `{ label: string, value: MetricValue, unit?: string, formatValue?: (value: MetricValue) => React.ReactNode }`
 
 - KeyValueList
 
-  - Purpose: Simple list of key/value pairs; hides undefined.
-  - Props: `{ items: { key: string, value?: string | number | null, unit?: string }[] }`
+  - Purpose: Render key/value pairs; uses dictionary formatting.
+  - Props: `{ items: { key: string, value?: MetricValue, unit?: string, description?: string, formatValue?: (value: MetricValue) => React.ReactNode }[] }`
 
 - ThresholdIndicator
 
@@ -198,12 +198,12 @@
   - Logic:
     - Idle warning > 15 mbar, error > 50 mbar.
     - Driving warning > 300 mbar, error > 400 mbar.
-  - Props: `{ mode: 'idle' | 'driving', value?: number | null }`
+  - Props: `{ mode: 'idle' | 'driving', value?: number | null, helperText?: string }`
 
 - SummaryGrid
 
-  - Purpose: Responsive grid for average metrics; hides optional fields.
-  - Props: `{ average: UserAverageDto | null }`
+  - Purpose: Wrap `MetricsTree` for averages; dictionary-driven sections.
+  - Props: `{ data: FapAverageJson | null | undefined }`
 
 - EmptyState / ErrorState
 

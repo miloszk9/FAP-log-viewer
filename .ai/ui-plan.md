@@ -8,7 +8,8 @@ A web application built with Astro (shell/layout) and React (dynamic views), usi
 - **Protected views**: `Upload`, `History`, `Analysis`, `Summary`.
 - **Global shell**: shadcn `dashboard-01` layout for protected routes (sidebar + header), language and theme switchers, global toasts for errors/actions.
 - **State and data**: `@tanstack/react-query` with keys and cache/staleTime policies per planning notes; retry behavior only for GET 5xx.
-- **Accessibility and RWD**: mobile-first, aria-live for status updates, focus management, tables with `scope` and horizontal scrolling ≥ md, metric cards in a grid.
+- **Accessibility and RWD**: mobile-first, aria-live for status updates, focus management, tables with `scope` and horizontal scrolling ≥ md, metric car
+  ds in a grid.
 - **Security**: JWT in memory (hydrated from sessionStorage), clearing on 401, protected routes, file type/size validation (CSV/ZIP ≤ 20MB), no cookies.
 
 API alignment (v1):
@@ -66,7 +67,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **Path**: `/analyses/:id`
 - **Primary goal**: Present detailed results for a single log with metric sections.
 - **Key information**: Status, message, log date, distance; sections: `overall`, `driving`, `engine`, `fap`, and `fapRegen` when present; N/A for missing fields.
-- **Key components**: `Section` containers, `MetricCard`, `KeyValueList`, `ThresholdIndicator` (FAP thresholds), `StatusBanner`, `PollingController` (1.5s up to 60s), `RefreshButton`.
+- **Key components**: Dictionary-driven `MetricsTree` sections, `StatusBanner`, `PollingController` (1.5s up to 60s), `Refresh/Resume` controls, `ThresholdIndicator`.
 - **API calls**: `GET /api/v1/analyses/:id` (polled until completion or timeout).
 - **UX/a11y/security**: Polling up to 60s; after the limit show “Refresh status” and resume on focus; visual FAP thresholds (idle/driving); semantic headings, tab order; preserve section scroll position.
 - **Mapped PRD requirements**: “Single File Analysis Dashboard” (all metrics, N/A), FAP thresholds, FAP Regeneration section.
@@ -76,7 +77,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **Path**: `/summary`
 - **Primary goal**: Present aggregated user averages.
 - **Key information**: `overall`, `driving`, `engine`, `fap`, `fapRegen` (optional when available), calculation status message.
-- **Key components**: `SummaryGrid`, `MetricCard`, `KeyValueList`, `EmptyState` (when no data), `ErrorState`.
+- **Key components**: `SummaryGrid` (MetricsTree + dictionary metadata), `ThresholdIndicator`, `EmptyState`, `ErrorState`.
 - **API calls**: `GET /api/v1/average`.
 - **UX/a11y/security**: Metric cards in a responsive 1–3 column grid; clear metric units (metric system), dates in DD‑MM‑YYYY; no comparison to a single log in MVP.
 - **Mapped PRD requirements**: “Cross-log summary dashboard”.
@@ -143,8 +144,8 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **StatusBadge**: Success/Failed/Processing (aria-label + AA contrast color).
 - **InfiniteScroll**: 30 per page, maintains previously loaded pages, spinner/skeleton.
 - **DeleteButton (optimistic)**: removes analysis from the list, rollback on error.
-- **AnalysisDetail**: `StatusBanner`, `PollingController`, `RefreshButton`, `Section` and `MetricCard` sections, `KeyValueList`, `ThresholdIndicator` (FAP thresholds: idle >15/>50, driving >300/>400 mbar).
-- **SummaryGrid**: grid of metric cards with optional fields.
+- **AnalysisDetail**: `StatusBanner`, `PollingController`, dynamic `MetricsTree` sections (dictionary-driven), `ThresholdIndicator` (FAP thresholds: idle >15/>50, driving >300/>400 mbar).
+- **SummaryGrid**: dynamic `MetricsTree` for averages (dictionary metadata).
 - **EmptyState / ErrorState**: variants for no data and errors (links to retry/navigate back).
 - **Forms (Login/Register)**: shadcn templates `login-01` and `signup-01` integrated with our `AuthForm` logic (submit handlers, validation, toasts).
 - **Loaders/Skeletons**: loading states for lists/details/summary.
