@@ -1,8 +1,11 @@
 import {
   useInfiniteQuery,
+  useMutation,
   useQuery,
+  useQueryClient,
   type InfiniteData,
   type UseInfiniteQueryResult,
+  type UseMutationResult,
   type UseQueryResult,
 } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -10,11 +13,18 @@ import {
   fetchAnalyses,
   fetchAnalysisDetail,
   fetchUserAverage,
+  uploadAnalysis,
   type FetchAnalysesParams,
   ApiError,
 } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth";
-import type { AnalysisDetailDto, GetAnalysesQueryDto, GetAnalysesResponseDto, UserAverageDto } from "@/types";
+import type {
+  AnalysisDetailDto,
+  GetAnalysesQueryDto,
+  GetAnalysesResponseDto,
+  UploadAnalysisResponseDto,
+  UserAverageDto,
+} from "@/types";
 
 export const analysesKeys = {
   all: ["analyses"] as const,
@@ -165,5 +175,53 @@ export const useUserAverage = ({
     enabled: Boolean(accessToken) && enabled,
     staleTime,
     refetchOnWindowFocus,
+  });
+};
+
+export interface UploadAnalysisVariables {
+  file: File;
+}
+
+export type UseUploadAnalysisResult = UseMutationResult<UploadAnalysisResponseDto, ApiError, UploadAnalysisVariables>;
+
+export const useUploadAnalysis = (): UseUploadAnalysisResult => {
+  const { accessToken, clearSession } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation<UploadAnalysisResponseDto, ApiError, UploadAnalysisVariables>({
+    mutationFn: async ({ file }) => {
+      if (!accessToken) {
+        throw new ApiError("Not authenticated", 401, null);
+      }
+
+      return uploadAnalysis({ file, accessToken });
+    },
+    onSuccess: async (data) => {
+      await queryClient.invalidateQueries({ queryKey: analysesKeys.all });
+      await queryClient.invalidateQueries({ queryKey: averageKeys.all });
+
+      if (!accessToken) {
+        return;
+      }
+
+      if (Array.isArray(data.ids) && data.ids.length === 1) {
+        const [analysisId] = data.ids;
+
+        try {
+          await queryClient.prefetchQuery({
+            queryKey: analysisKeys.detail(analysisId),
+            queryFn: ({ signal }) => fetchAnalysisDetail({ id: analysisId, accessToken, signal }),
+            staleTime: 1_000,
+          });
+        } catch {
+          // Ignore prefetch failures; the history page will fetch as needed.
+        }
+      }
+    },
+    onError: (error) => {
+      if (error.isUnauthorized) {
+        clearSession();
+      }
+    },
   });
 };

@@ -1,4 +1,10 @@
-import type { AnalysisDetailDto, GetAnalysesQueryDto, GetAnalysesResponseDto, UserAverageDto } from "@/types";
+import type {
+  AnalysisDetailDto,
+  GetAnalysesQueryDto,
+  GetAnalysesResponseDto,
+  UploadAnalysisResponseDto,
+  UserAverageDto,
+} from "@/types";
 
 const normalizeBaseUrl = (baseUrl: string): string => baseUrl.replace(/\/+$/, "");
 
@@ -121,6 +127,24 @@ export const fetchAnalyses = async (params: FetchAnalysesParams): Promise<GetAna
     method: "GET",
     accessToken,
     query,
+    signal,
+  });
+};
+
+export interface UploadAnalysisParams {
+  file: File;
+  accessToken?: string | null;
+  signal?: AbortSignal;
+}
+
+export const uploadAnalysis = async ({ file, accessToken, signal }: UploadAnalysisParams): Promise<UploadAnalysisResponseDto> => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  return apiRequest<UploadAnalysisResponseDto>("/api/v1/analyses", {
+    method: "POST",
+    accessToken,
+    body: formData,
     signal,
   });
 };
