@@ -31,6 +31,7 @@ import { GetAnalysesQueryDto } from './dto/get-analyses-query.dto';
 import { GetAllAnalysisResponseDto } from './dto/get-all-analysis-response.dto';
 import { GetAnalysisResponseDto } from './dto/get-analysis-response.dto';
 import { EmailService } from '../email/email.service';
+import { AverageService } from 'src/average/average.service';
 
 @ApiTags('Analyses')
 @Controller('analyses')
@@ -39,6 +40,7 @@ export class AnalysisController {
   constructor(
     private readonly analysisService: AnalysisService,
     private readonly emailService: EmailService,
+    private readonly averageService: AverageService,
   ) {}
 
   @Post()
@@ -160,5 +162,6 @@ export class AnalysisController {
     @Request() req: RequestWithUser,
   ): Promise<void> {
     await this.analysisService.deleteAnalysis(id, req.user?.id);
+    await this.averageService.update(req.user?.id);
   }
 }
