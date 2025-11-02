@@ -94,4 +94,3 @@ export const ThresholdIndicator: React.FC<ThresholdIndicatorProps> = ({
     </div>
   );
 };
-

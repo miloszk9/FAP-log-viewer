@@ -48,5 +48,3 @@ export const formatDate = (value: Primitive, locale: string = undefined): string
     minute: "2-digit",
   }).format(date);
 };
-
-

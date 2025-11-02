@@ -118,11 +118,8 @@ export const PollingController: React.FC<PollingControllerProps> = ({
       restart,
       stop,
     }),
-    [elapsedMs, isPolling, restart, stop, timedOut],
+    [elapsedMs, isPolling, restart, stop, timedOut]
   );
 
   return <>{children(renderState)}</>;
 };
-
-
-

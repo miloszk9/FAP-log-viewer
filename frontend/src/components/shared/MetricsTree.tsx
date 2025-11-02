@@ -100,7 +100,7 @@ export const MetricsTree: React.FC<MetricsTreeProps> = ({ data, dictionary }) =>
       const sectionDescription = sectionMeta?.description;
 
       const childEntries = Object.entries(value).filter(
-        ([childKey, childValue]) => shouldRenderKey(childKey) && hasRenderableValue(childValue),
+        ([childKey, childValue]) => shouldRenderKey(childKey) && hasRenderableValue(childValue)
       );
 
       if (!childEntries.length) {
@@ -149,7 +149,7 @@ export const MetricsTree: React.FC<MetricsTreeProps> = ({ data, dictionary }) =>
                 mode={fieldDefinition.thresholdMode ?? "driving"}
                 value={numericValue}
                 helperText={fieldDefinition.description}
-              />,
+              />
             );
           }
 
@@ -173,7 +173,7 @@ export const MetricsTree: React.FC<MetricsTreeProps> = ({ data, dictionary }) =>
         primitiveItems.map(({ label, definition }) => ({
           label,
           order: definition.order ?? Number.POSITIVE_INFINITY,
-        })),
+        }))
       );
 
       for (const index of sortOrder) {
@@ -223,5 +223,3 @@ export const MetricsTree: React.FC<MetricsTreeProps> = ({ data, dictionary }) =>
 
   return <div className="space-y-6">{content}</div>;
 };
-
-

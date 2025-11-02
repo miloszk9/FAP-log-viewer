@@ -26,4 +26,3 @@ export const EmptyState: React.FC<EmptyStateProps> = ({ title, description, acti
     </div>
   );
 };
-

@@ -119,7 +119,7 @@ export const formatValueByDefinition = (value: MetricValue, definition?: FieldDe
 export const combineFieldDefinitions = (
   primary: FieldDefinition | undefined,
   secondary: FieldDefinition | undefined,
-  fallbackKey?: string,
+  fallbackKey?: string
 ): FieldDefinition => {
   const combined: FieldDefinition = {
     ...secondary,
@@ -136,5 +136,3 @@ export const combineFieldDefinitions = (
 
   return combined;
 };
-
-

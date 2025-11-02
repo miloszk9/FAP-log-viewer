@@ -149,4 +149,3 @@ const SummaryPageContent: React.FC = () => {
     </AppShell>
   );
 };
-
