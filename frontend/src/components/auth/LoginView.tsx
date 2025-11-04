@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { AuthTokenResponseDto } from "@/types";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { ApiError, apiRequest } from "@/lib/apiClient";
 
 const marketingPoints = [
   "Upload CSV log files from your FAP mobile app.",
@@ -23,6 +23,8 @@ const getRedirectTarget = () => {
 export const LoginView: React.FC = () => {
   const { completeLogin, isAuthenticated, isHydrating } = useAuth();
   const [showRegistrationToast, setShowRegistrationToast] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
+  const hasAttemptedDemoLogin = useRef(false);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -59,6 +61,41 @@ export const LoginView: React.FC = () => {
     },
     [completeLogin]
   );
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    if (isHydrating || isAuthenticated || hasAttemptedDemoLogin.current) {
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("demo") !== "1") {
+      return;
+    }
+
+    hasAttemptedDemoLogin.current = true;
+    setDemoError(null);
+
+    void apiRequest<AuthTokenResponseDto>("/api/v1/auth/login", {
+      method: "POST",
+      body: {
+        email: "user@example.com",
+        password: "password123",
+      },
+    })
+      .then(handleSuccess)
+      .catch((error) => {
+        const message =
+          error instanceof ApiError
+            ? error.message || "Unable to start the demo session."
+            : "Unable to start the demo session.";
+
+        setDemoError(message);
+      });
+  }, [handleSuccess, isAuthenticated, isHydrating]);
 
   const registrationToast = useMemo(() => {
     if (!showRegistrationToast) {
@@ -132,6 +169,17 @@ export const LoginView: React.FC = () => {
                   Create one now
                 </a>
               </p>
+              <p className="text-center text-sm text-muted-foreground">
+                Want to try the app?{" "}
+                <a className="font-semibold text-primary hover:underline" href="/login?demo=1">
+                  Try the demo
+                </a>
+              </p>
+              {demoError ? (
+                <p aria-live="assertive" role="alert" className="text-center text-sm text-destructive">
+                  {demoError}
+                </p>
+              ) : null}
             </CardContent>
           </Card>
         </main>
