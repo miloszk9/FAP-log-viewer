@@ -3,10 +3,11 @@ import { Monitor, Moon, Sun, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useThemePreference } from "@/components/hooks/useThemePreference";
-import type { ThemePreference, ResolvedTheme } from "@/components/hooks/useThemePreference";
+import type { ThemePreference } from "@/components/hooks/useThemePreference";
 import { useAuth } from "@/lib/auth";
 import { useLanguage } from "@/lib/i18n";
 import type { SupportedLanguage } from "@/lib/i18n";
+import { useDashboardSidebarTranslations } from "@/i18n/dashboardSidebar";
 
 type DashboardSidebarVariant = "desktop" | "overlay";
 
@@ -22,65 +23,6 @@ interface NavItem {
   href: string;
 }
 
-const NAV_LABELS: Record<SupportedLanguage, { history: string; summary: string; upload: string; signOut: string }> = {
-  en: {
-    history: "History",
-    summary: "Summary",
-    upload: "Upload new log",
-    signOut: "Sign out",
-  },
-  pl: {
-    history: "Historia",
-    summary: "Podsumowanie",
-    upload: "Prześlij nowy log",
-    signOut: "Wyloguj",
-  },
-};
-
-const THEME_BUTTON_LABEL: Record<SupportedLanguage, string> = {
-  en: "Theme",
-  pl: "Motyw",
-};
-
-const THEME_OPTION_LABELS: Record<SupportedLanguage, Record<ThemePreference, string>> = {
-  en: {
-    light: "Light",
-    dark: "Dark",
-    system: "Auto",
-  },
-  pl: {
-    light: "Jasny",
-    dark: "Ciemny",
-    system: "Automatyczny",
-  },
-};
-
-const RESOLVED_THEME_LABELS: Record<SupportedLanguage, Record<ResolvedTheme, string>> = {
-  en: {
-    light: "light",
-    dark: "dark",
-  },
-  pl: {
-    light: "jasny",
-    dark: "ciemny",
-  },
-};
-
-const LANGUAGE_BUTTON_LABEL: Record<SupportedLanguage, string> = {
-  en: "Language",
-  pl: "Język",
-};
-
-const LANGUAGE_SWITCH_TEXT: Record<SupportedLanguage, (target: string) => string> = {
-  en: (target) => `Switch language to ${target}`,
-  pl: (target) => `Przełącz język na ${target}`,
-};
-
-const LANGUAGE_STATUS_TEXT: Record<SupportedLanguage, (current: string) => string> = {
-  en: (current) => `Current language ${current}`,
-  pl: (current) => `Bieżący język ${current}`,
-};
-
 export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   onNavigate,
   onSignOut,
@@ -92,6 +34,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const { clearSession } = useAuth();
   const { preference, resolvedTheme, setPreference } = useThemePreference();
   const { language, toggleLanguage, getLanguageLabel } = useLanguage();
+  const translations = useDashboardSidebarTranslations();
 
   const cycleThemePreference = () => {
     const order: ThemePreference[] = ["light", "dark", "system"];
@@ -108,56 +51,30 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 
   const navItems = useMemo<NavItem[]>(
     () => [
-      { label: NAV_LABELS[language].history, href: "/history" },
-      { label: NAV_LABELS[language].summary, href: "/summary" },
-      { label: NAV_LABELS[language].upload, href: "/upload" },
+      { label: translations.nav.history, href: "/history" },
+      { label: translations.nav.summary, href: "/summary" },
+      { label: translations.nav.upload, href: "/upload" },
     ],
-    [language]
+    [translations]
   );
 
-  const signOutLabel = NAV_LABELS[language].signOut;
-  const themeLabel = THEME_BUTTON_LABEL[language];
-  const themeOptionLabel = THEME_OPTION_LABELS[language][preference];
-  const resolvedThemeLabel = RESOLVED_THEME_LABELS[language][resolvedTheme];
-  const systemAriaSuffix =
-    preference === "system"
-      ? language === "pl"
-        ? `, wynik: ${resolvedThemeLabel}`
-        : `, resolves to ${resolvedThemeLabel}`
-      : "";
-  const systemTitleSuffix =
-    preference === "system"
-      ? language === "pl"
-        ? ` (system: ${resolvedThemeLabel})`
-        : ` (system preference: ${resolvedThemeLabel})`
-      : "";
-  const systemStatusSuffix =
-    preference === "system"
-      ? language === "pl"
-        ? `, aktualnie ${resolvedThemeLabel}`
-        : `, currently ${resolvedThemeLabel}`
-      : "";
+  const signOutLabel = translations.nav.signOut;
+  const themeLabel = translations.theme.label;
+  const themeOptionLabel = translations.theme.options[preference];
+  const resolvedThemeLabel = translations.theme.resolved[resolvedTheme];
+  const resolvedLabelOrNull = preference === "system" ? resolvedThemeLabel : null;
 
-  const themeAriaLabel =
-    language === "pl"
-      ? `Zmień preferencję motywu (obecnie: ${themeOptionLabel}${systemAriaSuffix})`
-      : `Cycle theme preference (current: ${themeOptionLabel}${systemAriaSuffix})`;
-  const themeTitle =
-    language === "pl"
-      ? `Motyw: ${themeOptionLabel}${systemTitleSuffix}`
-      : `Theme: ${themeOptionLabel}${systemTitleSuffix}`;
-  const themeStatus =
-    language === "pl"
-      ? `Preferencja motywu ${themeOptionLabel}${systemStatusSuffix}`
-      : `Theme preference ${themeOptionLabel}${systemStatusSuffix}`;
+  const themeAriaLabel = translations.theme.ariaLabel(themeOptionLabel, resolvedLabelOrNull);
+  const themeTitle = translations.theme.title(themeOptionLabel, resolvedLabelOrNull);
+  const themeStatus = translations.theme.status(themeOptionLabel, resolvedLabelOrNull);
 
-  const languageLabel = LANGUAGE_BUTTON_LABEL[language];
+  const languageLabel = translations.language.label;
   const nextLanguage: SupportedLanguage = language === "en" ? "pl" : "en";
   const nextLanguageLabel = getLanguageLabel(nextLanguage);
   const currentLanguageLabel = getLanguageLabel(language);
-  const languageAriaLabel = LANGUAGE_SWITCH_TEXT[language](nextLanguageLabel);
-  const languageStatus = LANGUAGE_STATUS_TEXT[language](currentLanguageLabel);
-  const languageTitle = languageAriaLabel;
+  const languageAriaLabel = translations.language.switchText(nextLanguageLabel);
+  const languageStatus = translations.language.statusText(currentLanguageLabel);
+  const languageTitle = translations.language.title(nextLanguageLabel);
 
   const handleNavigate = (href: string) => {
     if (onNavigate) {
@@ -207,7 +124,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 variant="ghost"
                 size="icon"
                 onClick={() => onClose?.()}
-                aria-label="Close navigation"
+                aria-label={translations.overlay.close}
               >
                 <X aria-hidden="true" className="h-4 w-4" />
               </Button>
