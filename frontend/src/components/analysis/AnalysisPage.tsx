@@ -15,6 +15,7 @@ import { ApiError } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth";
 import { useAnalysisDetail } from "@/lib/queries";
 import type { AnalysisDetailDto } from "@/types";
+import { useAnalysisPageTranslations, type AnalysisPageTranslations } from "@/i18n/analysisPage";
 
 interface AnalysisPageProps {
   analysisId: string;
@@ -39,6 +40,7 @@ const AnalysisPageContent: React.FC<AnalysisPageContentProps> = ({ analysisId })
     staleTime: 5_000,
     refetchOnWindowFocus: false,
   });
+  const t = useAnalysisPageTranslations();
 
   useEffect(() => {
     if (error instanceof ApiError && error.isUnauthorized) {
@@ -78,34 +80,34 @@ const AnalysisPageContent: React.FC<AnalysisPageContentProps> = ({ analysisId })
     <AppShell>
       <section className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Analysis detail</h1>
-          <p className="text-sm text-muted-foreground">
-            Detailed metrics for a single log analysis, including FAP statistics, engine metrics and driving behaviour.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
 
         {isLoading ? (
           loadingSkeleton
         ) : isError ? (
           <ErrorState
-            title="Failed to load analysis"
-            description={error instanceof ApiError ? error.message : "Unable to load analysis details."}
+            title={t.errors.loadFailedTitle}
+            description={
+              error instanceof ApiError ? error.message || t.errors.loadFailedDescription : t.errors.loadFailedDescription
+            }
             onRetry={() => void handleRefetch()}
-            retryLabel={isRefetching ? "Retrying…" : "Retry"}
+            retryLabel={isRefetching ? t.buttons.retrying : t.buttons.retry}
             retryButtonProps={{ disabled: isRefetching }}
             actions={
               <Button type="button" variant="ghost" onClick={() => handleNavigate("/history")}>
-                Back to history
+                {t.buttons.backToHistory}
               </Button>
             }
           />
         ) : !data ? (
           <EmptyState
-            title="Analysis details not available"
-            description="We could not find any metrics for this analysis yet. If the log is still processing, please try again shortly."
+            title={t.emptyStates.noDataTitle}
+            description={t.emptyStates.noDataDescription}
             action={
               <Button type="button" onClick={() => handleNavigate("/history")} variant="outline">
-                Back to history
+                {t.buttons.backToHistory}
               </Button>
             }
           />
@@ -121,6 +123,7 @@ const AnalysisPageContent: React.FC<AnalysisPageContentProps> = ({ analysisId })
                 onManualRefresh={handleRefetch}
                 isRefetching={isRefetching}
                 onNavigate={handleNavigate}
+                translations={t}
               />
             )}
           </PollingController>
@@ -139,6 +142,7 @@ interface AnalysisDataViewProps {
   onManualRefresh: () => Promise<void> | void;
   isRefetching: boolean;
   onNavigate: (path: string) => void;
+  translations: AnalysisPageTranslations;
 }
 
 const AnalysisDataView: React.FC<AnalysisDataViewProps> = ({
@@ -150,6 +154,7 @@ const AnalysisDataView: React.FC<AnalysisDataViewProps> = ({
   onManualRefresh,
   isRefetching,
   onNavigate,
+  translations,
 }) => {
   const handleResume = useCallback(() => {
     restart();
@@ -177,40 +182,52 @@ const AnalysisDataView: React.FC<AnalysisDataViewProps> = ({
   if (timedOut) {
     bannerActions.push(
       <Button key="resume" type="button" variant="outline" onClick={handleResume}>
-        Resume polling
+        {translations.buttons.resumePolling}
       </Button>
     );
   }
 
   bannerActions.push(
     <Button key="refresh" type="button" variant="ghost" onClick={() => void onManualRefresh()} disabled={isRefetching}>
-      {isRefetching ? "Refreshing…" : "Refresh now"}
+      {isRefetching ? translations.buttons.refreshing : translations.buttons.refreshNow}
     </Button>
   );
 
   const metaCards = (
     <div className="grid gap-4 md:grid-cols-3">
-      <MetricCard label="Distance" value={detail.distance ?? detail.analysis?.overall?.distance_km ?? null} unit="km" />
-      <MetricCard label="Log date" value={detail.logDate ?? null} formatValue={(value) => formatDate(value)} />
       <MetricCard
-        label="FAP regeneration"
-        value={detail.fapRegen ? "Detected" : "Not detected"}
-        description="Flags whether FAP regeneration occurred in this drive."
+        label={translations.metrics.distanceLabel}
+        value={detail.distance ?? detail.analysis?.overall?.distance_km ?? null}
+        unit="km"
+      />
+      <MetricCard
+        label={translations.metrics.logDateLabel}
+        value={detail.logDate ?? null}
+        formatValue={(value) => formatDate(value)}
+      />
+      <MetricCard
+        label={translations.metrics.fapRegenLabel}
+        value={detail.fapRegen ? translations.metrics.fapRegenDetected : translations.metrics.fapRegenNotDetected}
+        description={translations.metrics.fapRegenDescription}
       />
     </div>
   );
 
-  const infoCardItems: React.ReactNode[] = [<MetricCard key="version" label="Version" value={detail.version} />];
+  const infoCardItems: React.ReactNode[] = [
+    <MetricCard key="version" label={translations.metrics.versionLabel} value={detail.version} />,
+  ];
 
   if (detail.status === "Processing") {
     infoCardItems.push(
       <MetricCard
         key="auto-refresh"
-        label="Auto refresh duration"
+        label={translations.metrics.autoRefreshLabel}
         value={elapsedMs}
         formatValue={(value) => formatDuration(typeof value === "number" ? value / 1000 : null)}
         description={
-          timedOut ? "Automatic polling paused after 60 seconds." : "Auto-refreshing while the analysis is processing."
+          timedOut
+            ? translations.metrics.autoRefreshPausedDescription
+            : translations.metrics.autoRefreshActiveDescription
         }
       />
     );
@@ -225,14 +242,14 @@ const AnalysisDataView: React.FC<AnalysisDataViewProps> = ({
   const sections = detail.analysis ? (
     <AnalysisSections data={detail.analysis} />
   ) : detail.status === "Processing" ? (
-    <EmptyState title="Analysis in progress" description="Metrics will appear once the upload finishes processing." />
+    <EmptyState title={translations.emptyStates.inProgressTitle} description={translations.emptyStates.inProgressDescription} />
   ) : (
     <EmptyState
-      title="No metrics available"
-      description="This analysis did not return any structured metrics. Try re-uploading the log or contact support if the problem persists."
+      title={translations.emptyStates.noMetricsTitle}
+      description={translations.emptyStates.noMetricsDescription}
       action={
         <Button type="button" variant="outline" onClick={() => onNavigate("/upload")}>
-          Upload new log
+          {translations.buttons.uploadNewLog}
         </Button>
       }
     />
