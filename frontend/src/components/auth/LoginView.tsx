@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
 const marketingPoints = [
-  "Upload CSV or ZIP logs up to 20MB and let automated analysis do the heavy lifting.",
-  "Track processing status for each analysis with live updates and detailed metrics.",
+  "Upload CSV log files from your FAP mobile app.",
+  "Get detailed metrics and analysis of your engine and FAP filter health.",
   "Compare regeneration cycles and engine health trends across your vehicle history.",
 ];
 
@@ -87,7 +87,6 @@ export const LoginView: React.FC = () => {
             </div>
             <div>
               <p className="text-lg font-semibold">FAP Log Viewer</p>
-              <p className="text-sm text-muted-foreground">Citroën · Peugeot · DS</p>
             </div>
           </div>
 
@@ -95,7 +94,7 @@ export const LoginView: React.FC = () => {
             <header className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Welcome back</h1>
               <p className="max-w-sm text-base text-muted-foreground">
-                Sign in to continue analysing diesel particulate filter health across your fleet.
+                Sign in to continue analysing your engine and FAP filter health.
               </p>
             </header>
 
@@ -120,25 +119,9 @@ export const LoginView: React.FC = () => {
           <Card className="w-full max-w-md shadow-lg">
             <CardHeader className="space-y-3">
               <CardTitle>Sign in</CardTitle>
-              <CardDescription>Enter your email and password to access your analysis dashboard.</CardDescription>
+              <CardDescription>Enter your email and password.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={() => window.open("https://fap-app.example.com", "_blank")}
-              >
-                Learn about secure uploads
-              </Button>
-
-              <div className="relative">
-                <div className="absolute inset-x-8 top-3 h-px bg-border" />
-                <span className="relative mx-auto block w-fit bg-card px-2 text-xs uppercase tracking-wide text-muted-foreground">
-                  Or continue with email
-                </span>
-              </div>
-
               {registrationToast}
 
               <AuthForm mode="login" onSuccess={handleSuccess} />

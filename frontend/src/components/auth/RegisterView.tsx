@@ -7,15 +7,15 @@ import { useAuth } from "@/lib/auth";
 const educationalPoints = [
   {
     title: "Email-based access",
-    description: "Use your corporate email to securely access vehicle analytics.",
+    description: "Send CSV log files from your FAP mobile app via.",
   },
   {
     title: "All-in-one dashboard",
     description: "Monitor regeneration cycles, engine stats, and FAP pressure thresholds in one place.",
   },
   {
-    title: "Privacy-first",
-    description: "Data stays within the secure FAP analysis pipeline—never shared externally.",
+    title: "Get analysis summary.",
+    description: "Get a summary of your engine and FAP filter health across your log history.",
   },
 ];
 
@@ -51,21 +51,10 @@ export const RegisterView: React.FC = () => {
           <Card className="w-full max-w-md shadow-lg">
             <CardHeader className="space-y-3">
               <CardTitle>Create your account</CardTitle>
-              <CardDescription>
-                Register to start uploading logs and receive detailed FAP analysis for your vehicles.
-              </CardDescription>
+              <CardDescription>Register to start uploading logs and receive detailed FAP analysis.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <AuthForm mode="register" onSuccess={handleSuccess} />
-
-              <div className="space-y-2 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm text-primary">
-                <p className="font-medium">Why do we ask for a password?</p>
-                <p>
-                  We encrypt every uploaded report and require strong authentication to keep your fleet data
-                  confidential.
-                </p>
-              </div>
-
               <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
                 <a className="font-semibold text-primary hover:underline" href="/login">
@@ -93,17 +82,12 @@ export const RegisterView: React.FC = () => {
             </div>
             <div>
               <p className="text-lg font-semibold">FAP Log Viewer</p>
-              <p className="text-sm text-muted-foreground">Advanced particulate insights</p>
             </div>
           </div>
 
           <div className="space-y-8">
             <header className="space-y-2">
-              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Optimise every regeneration</h2>
-              <p className="max-w-sm text-base text-muted-foreground">
-                Give your workshop or fleet team the data advantage—register now to unlock comprehensive vehicle
-                analytics.
-              </p>
+              <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">Create your account</h2>
             </header>
 
             <div className="space-y-5">
@@ -117,15 +101,7 @@ export const RegisterView: React.FC = () => {
           </div>
 
           <div className="space-y-3 text-sm text-muted-foreground/80">
-            <Button
-              type="button"
-              variant="ghost"
-              className="justify-start px-0 text-muted-foreground hover:text-foreground"
-              onClick={() => window.open("https://fap-app.example.com/privacy", "_blank")}
-            >
-              View privacy & security policy
-            </Button>
-            <p>© {new Date().getFullYear()} FAP Log Viewer. Built for diesel experts.</p>
+            <p>© {new Date().getFullYear()} FAP Log Viewer. All rights reserved.</p>
           </div>
         </aside>
       </div>

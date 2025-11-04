@@ -193,9 +193,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       <div className="flex h-full flex-col justify-between px-5 py-6">
         <div className="space-y-8">
           <div className="flex items-start justify-between gap-3">
-            <div className="space-y-2">
-              <p className="text-lg font-semibold">FAP Log Viewer</p>
-              <p className="text-sm text-muted-foreground">Citroën · Peugeot · DS</p>
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow">
+                <span className="text-2xl font-bold">F</span>
+              </div>
+              <div>
+                <p className="text-lg font-semibold">FAP Log Viewer</p>
+              </div>
             </div>
             {variant === "overlay" ? (
               <Button
