@@ -8,6 +8,7 @@ import { ApiError } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth";
 import { useUserAverage } from "@/lib/queries";
 import type { FapAverageStatus } from "@/types";
+import { useSummaryPageTranslations } from "@/i18n/summaryPage";
 
 export const SummaryPage: React.FC = () => (
   <AppProviders>
@@ -15,27 +16,16 @@ export const SummaryPage: React.FC = () => (
   </AppProviders>
 );
 
-const STATUS_META: Record<FapAverageStatus, { label: string; badgeClass: string; description: string }> = {
-  CALCULATING: {
-    label: "Calculating",
-    badgeClass: "border-amber-500/40 bg-amber-500/10 text-amber-600",
-    description: "Your averages are being calculated. This may take a short moment after new uploads.",
-  },
-  SUCCESS: {
-    label: "Up to date",
-    badgeClass: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
-    description: "Latest averages generated from your processed analyses.",
-  },
-  FAILED: {
-    label: "Failed",
-    badgeClass: "border-destructive/40 bg-destructive/10 text-destructive",
-    description: "We could not generate your averages. Try refreshing or upload a new log.",
-  },
+const STATUS_BADGE_CLASSES: Record<FapAverageStatus, string> = {
+  CALCULATING: "border-amber-500/40 bg-amber-500/10 text-amber-600",
+  SUCCESS: "border-emerald-500/40 bg-emerald-500/10 text-emerald-600",
+  FAILED: "border-destructive/40 bg-destructive/10 text-destructive",
 };
 
 const SummaryPageContent: React.FC = () => {
   const { clearSession } = useAuth();
   const averageQuery = useUserAverage({ staleTime: 60_000 });
+  const t = useSummaryPageTranslations();
 
   const { data, isLoading, isError, error, refetch, isRefetching } = averageQuery;
 
@@ -50,29 +40,31 @@ const SummaryPageContent: React.FC = () => {
       return null;
     }
 
-    const meta = STATUS_META[data.status];
-    const message = data.message ?? meta?.description;
+    const badgeClass = STATUS_BADGE_CLASSES[data.status];
+    const statusCopy = t.statuses[data.status];
 
-    if (!meta) {
+    if (!badgeClass || !statusCopy) {
       return null;
     }
+
+    const message = data.message ?? statusCopy.description;
 
     return (
       <div className="rounded-xl border border-muted-foreground/40 bg-background/80 p-4">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-2">
             <span
-              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${meta.badgeClass}`}
+              className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wide ${badgeClass}`}
             >
-              {meta.label}
+              {statusCopy.label}
             </span>
-            {isRefetching ? <span className="text-xs text-muted-foreground">Refreshing…</span> : null}
+            {isRefetching ? <span className="text-xs text-muted-foreground">{t.statusRefreshing}</span> : null}
           </div>
           {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
         </div>
       </div>
     );
-  }, [data?.message, data?.status, isRefetching]);
+  }, [data?.message, data?.status, isRefetching, t]);
 
   const handleNavigate = (path: string) => {
     if (typeof window !== "undefined") {
@@ -102,14 +94,15 @@ const SummaryPageContent: React.FC = () => {
     }
 
     if (isError) {
-      const message = error instanceof ApiError ? error.message : "Unable to load summary.";
+      const message =
+        error instanceof ApiError ? error.message || t.errors.loadFailedDescription : t.errors.loadFailedDescription;
 
       return (
         <ErrorState
-          title="Failed to load summary"
+          title={t.errors.loadFailedTitle}
           description={message}
           onRetry={() => refetch()}
-          retryLabel={isRefetching ? "Retrying…" : "Retry"}
+          retryLabel={isRefetching ? t.buttons.retrying : t.buttons.retry}
           retryButtonProps={{ disabled: isRefetching }}
         />
       );
@@ -120,11 +113,11 @@ const SummaryPageContent: React.FC = () => {
     if (!hasData) {
       return (
         <EmptyState
-          title="No summary available yet"
-          description="Upload logs to generate aggregated statistics across your analyses."
+          title={t.emptyState.title}
+          description={t.emptyState.description}
           action={
             <Button type="button" onClick={() => handleNavigate("/upload")}>
-              Upload new log
+              {t.buttons.upload}
             </Button>
           }
         />
@@ -138,10 +131,8 @@ const SummaryPageContent: React.FC = () => {
     <AppShell>
       <section className="space-y-6">
         <div className="space-y-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Summary</h1>
-          <p className="text-sm text-muted-foreground">
-            Aggregated metrics across all processed analyses. Use this view to monitor long-term trends.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
         {statusBlock}
         {renderContent()}

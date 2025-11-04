@@ -8,6 +8,7 @@ import { useAnalyses, analysesKeys } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { ApiError, deleteAnalysis } from "@/lib/apiClient";
 import type { GetAnalysesResponseDto } from "@/types";
+import { useHistoryTranslations, type HistoryTranslations } from "@/i18n/history";
 
 export const HistoryPage: React.FC = () => {
   return (
@@ -24,6 +25,7 @@ const HistoryPageContent: React.FC = () => {
   const [activeMenuId, setActiveMenuId] = useState<string | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const menuRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+  const t = useHistoryTranslations();
 
   const { items, isLoading, isError, error, hasMore, fetchNextPage, isFetchingNextPage, isRefetching, refetch } =
     analysesQuery;
@@ -134,7 +136,7 @@ const HistoryPageContent: React.FC = () => {
         return;
       }
 
-      setDeleteError(mutationError.message || "Unable to delete analysis. Please try again.");
+      setDeleteError(mutationError.message || t.errors.deleteAnalysis);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: analysesQueryKey });
@@ -177,16 +179,17 @@ const HistoryPageContent: React.FC = () => {
     }
 
     if (isError) {
-      const message = error instanceof ApiError ? error.message : "Unable to load history.";
+      const message =
+        error instanceof ApiError ? error.message || t.errors.loadHistoryDescription : t.errors.loadHistoryDescription;
 
       return (
         <div className="space-y-4 rounded-lg border border-destructive/40 bg-destructive/10 p-6" role="alert">
           <div className="space-y-1">
-            <p className="font-semibold text-destructive">Failed to load log history</p>
+            <p className="font-semibold text-destructive">{t.errors.loadHistoryTitle}</p>
             <p className="text-sm text-destructive/80">{message}</p>
           </div>
           <Button type="button" variant="outline" onClick={() => refetch()} disabled={isRefetching}>
-            {isRefetching ? "Retrying..." : "Retry"}
+            {isRefetching ? t.buttons.retrying : t.buttons.retry}
           </Button>
         </div>
       );
@@ -195,7 +198,7 @@ const HistoryPageContent: React.FC = () => {
     if (!items.length) {
       return (
         <div className="rounded-lg border border-dashed border-muted-foreground/40 bg-background/60 p-6 text-sm text-muted-foreground">
-          No analyses found yet. Upload your first log to populate your history.
+          {t.emptyState}
         </div>
       );
     }
@@ -220,13 +223,14 @@ const HistoryPageContent: React.FC = () => {
               isMenuOpen={activeMenuId === item.id}
               onMenuToggle={() => setActiveMenuId((current) => (current === item.id ? null : item.id))}
               registerMenuRef={(node) => assignMenuRef(item.id, node)}
+              translations={t}
             />
           ))}
         </ul>
         {hasMore ? (
           <div className="flex justify-center">
             <Button type="button" variant="outline" onClick={() => fetchNextPage()} disabled={isFetchingNextPage}>
-              {isFetchingNextPage ? "Loading more..." : "Load more"}
+              {isFetchingNextPage ? t.buttons.loadingMore : t.buttons.loadMore}
             </Button>
           </div>
         ) : null}
@@ -238,10 +242,8 @@ const HistoryPageContent: React.FC = () => {
     <AppShell>
       <section className="space-y-6">
         <div className="flex flex-col gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight">Log history</h1>
-          <p className="text-sm text-muted-foreground">
-            Review previously uploaded analyses. Click an entry to open its details.
-          </p>
+          <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
 
         {content()}
@@ -257,6 +259,7 @@ interface AnalysisListItemProps {
   isMenuOpen: boolean;
   onMenuToggle: () => void;
   registerMenuRef: (node: HTMLDivElement | null) => void;
+  translations: HistoryTranslations;
 }
 
 const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
@@ -266,6 +269,7 @@ const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
   isMenuOpen,
   onMenuToggle,
   registerMenuRef,
+  translations,
 }) => {
   const formattedDate = new Date(item.createdAt).toLocaleString();
 
@@ -288,14 +292,14 @@ const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
             {item.fapRegen ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 font-medium text-emerald-600">
                 <span className="h-2 w-2 rounded-full bg-emerald-500" aria-hidden />
-                FAP regeneration detected
+                {translations.labels.fapRegenDetected}
               </span>
             ) : (
               <span className="inline-flex items-center gap-1 rounded-full bg-muted/60 px-2 py-0.5 font-medium text-muted-foreground">
-                No FAP regeneration flag
+                {translations.labels.noFapRegen}
               </span>
             )}
-            <span className="hidden sm:inline">Click to view analysis details</span>
+            <span className="hidden sm:inline">{translations.hints.viewDetails}</span>
           </div>
         </button>
         <div className="relative" ref={registerMenuRef}>
@@ -312,7 +316,7 @@ const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
             }}
           >
             <EllipsisVertical className="h-4 w-4" aria-hidden />
-            <span className="sr-only">Open actions menu for {item.fileName}</span>
+            <span className="sr-only">{translations.sr.openActionsMenu(item.fileName)}</span>
           </button>
           {isMenuOpen ? (
             <div
@@ -331,7 +335,7 @@ const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
                 }}
               >
                 <Trash2 className="h-4 w-4" aria-hidden />
-                Delete
+                {translations.buttons.delete}
               </button>
             </div>
           ) : null}
