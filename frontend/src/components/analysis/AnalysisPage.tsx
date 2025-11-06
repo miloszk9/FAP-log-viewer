@@ -90,7 +90,9 @@ const AnalysisPageContent: React.FC<AnalysisPageContentProps> = ({ analysisId })
           <ErrorState
             title={t.errors.loadFailedTitle}
             description={
-              error instanceof ApiError ? error.message || t.errors.loadFailedDescription : t.errors.loadFailedDescription
+              error instanceof ApiError
+                ? error.message || t.errors.loadFailedDescription
+                : t.errors.loadFailedDescription
             }
             onRetry={() => void handleRefetch()}
             retryLabel={isRefetching ? t.buttons.retrying : t.buttons.retry}
@@ -242,7 +244,10 @@ const AnalysisDataView: React.FC<AnalysisDataViewProps> = ({
   const sections = detail.analysis ? (
     <AnalysisSections data={detail.analysis} />
   ) : detail.status === "Processing" ? (
-    <EmptyState title={translations.emptyStates.inProgressTitle} description={translations.emptyStates.inProgressDescription} />
+    <EmptyState
+      title={translations.emptyStates.inProgressTitle}
+      description={translations.emptyStates.inProgressDescription}
+    />
   ) : (
     <EmptyState
       title={translations.emptyStates.noMetricsTitle}

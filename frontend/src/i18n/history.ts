@@ -86,11 +86,11 @@ const historyTranslations: Record<SupportedLanguage, HistoryTranslations> = {
   },
 };
 
-export const getHistoryTranslations = (language: SupportedLanguage): HistoryTranslations => historyTranslations[language];
+export const getHistoryTranslations = (language: SupportedLanguage): HistoryTranslations =>
+  historyTranslations[language];
 
 export const useHistoryTranslations = (): HistoryTranslations => {
   const { language } = useLanguage();
 
   return useMemo(() => getHistoryTranslations(language), [language]);
 };
-

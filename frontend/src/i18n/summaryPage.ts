@@ -62,7 +62,8 @@ const summaryPageTranslations: Record<SupportedLanguage, SummaryPageTranslations
   },
   pl: {
     title: "Podsumowanie",
-    subtitle: "Zbiorcze metryki ze wszystkich przetworzonych analiz. Korzystaj z tego widoku, aby śledzić długoterminowe trendy.",
+    subtitle:
+      "Zbiorcze metryki ze wszystkich przetworzonych analiz. Korzystaj z tego widoku, aby śledzić długoterminowe trendy.",
     statusRefreshing: "Odświeżanie…",
     statuses: {
       CALCULATING: {
@@ -102,4 +103,3 @@ export const useSummaryPageTranslations = (): SummaryPageTranslations => {
 
   return useMemo(() => getSummaryPageTranslations(language), [language]);
 };
-

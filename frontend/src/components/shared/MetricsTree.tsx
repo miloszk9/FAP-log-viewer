@@ -65,7 +65,7 @@ const shouldRenderKey = (key: string): boolean => {
   return !key.trim().startsWith("_");
 };
 
-const sortItems = (items: Array<{ order: number; label: string }>): Array<number> => {
+const sortItems = (items: { order: number; label: string }[]): number[] => {
   return items
     .map((item, index) => ({ index, order: item.order, label: item.label }))
     .sort((a, b) => {
@@ -107,12 +107,12 @@ export const MetricsTree: React.FC<MetricsTreeProps> = ({ data, dictionary }) =>
         return null;
       }
 
-      const primitiveItems: Array<{
+      const primitiveItems: {
         label: string;
         value: MetricValue;
         definition: FieldDefinition;
         description?: string;
-      }> = [];
+      }[] = [];
 
       const customNodes: React.ReactNode[] = [];
       const nestedSections: React.ReactNode[] = [];

@@ -137,7 +137,11 @@ export interface UploadAnalysisParams {
   signal?: AbortSignal;
 }
 
-export const uploadAnalysis = async ({ file, accessToken, signal }: UploadAnalysisParams): Promise<UploadAnalysisResponseDto> => {
+export const uploadAnalysis = async ({
+  file,
+  accessToken,
+  signal,
+}: UploadAnalysisParams): Promise<UploadAnalysisResponseDto> => {
   const formData = new FormData();
   formData.append("file", file);
 

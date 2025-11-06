@@ -27,7 +27,7 @@ const fileMatchesAccept = (file: File, accept: readonly string[]): boolean => {
   }
 
   const mimeType = file.type.toLowerCase();
-  const extension = file.name.includes(".") ? file.name.split(".").pop()?.toLowerCase() ?? "" : "";
+  const extension = file.name.includes(".") ? (file.name.split(".").pop()?.toLowerCase() ?? "") : "";
 
   return normalizedAccept.some((entry) => {
     if (entry.startsWith(".")) {
@@ -119,15 +119,18 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
     [isDisabled, validateAndHandleFile]
   );
 
-  const handleDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
+  const handleDragOver = useCallback(
+    (event: React.DragEvent<HTMLDivElement>) => {
+      event.preventDefault();
 
-    if (isDisabled) {
-      return;
-    }
+      if (isDisabled) {
+        return;
+      }
 
-    setIsDragging(true);
-  }, [isDisabled]);
+      setIsDragging(true);
+    },
+    [isDisabled]
+  );
 
   const handleDragLeave = useCallback(() => {
     setIsDragging(false);
@@ -234,4 +237,3 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
     </div>
   );
 };
-

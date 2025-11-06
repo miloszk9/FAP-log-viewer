@@ -37,7 +37,7 @@ const ABBREVIATION_MAP: Record<string, string> = {
   regen: "Regeneration",
 };
 
-const UNIT_SUFFIX_MAP: Array<{ pattern: RegExp; unit: string }> = [
+const UNIT_SUFFIX_MAP: { pattern: RegExp; unit: string }[] = [
   { pattern: /_l100km$/i, unit: "L/100km" },
   { pattern: /_kmh$/i, unit: "km/h" },
   { pattern: /_mbar$/i, unit: "mbar" },

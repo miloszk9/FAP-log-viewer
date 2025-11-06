@@ -123,9 +123,10 @@ export const UploadCard: React.FC = () => {
           setSelectedFile(null);
 
           const queuedCount = Array.isArray(data.ids) ? data.ids.length : 0;
-          const message = queuedCount > 1
-            ? `Uploaded successfully. ${queuedCount} analyses were queued. Redirecting to history…`
-            : "Uploaded successfully. Redirecting to history…";
+          const message =
+            queuedCount > 1
+              ? `Uploaded successfully. ${queuedCount} analyses were queued. Redirecting to history…`
+              : "Uploaded successfully. Redirecting to history…";
 
           setFeedback({ type: "success", message });
 
@@ -163,7 +164,10 @@ export const UploadCard: React.FC = () => {
 
     if (feedback.type === "success") {
       return (
-        <div className="flex items-start gap-3 rounded-md border border-emerald-500/50 bg-emerald-500/10 p-4 text-sm" role="status">
+        <div
+          className="flex items-start gap-3 rounded-md border border-emerald-500/50 bg-emerald-500/10 p-4 text-sm"
+          role="status"
+        >
           <CheckCircle2 aria-hidden className="mt-0.5 h-5 w-5 text-emerald-600" />
           <span className="text-emerald-700 dark:text-emerald-300">{feedback.message}</span>
         </div>
@@ -172,14 +176,22 @@ export const UploadCard: React.FC = () => {
 
     if (feedback.type === "conflict") {
       return (
-        <div className="flex flex-col gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-4 text-sm" role="alert">
+        <div
+          className="flex flex-col gap-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-4 text-sm"
+          role="alert"
+        >
           <div className="flex items-start gap-3">
             <AlertTriangle aria-hidden className="mt-0.5 h-5 w-5 text-amber-600" />
             <span className="text-amber-700 dark:text-amber-300">{feedback.message}</span>
           </div>
           {feedback.analysisId ? (
             <div>
-              <Button type="button" size="sm" variant="outline" onClick={() => handleNavigate(`/analyses/${feedback.analysisId}`)}>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={() => handleNavigate(`/analyses/${feedback.analysisId}`)}
+              >
                 View existing analysis
               </Button>
             </div>
@@ -189,7 +201,10 @@ export const UploadCard: React.FC = () => {
     }
 
     return (
-      <div className="flex items-start gap-3 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm" role="alert">
+      <div
+        className="flex items-start gap-3 rounded-md border border-destructive/50 bg-destructive/10 p-4 text-sm"
+        role="alert"
+      >
         <AlertTriangle aria-hidden className="mt-0.5 h-5 w-5 text-destructive" />
         <span className="text-destructive/80">{feedback.message}</span>
       </div>
@@ -242,7 +257,12 @@ export const UploadCard: React.FC = () => {
           >
             Clear
           </Button>
-          <Button type="button" className="sm:min-w-[160px]" onClick={handleUpload} disabled={isUploading || !selectedFile}>
+          <Button
+            type="button"
+            className="sm:min-w-[160px]"
+            onClick={handleUpload}
+            disabled={isUploading || !selectedFile}
+          >
             {isUploading ? "Uploading…" : "Upload file"}
           </Button>
         </div>
@@ -250,4 +270,3 @@ export const UploadCard: React.FC = () => {
     </Card>
   );
 };
-

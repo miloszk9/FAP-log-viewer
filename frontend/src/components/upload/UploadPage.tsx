@@ -37,5 +37,3 @@ const UploadPageContent: React.FC = () => {
     </AppShell>
   );
 };
-
-
