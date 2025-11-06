@@ -56,9 +56,7 @@ const dashboardSidebarTranslations: Record<SupportedLanguage, DashboardSidebarTr
           ? `Cycle theme preference (current: ${currentOption}, resolves to ${resolvedLabel})`
           : `Cycle theme preference (current: ${currentOption})`,
       title: (currentOption, resolvedLabel) =>
-        resolvedLabel
-          ? `Theme: ${currentOption} (system preference: ${resolvedLabel})`
-          : `Theme: ${currentOption}`,
+        resolvedLabel ? `Theme: ${currentOption} (system preference: ${resolvedLabel})` : `Theme: ${currentOption}`,
       status: (currentOption, resolvedLabel) =>
         resolvedLabel
           ? `Theme preference ${currentOption}, currently ${resolvedLabel}`
@@ -123,4 +121,3 @@ export const useDashboardSidebarTranslations = (): DashboardSidebarTranslations 
 
   return useMemo(() => getDashboardSidebarTranslations(language), [language]);
 };
-

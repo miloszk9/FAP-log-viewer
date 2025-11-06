@@ -137,3 +137,5 @@ export const useAnalysisPageTranslations = (): AnalysisPageTranslations => {
   return useMemo(() => getAnalysisPageTranslations(language), [language]);
 };
 
+
+
