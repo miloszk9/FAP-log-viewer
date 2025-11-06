@@ -243,11 +243,15 @@ export const UploadCard: React.FC = () => {
         </section>
       </CardContent>
       <CardFooter className="flex flex-col gap-4 border-t border-muted-foreground/20 pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <div className="inline-flex items-center gap-2 text-xs text-muted-foreground">
-          <ShieldCheck aria-hidden className="h-4 w-4" />
-          We process files securely and remove raw logs after analysis completes.
-        </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+          <Button
+            type="button"
+            className="sm:min-w-[160px]"
+            onClick={handleUpload}
+            disabled={isUploading || !selectedFile}
+          >
+            {isUploading ? "Uploading…" : "Upload file"}
+          </Button>
           <Button
             type="button"
             variant="outline"
@@ -256,14 +260,6 @@ export const UploadCard: React.FC = () => {
             disabled={isUploading || !selectedFile}
           >
             Clear
-          </Button>
-          <Button
-            type="button"
-            className="sm:min-w-[160px]"
-            onClick={handleUpload}
-            disabled={isUploading || !selectedFile}
-          >
-            {isUploading ? "Uploading…" : "Upload file"}
           </Button>
         </div>
       </CardFooter>
