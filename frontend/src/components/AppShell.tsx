@@ -101,7 +101,7 @@ export const AppShell: React.FC<AppShellProps> = ({
     }
 
     if (typeof window !== "undefined") {
-      window.location.assign("/login");
+      window.location.assign("/");
     }
   }, [onSignOut]);
 

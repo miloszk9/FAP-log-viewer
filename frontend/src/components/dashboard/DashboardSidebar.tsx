@@ -96,7 +96,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     }
 
     if (typeof window !== "undefined") {
-      window.location.assign("/login");
+      window.location.assign("/");
     }
   };
 

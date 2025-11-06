@@ -39,7 +39,7 @@ export const RegisterView: React.FC = () => {
   const handleSuccess = useCallback(() => {
     setIsRedirecting(true);
     setTimeout(() => {
-      window.location.href = "/login?registered=1";
+      window.location.href = "/?registered=1";
     }, 1200);
   }, []);
 
@@ -57,7 +57,7 @@ export const RegisterView: React.FC = () => {
               <AuthForm mode="register" onSuccess={handleSuccess} />
               <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <a className="font-semibold text-primary hover:underline" href="/login">
+                <a className="font-semibold text-primary hover:underline" href="/">
                   Sign in
                 </a>
               </p>

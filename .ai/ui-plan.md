@@ -4,7 +4,7 @@
 
 A web application built with Astro (shell/layout) and React (dynamic views), using client-side navigation and route protection based on JWT stored in memory (hydrated from sessionStorage). The interface uses shadcn/ui templates for auth and dashboard shells and provides:
 
-- **Public views**: `Login` (shadcn `login-01`), `Register` (shadcn `signup-01`).
+- **Public views**: `/` (shadcn `login-01`), `/register` (shadcn `signup-01`).
 - **Protected views**: `Upload`, `History`, `Analysis`, `Summary`.
 - **Global shell**: shadcn `dashboard-01` layout for protected routes (sidebar + header), language and theme switchers, global toasts for errors/actions.
 - **State and data**: `@tanstack/react-query` with keys and cache/staleTime policies per planning notes; retry behavior only for GET 5xx.
@@ -24,7 +24,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 
 ### View: Login
 
-- **Path**: `/login`
+- **Path**: `/`
 - **Primary goal**: Authenticate the user and issue a session (JWT in memory).
 - **Key information**: Email/password fields, link to registration, error messages (401).
 - **Key components**: shadcn `login-01` template (wrapped with our `AuthForm` handlers), `Toast`.
@@ -39,7 +39,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **Key information**: Email/password fields, confirmations, conflict messages (409 if email exists).
 - **Key components**: shadcn `signup-01` template (wrapped with our `AuthForm` handlers), `Toast`.
 - **API calls**: `POST /api/v1/auth/register`.
-- **UX/a11y/security**: Password patterns, password masking, accessible error messages, redirect to `/login` after 201.
+- **UX/a11y/security**: Password patterns, password masking, accessible error messages, redirect to `/` after 201.
 - **Mapped PRD requirements**: “User Authentication” (register).
 
 ### View: Upload
@@ -89,15 +89,15 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 - **Key information**: No dedicated view; success/error toast.
 - **Key components**: `LogoutButton`, `Toast`.
 - **API calls**: `POST /api/v1/auth/logout`.
-- **UX/a11y/security**: After logout, clear token and cache and redirect to `/login`.
+- **UX/a11y/security**: After logout, clear token and cache and redirect to `/`.
 - **Mapped PRD requirements**: “Logout”.
 
 ## 3. User Journey Map
 
 - **Onboarding (public → protected)**
 
-  1. The user visits `/login` → enters credentials → success → redirect to `/history`.
-  2. Attempting to access a protected route without JWT → soft redirect to `/login`.
+  1. The user visits `/` → enters credentials → success → redirect to `/history`.
+  2. Attempting to access a protected route without JWT → soft redirect to `/`.
 
 - **Main use case: upload and analyze a log**
 
@@ -120,7 +120,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
   - Go to `/summary` → fetch `GET /average` → show metric cards (optional fields hidden when unavailable).
 
 - **Error handling and edge states**
-  - `401`: clear session, soft redirect to `/login`.
+  - `401`: clear session, soft redirect to `/`.
   - `404` (analysis): detail view shows a “Not found” card, CTA to `History`.
   - `5xx`/network: toasts + retry for GET with backoff; no retry for 4xx.
   - `400` upload: clarify type/size validation; show 20MB limit.
@@ -129,7 +129,7 @@ The UI communicates with a separately implemented backend (NestJS HTTP API) via 
 
 - **Global AppShell (protected routes)**: shadcn `dashboard-01` with sidebar + header. Sidebar items: `Summary`, `Upload new log`, `Sign out`.
 - **Public AppShell**: minimal header (logo/title) using shadcn `login-01` and `signup-01` templates for respective pages.
-- **Route protection**: `ProtectedRoute` wrapper validating JWT (in memory; hydrated from sessionStorage on load). 401 triggers: clear and redirect.
+- **Route protection**: `ProtectedRoute` wrapper validating JWT (in memory; hydrated from sessionStorage on load). 401 triggers: clear and redirect to `/`.
 - **Status indicators**: global `Toast` (stack up to 3, auto-dismiss ~3–5s); per-view `LoadingBar`/skeletons; aria-live for statuses.
 - **Local navigation**: links to details in `History`; in `Upload` CTA to `History` after success; in detail view “Refresh status” after polling limit. The sidebar `Summary` and `Upload new log` items navigate to `/summary` and `/upload`; `Sign out` triggers logout.
 

@@ -10,7 +10,7 @@
 ## 2. View Routing
 
 - Public:
-  - `/login` → Login view
+  - `/` → Login view
   - `/register` → Register view
 - Protected:
   - `/upload` → Upload (CSV/ZIP ≤ 20MB)
@@ -19,7 +19,7 @@
   - `/summary` → Cross‑log summary
 - Redirects:
   - Auth success → `/history`
-  - 401 anywhere → clear session → `/login`
+  - 401 anywhere → clear session → `/`
 
 ## 3. Component Structure (High‑level tree)
 
@@ -294,7 +294,7 @@
 ## 11. Directory & File Suggestions (frontend)
 
 - `frontend/src/pages`
-  - `login.astro`, `register.astro`, `upload.astro`, `history.astro`, `analyses/[id].astro`, `summary.astro`
+  - `index.astro`, `register.astro`, `upload.astro`, `history.astro`, `analyses/[id].astro`, `summary.astro`
 - `frontend/src/components`
   - `AppShell.tsx`, `ProtectedRoute.tsx`
   - `dashboard/DashboardSidebar.tsx`

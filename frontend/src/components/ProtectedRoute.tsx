@@ -13,7 +13,7 @@ const defaultFallback = (
   </div>
 );
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, fallback, redirectTo = "/login" }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, fallback, redirectTo = "/" }) => {
   const { isAuthenticated, isHydrating, clearSession } = useAuth();
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, fallba
     const searchParams = new URLSearchParams();
 
     const currentPath = window.location.pathname + window.location.search;
-    if (currentPath && currentPath !== "/login") {
+    if (currentPath && currentPath !== "/") {
       searchParams.set("redirect", currentPath);
     }
 

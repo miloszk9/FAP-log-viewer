@@ -43,7 +43,7 @@ export const LoginView: React.FC = () => {
     }
 
     const redirectTarget = getRedirectTarget();
-    const destination = redirectTarget && redirectTarget !== "/login" ? redirectTarget : "/history";
+    const destination = redirectTarget && redirectTarget !== "/" ? redirectTarget : "/history";
 
     window.location.replace(destination);
   }, [isAuthenticated, isHydrating]);
@@ -55,7 +55,7 @@ export const LoginView: React.FC = () => {
       }
 
       const redirectTarget = getRedirectTarget();
-      const destination = redirectTarget && redirectTarget !== "/login" ? redirectTarget : "/history";
+      const destination = redirectTarget && redirectTarget !== "/" ? redirectTarget : "/history";
 
       window.location.replace(destination);
     },
@@ -171,7 +171,7 @@ export const LoginView: React.FC = () => {
               </p>
               <p className="text-center text-sm text-muted-foreground">
                 Want to try the app?{" "}
-                <a className="font-semibold text-primary hover:underline" href="/login?demo=1">
+                <a className="font-semibold text-primary hover:underline" href="/?demo=1">
                   Try the demo
                 </a>
               </p>
