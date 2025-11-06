@@ -88,8 +88,7 @@ const analysisPageTranslations: Record<SupportedLanguage, AnalysisPageTranslatio
   },
   pl: {
     title: "Szczegóły analizy",
-    subtitle:
-      "Szczegółowe metryki pojedynczej analizy logu, w tym statystyki FAP, parametry silnika i styl jazdy.",
+    subtitle: "Szczegółowe metryki pojedynczej analizy logu, w tym statystyki FAP, parametry silnika i styl jazdy.",
     errors: {
       loadFailedTitle: "Nie udało się załadować analizy",
       loadFailedDescription: "Nie można załadować szczegółów analizy.",
@@ -136,6 +135,3 @@ export const useAnalysisPageTranslations = (): AnalysisPageTranslations => {
 
   return useMemo(() => getAnalysisPageTranslations(language), [language]);
 };
-
-
-
