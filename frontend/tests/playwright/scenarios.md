@@ -4,7 +4,7 @@
 
 1. Wejdź na http://localhost:4321
 2. Kliknij na link "Create one now" żeby utworzyć nowe konto
-3. Podaj "user1@example.com" jako Email
+3. Podaj "playwright@example.com" jako Email
 4. Podaj "password123" jako hasło
 5. Kliknij "Create account"
 6. Wykonaj "Login" z "Common steps"
@@ -49,6 +49,6 @@
 ### Login
 
 1. Wejdź na http://localhost:4321
-2. Podaj "user1@example.com" jako Email
+2. Podaj "playwright@example.com" jako Email
 3. Podaj "password123" jako hasło
 4. Kliknij "Sign in"
