@@ -37,7 +37,7 @@ services:
       context: ./backend/http-backend
       dockerfile: Dockerfile
       target: builder
-    command: npm run start:dev
+    command: npm run start
     environment:
       NODE_ENV: development
       DB_HOST: postgres
