@@ -31,7 +31,7 @@ frontend/tests/playwright/
 
 ## Detailed structure description
 
-### 1. Configuration (`playwright.config.ts`)
+### 1. Configuration (`playwright.config.ts` - in the root directory of the frontend app)
 
 - Configuration only for Chromium/Desktop Chrome browser
 - Settings for browser contexts

@@ -120,6 +120,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess }) => {
       <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
+          data-testid="auth-email-input"
           id="email"
           type="email"
           name="email"
@@ -141,6 +142,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess }) => {
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
+          data-testid="auth-password-input"
           id="password"
           type="password"
           name="password"
@@ -163,6 +165,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess }) => {
 
       {generalError ? (
         <div
+          data-testid="auth-error"
           role="alert"
           aria-live="assertive"
           className="rounded-md border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive"
@@ -171,7 +174,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess }) => {
         </div>
       ) : null}
 
-      <Button className="w-full" type="submit" disabled={isSubmitting}>
+      <Button className="w-full" type="submit" disabled={isSubmitting} data-testid="auth-submit-button">
         {isSubmitting
           ? mode === "login"
             ? "Signing in..."

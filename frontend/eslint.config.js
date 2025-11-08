@@ -56,11 +56,19 @@ const reactConfig = tseslint.config({
   },
 });
 
+const playwrightConfig = tseslint.config({
+  files: ["**/tests/playwright/**/*.ts"],
+  rules: {
+    "@typescript-eslint/no-useless-constructor": "off",
+  },
+});
+
 export default tseslint.config(
   includeIgnoreFile(gitignorePath),
   baseConfig,
   jsxA11yConfig,
   reactConfig,
   eslintPluginAstro.configs["flat/recommended"],
-  eslintPluginPrettier
+  eslintPluginPrettier,
+  playwrightConfig
 );

@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "test:e2e": "docker compose -f ../docker-compose-e2e.yml up -d --build && (npm run dev & sleep 3 && npx playwright test) && npm run test:e2e-teardown",
+    "test:e2e": "npm run test:e2e-teardown && docker compose -f ../docker-compose-e2e.yml up -d --build && (npm run dev & sleep 10 && npx playwright test) && npm run test:e2e-teardown",
     "test:e2e-teardown": "(kill $(lsof -ti:4321) 2>/dev/null || true) && docker compose -f ../docker-compose-e2e.yml down -v"
   },
   "dependencies": {

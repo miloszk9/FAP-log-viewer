@@ -165,7 +165,11 @@ export const LoginView: React.FC = () => {
 
               <p className="text-center text-sm text-muted-foreground">
                 Don&apos;t have an account?{" "}
-                <a className="font-semibold text-primary hover:underline" href="/register">
+                <a
+                  className="font-semibold text-primary hover:underline"
+                  href="/register"
+                  data-testid="create-account-link"
+                >
                   Create one now
                 </a>
               </p>

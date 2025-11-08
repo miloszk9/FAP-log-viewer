@@ -57,6 +57,11 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
     ],
     [translations]
   );
+  const navTestIds: Record<NavItem["href"], string> = {
+    "/history": "sidebar-history-link",
+    "/summary": "sidebar-summary-link",
+    "/upload": "sidebar-upload-link",
+  };
 
   const signOutLabel = translations.nav.signOut;
   const themeLabel = translations.theme.label;
@@ -139,6 +144,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                 variant="ghost"
                 className="w-full justify-start text-sm"
                 onClick={() => handleNavigate(item.href)}
+                data-testid={navTestIds[item.href]}
               >
                 {item.label}
               </Button>
@@ -148,6 +154,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               variant="outline"
               className="w-full justify-start border-dashed text-sm"
               onClick={handleSignOut}
+              data-testid="sidebar-signout-button"
             >
               {signOutLabel}
             </Button>

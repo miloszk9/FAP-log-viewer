@@ -57,7 +57,7 @@ export const RegisterView: React.FC = () => {
               <AuthForm mode="register" onSuccess={handleSuccess} />
               <p className="text-center text-sm text-muted-foreground">
                 Already have an account?{" "}
-                <a className="font-semibold text-primary hover:underline" href="/">
+                <a className="font-semibold text-primary hover:underline" href="/" data-testid="sign-in-link">
                   Sign in
                 </a>
               </p>
