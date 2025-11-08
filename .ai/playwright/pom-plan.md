@@ -1,105 +1,179 @@
-# Plan for Implementing Page Object Models for Playwright Tests Based on TEST_PLAN
+# Playwright Page Object Model (POM) Implementation Plan
 
 ## Overview
 
-This document outlines the implementation of Page Object Models (POMs) for Playwright end-to-end tests, following best practices from [Playwright POM Docs](https://playwright.dev/docs/pom). The plan is tailored to the provided TEST_PLAN, which tests the core user flow: login, upload a log file, verify in history, and sign out.
+This plan outlines the structure for Page Object Models to support the E2E tests described in `frontend/tests/playwright/scenarios.md`. The POMs will encapsulate locators and actions for key pages in the FAP Log Viewer application, following Playwright's best practices for maintainability and readability. Each POM class will include:
 
-**Goals**:
+- **Locators**: Selectors for interactive elements (prefer `data-testid` attributes for robustness; fallback to role/text/CSS).
+- **Methods**: High-level actions that perform sequences of interactions (e.g., `login()`, `uploadFile()`), returning the page or relevant data.
+- **Assertions**: Helper methods for verifying page states (e.g., `isLoggedIn()`).
 
-- Introduce stable `data-testid` attributes to UI elements involved in the test flow for resilient locators.
-- Define POM classes encapsulating locators and interactions for Login, Dashboard (Sidebar), Upload, and History pages.
-- Ensure changes are minimal, preserving functionality, accessibility (ARIA roles/labels), and styling.
-- Enable writing concise, maintainable tests using POM methods (e.g., `login()`, `uploadFile()`, `expectAnalysis()`).
-- Prioritize elements for the TEST_PLAN steps; defer others (e.g., register, summary).
+The scenarios cover authentication, upload, history, single analysis, and summary views. No actual test code is proposed here—only the POM structure.
 
-No logic changes—only additive `data-testid` attributes (~20-25 lines total). After UI updates, create POMs and a sample test spec.
+## Proposed Changes to Application Code (@src)
 
-## Analysis of Current DOM Elements
+To improve testability and enable reliable locators, add `data-testid` attributes to key elements in the relevant components. These changes should be minimal and non-intrusive:
 
-Based on source code review of relevant files (`frontend/src/components/auth/AuthForm.tsx`, `LoginView.tsx`, `dashboard/DashboardSidebar.tsx`, `upload/UploadCard.tsx` & `FileDropzone.tsx`, `history/HistoryPage.tsx`, and Astro pages like `index.astro`, `upload.astro`, `history.astro`):
+1. **Auth Components** (`src/components/auth/AuthForm.tsx` or similar):
 
-### 1. AuthForm.tsx (Used in LoginView for Login)
+   - Email input: `data-testid="auth-email-input"`
+   - Password input: `data-testid="auth-password-input"`
+   - Submit button: `data-testid="auth-submit-button"`
+   - Create account link: `data-testid="create-account-link"`
+   - Error message: `data-testid="auth-error"`
 
-- **Email Input**: `<Input id="email" type="email" name="email" placeholder="you@example.com" ... />` with `<Label htmlFor="email">Email</Label>`.
-  - Current Locator: `getByRole('textbox', { name: 'Email' })` – Stable but label-text dependent.
-- **Password Input**: `<Input id="password" type="password" name="password" ... />` with `<Label htmlFor="password">Password</Label>`.
-  - Current Locator: `getByRole('textbox', { name: 'Password' })` – Same.
-- **Submit Button**: `<Button type="submit" ...>{isSubmitting ? 'Signing in...' : 'Sign in'}</Button>`.
-  - Current Locator: `getByRole('button', { name: 'Sign in' })` – Text-based; varies on loading.
-- **General Error**: `<div role="alert" aria-live="assertive" ...>{generalError}</div>` – Useful for error testing.
+2. **Sidebar/Navigation** (`src/components/AppShell/DashboardSidebar.tsx`):
 
-### 2. LoginView.tsx (Loaded by index.astro)
+   - Upload new log link: `data-testid="sidebar-upload-link"`
+   - History link (if present): `data-testid="sidebar-history-link"`
+   - Summary link: `data-testid="sidebar-summary-link"`
+   - Sign out button: `data-testid="sidebar-signout-button"`
 
-- **Create Account Link**: `<a ... href="/register">Create one now</a>` – Not in TEST_PLAN but present.
-  - Current: `getByRole('link', { name: 'Create one now' })` – Text-based.
-- **Success Status (Post-Login)**: `<div role="status" aria-live="polite" ...>Account created...` (if register, but for login: dashboard redirect).
-  - After login, redirects to dashboard; no specific status in login view for success.
+3. **Upload Page** (`src/components/upload/UploadCard.tsx`):
 
-### 3. DashboardSidebar.tsx (Used in AppShell for Protected Routes)
+   - File dropzone/input: `data-testid="file-dropzone"`
+   - Upload button: `data-testid="upload-button"`
+   - Success message/toast: `data-testid="upload-success"`
 
-- **Upload Button**: `<Button variant="ghost" className="w-full justify-start text-sm" onClick={handleNavigate} >{translations.nav.upload}</Button>` (text: "Upload new log").
-  - Current Locator: `getByRole('button', { name: 'Upload new log' })` – i18n-dependent.
-- **Sign Out Button**: `<Button variant="outline" ... onClick={handleSignOut}>{signOutLabel}</Button>` (text: "Sign out").
-  - Current: `getByRole('button', { name: 'Sign out' })` – i18n-dependent.
-- **Navigation <nav>**: `<nav className="space-y-1">` – Stable via `getByRole('navigation')`.
+4. **History Page** (`src/components/history/AnalysisList.tsx` or similar):
 
-### 4. UploadCard.tsx & FileDropzone.tsx (Loaded by upload.astro)
+   - Analysis list item (by name): `data-testid="analysis-item-${filename}"` (dynamic)
+   - Status badge: `data-testid="analysis-status"`
+   - Click to view detail: `data-testid="analysis-view-button"`
 
-- **Dropzone Area**: `<div role="button" tabIndex="0" className="... min-h-[220px] ..." onDrop={handleDrop} ... >` with inner text "Drag and drop your log file or click to browse".
-  - Contains hidden `<input ref={inputRef} type="file" accept="..." className="hidden" />`.
-  - Current Locator: `getByRole('button', { name: /Drag and drop/ })` or `getByText('Drag and drop your log file')` – Text-fragile.
-  - For file upload in Playwright: Target the hidden input with `setInputFiles()`.
-- **Upload Button**: `<Button type="button" ... onClick={handleUpload} disabled={!selectedFile} >{isUploading ? 'Uploading…' : 'Upload file'}</Button>`.
-  - Current: `getByRole('button', { name: 'Upload file' })` – Text-based; changes on upload.
-- **Success Feedback**: `<div role="status" className="... bg-emerald-500/10 ..." >Uploaded successfully. Redirecting to history…</div>`.
-  - Current: `getByRole('status')` – Generic; multiple possible.
-- **Error/Validation**: `<div aria-live="assertive" ... ><span className="text-destructive">{errorMessage}</span></div>` – Below dropzone.
+5. **Analysis Page** (`src/components/analysis/AnalysisPage.tsx`):
 
-### 5. HistoryPage.tsx (Loaded by history.astro)
+   - FAP filter section: `data-testid="section-fap-filter"`
+   - Engine section: `data-testid="section-engine"`
+   - Driving section: `data-testid="section-driving"`
+   - Overall metrics section: `data-testid="section-overall"`
+   - Status banner: `data-testid="status-banner"`
+   - Refresh button: `data-testid="refresh-button"`
 
-- **History Heading**: `<h1 className="text-2xl ...">{t.title}</h1>` (text: "Log history").
-  - Current: `getByRole('heading', { name: 'Log history' })` – i18n-dependent.
-- **Analysis List**: `<ul className="space-y-3">` containing `<li>` for each analysis.
-  - **Filename**: Inside `<button>`: `<p className="font-semibold ... line-clamp-1" title={item.fileName}>{item.fileName}</p>`.
-    - Current: `getByText('DCM62v2_20250203.csv')` – Works for expectation but brittle if text changes.
-  - **Status Badge**: `<span className="... rounded-full ...">{item.status}</span>` (e.g., "queued", "completed").
-  - **List Item**: `<li className="rounded-lg border ...">` – No specific role.
-- **Empty State**: `<div className="rounded-lg border-dashed ...">{t.emptyState}</div>` – Not triggered in TEST_PLAN (after upload, item appears).
-- **Loading Skeletons**: `<div role="status" className="animate-pulse ...">` – Multiple.
-- **Load More Button**: `<Button variant="outline" ... >Load more</Button>` – If hasMore.
+6. **Summary Page** (`src/components/summary/SummaryPage.tsx`):
+   - FAP filter section: `data-testid="summary-section-fap-filter"`
+   - Engine section: `data-testid="summary-section-engine"`
+   - Driving section: `data-testid="summary-section-driving"`
+   - Overall averages section: `data-testid="summary-section-overall"`
 
-## Proposed Changes
+These additions ensure locators are stable against UI changes (e.g., class updates). Implement them in the JSX/TSX files, e.g., `<input data-testid="auth-email-input" ... />`. After adding, update linters if needed to ignore test attributes in production builds.
 
-Add `data-testid` attributes to targeted elements. Use semantic kebab-case prefixes (e.g., `login-`, `upload-`). Changes are additive; verify no ARIA conflicts. Total: ~15-20 attributes across 5 files.
+## POM Structure
 
-### 1. AuthForm.tsx
+### 1. AuthPage
 
-- Email: `<Input ... data-testid="login-email-input" />`
-- Password: `<Input ... data-testid="login-password-input" />`
-- Submit: `<Button ... data-testid="login-submit-button" />`
-- General Error: `<div ... data-testid="login-general-error" />` (optional)
+Handles login and registration flows. Extends `BasePage`.
 
-### 2. LoginView.tsx
+- **URL**: `http://localhost:4321` (login), `/register` (if separate).
+- **Locators**:
+  - `emailInput`: `getByTestId('auth-email-input')` or `getByLabel('Email')`
+  - `passwordInput`: `getByTestId('auth-password-input')` or `getByLabel('Password')`
+  - `submitButton`: `getByTestId('auth-submit-button')` or `getByRole('button', { name: /sign in|create account/i })`
+  - `createAccountLink`: `getByTestId('create-account-link')` or `getByRole('link', { name: 'Create one now' })`
+  - `errorMessage`: `getByTestId('auth-error')` or `getByRole('alert')`
+- **Methods**:
+  - `navigateToLogin()`: Go to login URL.
+  - `navigateToRegister()`: Click create account link.
+  - `fillCredentials(email: string, password: string)`: Fill email and password fields.
+  - `submit()`: Click submit button and wait for navigation.
+  - `login(email: string, password: string)`: Combine fill and submit; assert redirect to dashboard.
+  - `register(email: string, password: string)`: Navigate to register, fill, submit; assert success.
+  - `getErrorText()`: Retrieve error message.
+- **Assertions**:
+  - `isOnLoginPage()`: Check for login form elements.
+  - `isLoggedIn()`: Check absence of login form or presence of sidebar.
 
-- Success Status: `<div role="status" ... data-testid="login-success-status" />` (if applicable; login redirects)
+### 2. DashboardPage (or BaseProtectedPage)
 
-### 3. DashboardSidebar.tsx
+Common protected page with sidebar navigation. Extends `BasePage`.
 
-- Upload Button: `<Button ... data-testid="sidebar-upload-button" />`
-- Sign Out Button: `<Button ... data-testid="sidebar-sign-out-button" />`
+- **URL**: Base for protected routes (e.g., `/history` after login).
+- **Locators**:
+  - `uploadLink`: `getByTestId('sidebar-upload-link')` or `getByRole('link', { name: 'Upload new log' })`
+  - `summaryLink`: `getByTestId('sidebar-summary-link')` or `getByRole('link', { name: 'Summary' })`
+  - `signOutButton`: `getByTestId('sidebar-signout-button')` or `getByRole('button', { name: 'Sign out' })`
+- **Methods**:
+  - `navigateToUpload()`: Click upload link and wait for URL.
+  - `navigateToSummary()`: Click summary link.
+  - `signOut()`: Click sign out and wait for login page.
+- **Assertions**:
+  - `isOnDashboard()`: Check for sidebar presence.
 
-### 4. FileDropzone.tsx (in UploadCard)
+### 3. UploadPage
 
-- Dropzone Div: `<div role="button" ... data-testid="upload-dropzone" >`
-- Hidden Input: No change needed; locate via `input[type="file"]` (unique).
+Handles file upload for logs.
 
-### 5. UploadCard.tsx
+- **URL**: `/upload`
+- **Locators**:
+  - `dropzone`: `getByTestId('file-dropzone')` or `getByRole('button', { name: /drag and drop/i })` (for click to select)
+  - `fileInput`: Underlying `<input type="file">` via `dropzone.locator('input[type="file"]')`
+  - `uploadButton`: `getByTestId('upload-button')` or `getByRole('button', { name: 'Upload file' })`
+  - `successToast`: `getByTestId('upload-success')` or toast container
+- **Methods**:
+  - `uploadFile(filePath: string)`: Set file input value (using `setInputFiles`), click upload, wait for redirect to history.
+  - `waitForUploadSuccess()`: Wait for success message or redirect.
+- **Assertions**:
+  - `isUploadFormVisible()`: Check dropzone presence.
 
-- Upload Button: `<Button ... data-testid="upload-submit-button" />`
-- Success Div: `<div role="status" ... data-testid="upload-success-status" />`
-- Error Span: `<span ... data-testid="upload-error-message" />` (optional)
+### 4. HistoryPage
 
-### 6. HistoryPage.tsx (AnalysisListItem)
+Manages log history list and selection.
 
-- Filename P: `<p ... data-testid="analysis-filename" >{item.fileName}</p>`
-- Analysis List Ul: `<ul ... data-testid="analysis-list" >` (for scoping)
+- **URL**: `/history` (auto-redirect after upload)
+- **Locators**:
+  - `analysisList`: `getByRole('list')` or container
+  - `analysisItem(filename: string)`: `getByTestId(\`analysis-item-\${filename}\`)`or`getByRole('listitem').filter({ hasText: filename })`
+  - `viewButton`: `getByTestId('analysis-view-button')` or `getByRole('button', { name: 'View' })`
+  - `statusBadge`: `getByTestId('analysis-status')` or `getByRole('status')`
+- **Methods**:
+  - `getAnalysisItem(filename: string)`: Locate and return the item element.
+  - `openAnalysis(filename: string)`: Click view button on item; wait for analysis page.
+  - `getStatus(filename: string)`: Retrieve status text from badge.
+- **Assertions**:
+  - `hasAnalysis(filename: string)`: Check if item exists.
+  - `analysisStatusIs(filename: string, status: string)`: Verify status (e.g., 'Success').
+
+### 5. AnalysisPage
+
+Displays detailed analysis for a single log.
+
+- **URL**: `/analyses/:id`
+- **Locators**:
+  - `statusBanner`: `getByTestId('status-banner')` or `getByRole('banner')`
+  - `fapSection`: `getByTestId('section-fap-filter')` or `getByRole('region', { name: 'FAP filter' })`
+  - `engineSection`: `getByTestId('section-engine')` or `getByRole('region', { name: 'Engine' })`
+  - `drivingSection`: `getByTestId('section-driving')` or `getByRole('region', { name: 'Driving' })`
+  - `overallSection`: `getByTestId('section-overall')` or `getByRole('region', { name: 'Overall metrics' })`
+  - `refreshButton`: `getByTestId('refresh-button')` or `getByRole('button', { name: /refresh/i })`
+- **Methods**:
+  - `refreshData()`: Click refresh button.
+  - `waitForAnalysisLoaded()`: Wait for sections to appear.
+- **Assertions**:
+  - `hasFapSection()`: Check section visibility.
+  - `hasAllSections()`: Verify all four sections present.
+  - `statusIs(expected: string)`: Check banner status.
+
+### 6. SummaryPage
+
+Shows cross-log summary metrics.
+
+- **URL**: `/summary`
+- **Locators**:
+  - `fapSection`: `getByTestId('summary-section-fap-filter')` or `getByRole('region', { name: 'FAP filter' })`
+  - `engineSection`: `getByTestId('summary-section-engine')` or `getByRole('region', { name: 'Engine' })`
+  - `drivingSection`: `getByTestId('summary-section-driving')` or `getByRole('region', { name: 'Driving' })`
+  - `overallSection`: `getByTestId('summary-section-overall')` or `getByRole('region', { name: 'Overall averages' })`
+- **Methods**:
+  - `waitForSummaryLoaded()`: Wait for sections.
+- **Assertions**:
+  - `hasAllSummarySections()`: Verify all four sections present.
+
+## Implementation Notes
+
+- **BasePage**: Common class with `page` property, `goto(url)`, and wait helpers (e.g., `waitForLoadState()`).
+- **File Upload**: Use `page.locator('input[type="file"]').setInputFiles(path)` for the CSV file (`frontend/tests/DCM62v2_20250203.csv`).
+- **Test Flow Integration**: Tests will chain POM methods, e.g., `authPage.login(...)` → `dashboardPage.navigateToUpload()` → `uploadPage.uploadFile(...)` → `historyPage.openAnalysis(...)` → `analysisPage.hasAllSections()`.
+- **Best Practices**: Use `expect` for assertions in tests; POMs focus on actions. Handle async with `await`. For Polish text, use exact matches or i18n-aware locators if needed.
+- **Next Steps**: After adding test IDs to src, implement POM classes in `frontend/tests/playwright/pages/`. Update scenarios.md tests to use POMs.
+
+This plan ensures tests are modular, readable, and resilient to minor UI changes.

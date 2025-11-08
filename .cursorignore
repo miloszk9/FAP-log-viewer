@@ -3,3 +3,4 @@
 *secret.yaml
 token*.json
 frontend-legacy/*
+.ignore/*
