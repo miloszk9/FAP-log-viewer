@@ -38,17 +38,8 @@ export default defineConfig({
   /* Configure projects for major browsers */
   projects: [
     {
-      name: "setup",
-      testMatch: /global\.setup\.ts/,
-    },
-    {
-      name: "teardown",
-      testMatch: /global\.teardown\.ts/,
-    },
-    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
-      dependencies: ["setup"],
     },
     // {
     //   name: "firefox",
