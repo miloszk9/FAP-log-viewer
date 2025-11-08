@@ -1,0 +1,61 @@
+services:
+  data-analyser:
+    build:
+      context: ./backend/data-analyser
+      dockerfile: Dockerfile
+    environment:
+      LOG_LEVEL: DEBUG
+    volumes:
+      - /tmp/uploads:/data/uploads:ro,z
+    depends_on:
+      - nats
+    networks:
+      - fap-network
+
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
+    networks:
+      - fap-network
+
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fap_analysis
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - fap-network
+
+  http-backend:
+    build:
+      context: ./backend/http-backend
+      dockerfile: Dockerfile
+      target: builder
+    command: npm run start:dev
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      NATS_URL: nats://nats:4222
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend/http-backend:/app
+      - /app/node_modules
+      - ./backend/http-backend/development.env:/app/.env:ro
+    networks:
+      - fap-network
+
+networks:
+  fap-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
