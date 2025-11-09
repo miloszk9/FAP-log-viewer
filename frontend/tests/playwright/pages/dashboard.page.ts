@@ -27,6 +27,7 @@ export class DashboardPage extends BasePage {
   }
 
   async navigateToSummary(): Promise<void> {
+    await this.page.waitForTimeout(1000);
     await this.waitForVisible(this.summaryLink);
     await this.summaryLink.click();
     await this.page.waitForURL(`${APP_BASE_URL}/summary`, { timeout: PLAYWRIGHT_TIMEOUTS.navigation });
