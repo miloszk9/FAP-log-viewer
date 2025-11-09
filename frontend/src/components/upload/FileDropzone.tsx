@@ -187,6 +187,7 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({
         aria-disabled={isDisabled}
         aria-describedby={`${dropzoneId}-hint`}
         aria-label="Upload a CSV or ZIP log file"
+        data-testid="file-dropzone"
       >
         <input
           ref={inputRef}

@@ -274,9 +274,17 @@ const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
   const formattedDate = new Date(item.createdAt).toLocaleString();
 
   return (
-    <li className="rounded-lg border border-muted-foreground/30 bg-background/80 p-4 transition hover:border-primary/40 hover:bg-background">
+    <li
+      className="rounded-lg border border-muted-foreground/30 bg-background/80 p-4 transition hover:border-primary/40 hover:bg-background"
+      data-testid={`analysis-item-${item.fileName}`}
+    >
       <div className="flex items-start justify-between gap-3">
-        <button type="button" className="flex-1 text-left" onClick={() => onNavigate(item.id)}>
+        <button
+          type="button"
+          className="flex-1 text-left"
+          onClick={() => onNavigate(item.id)}
+          data-testid="analysis-view-button"
+        >
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="font-semibold text-foreground line-clamp-1" title={item.fileName}>
@@ -284,7 +292,10 @@ const AnalysisListItem: React.FC<AnalysisListItemProps> = ({
               </p>
               <p className="text-sm text-muted-foreground">{formattedDate}</p>
             </div>
-            <span className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium">
+            <span
+              className="inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium"
+              data-testid="analysis-status"
+            >
               {item.status}
             </span>
           </div>

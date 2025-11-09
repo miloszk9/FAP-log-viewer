@@ -167,6 +167,7 @@ export const UploadCard: React.FC = () => {
         <div
           className="flex items-start gap-3 rounded-md border border-emerald-500/50 bg-emerald-500/10 p-4 text-sm"
           role="status"
+          data-testid="upload-success"
         >
           <CheckCircle2 aria-hidden className="mt-0.5 h-5 w-5 text-emerald-600" />
           <span className="text-emerald-700 dark:text-emerald-300">{feedback.message}</span>
@@ -249,6 +250,7 @@ export const UploadCard: React.FC = () => {
             className="sm:min-w-[160px]"
             onClick={handleUpload}
             disabled={isUploading || !selectedFile}
+            data-testid="upload-button"
           >
             {isUploading ? "Uploading…" : "Upload file"}
           </Button>

@@ -33,6 +33,7 @@ export class DashboardPage extends BasePage {
   }
 
   async navigateToUpload(): Promise<void> {
+    await this.page.waitForTimeout(1000);
     await this.waitForVisible(this.uploadLink);
     await this.uploadLink.click();
     await this.page.waitForURL(`${APP_BASE_URL}/upload`, { timeout: PLAYWRIGHT_TIMEOUTS.navigation });
