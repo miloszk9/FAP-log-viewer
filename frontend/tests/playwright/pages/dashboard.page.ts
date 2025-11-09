@@ -43,7 +43,8 @@ export class DashboardPage extends BasePage {
     await this.page.waitForTimeout(1000);
     await this.waitForVisible(this.signOutButton);
     await this.signOutButton.click();
-    await this.page.waitForURL(`${APP_BASE_URL}/?redirect=%2Fhistory`, {
+    // Wait for navigation to the login page (may include redirect params)
+    await this.page.waitForURL(new RegExp(`^${APP_BASE_URL}/\\?`), {
       timeout: PLAYWRIGHT_TIMEOUTS.navigation,
     });
   }

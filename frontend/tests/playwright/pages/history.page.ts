@@ -31,4 +31,10 @@ export class HistoryPage extends BasePage {
     const badge = this.getAnalysisStatus(fileName);
     await expect(badge).toHaveText(status, { timeout: PLAYWRIGHT_TIMEOUTS.ui });
   }
+
+  async clickAnalysisItem(fileName: string): Promise<void> {
+    const item = await this.waitForAnalysisItem(fileName);
+    const viewButton = item.getByTestId("analysis-view-button");
+    await viewButton.click();
+  }
 }
