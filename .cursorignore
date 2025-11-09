@@ -4,3 +4,4 @@
 token*.json
 frontend-legacy/*
 .ignore/*
+frontend/public/*

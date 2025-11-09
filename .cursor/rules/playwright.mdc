@@ -24,4 +24,4 @@ alwaysApply: false
 - Leverage parallel execution for faster test runs
 - Follow 'Arrange', 'Act', 'Assert' approach to test structure for simplicity and readability.
 
-- Run playwright tests by running "npm run test:e2e" from "./frontend" dir
+- To run playwright tests, you need to setup dependencies, it is implemented in the "npm run test:e2e" from "./frontend" dir. It is not possible to directly run "npx playwright" command
