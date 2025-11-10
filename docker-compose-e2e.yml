@@ -55,6 +55,15 @@ services:
     networks:
       - fap-network
 
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "4321:4321"
+    networks:
+      - fap-network
+
 networks:
   fap-network:
     driver: bridge
