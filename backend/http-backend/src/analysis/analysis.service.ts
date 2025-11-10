@@ -123,7 +123,7 @@ export class AnalysisService implements OnApplicationBootstrap {
         logDate: null,
         fapRegen: false,
         distance: null,
-        version: null,
+        version: this.dataAnalyserVersion,
       } as FapAnalysis);
       id = newAnalysis.id;
       const filePath = path.join(this.uploadDir, `${id}.csv`);
