@@ -36,22 +36,18 @@ services:
     build:
       context: ./backend/http-backend
       dockerfile: Dockerfile
-      target: builder
-    command: npm run start
     environment:
-      NODE_ENV: development
+      NODE_ENV: production
       DB_HOST: postgres
       NATS_URL: nats://nats:4222
       UPLOAD_DIR: /data/uploads
+      DATA_ANALYSER_VERSION: 0.0.1
     ports:
       - "3000:3000"
     depends_on:
       - postgres
     volumes:
       - uploads_data:/data/uploads
-      - ./backend/http-backend:/app
-      - /app/node_modules
-      - ./backend/http-backend/development.env:/app/.env:ro
     networks:
       - fap-network
 
