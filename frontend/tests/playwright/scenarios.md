@@ -2,7 +2,7 @@
 
 ## Auth - register, login, logout
 
-1. Wejdź na http://localhost:4321
+1. Wejdź na http://localhost:8080
 2. Kliknij na link "Create one now" żeby utworzyć nowe konto
 3. Podaj "playwright@example.com" jako Email
 4. Podaj "password123" jako hasło
@@ -48,7 +48,7 @@
 
 ### Login
 
-1. Wejdź na http://localhost:4321
+1. Wejdź na http://localhost:8080
 2. Podaj "playwright@example.com" jako Email
 3. Podaj "password123" jako hasło
 4. Kliknij "Sign in"

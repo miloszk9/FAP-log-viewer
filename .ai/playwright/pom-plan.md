@@ -64,7 +64,7 @@ These additions ensure locators are stable against UI changes (e.g., class updat
 
 Handles login and registration flows. Extends `BasePage`.
 
-- **URL**: `http://localhost:4321` (login), `/register` (if separate).
+- **URL**: `http://localhost:8080` (login), `/register` (if separate).
 - **Locators**:
   - `emailInput`: `getByTestId('auth-email-input')` or `getByLabel('Email')`
   - `passwordInput`: `getByTestId('auth-password-input')` or `getByLabel('Password')`

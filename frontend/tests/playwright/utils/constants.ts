@@ -1,4 +1,4 @@
-export const APP_BASE_URL = "http://localhost:4321";
+export const APP_BASE_URL = "http://localhost:8080";
 
 export const PLAYWRIGHT_TIMEOUTS = {
   navigation: 45_000,
