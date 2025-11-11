@@ -148,6 +148,9 @@ export class RefactorDbSchema1760131319862 implements MigrationInterface {
       `UPDATE "fap_average" SET "status" = 'SUCCESS' WHERE "status" = 'Success';`,
     );
     await queryRunner.query(
+      `UPDATE "fap_average" SET "status" = 'CALCULATING' WHERE "status" = '';`,
+    );
+    await queryRunner.query(
       `ALTER TABLE "fap_average" ALTER COLUMN "status" TYPE "public"."fap_average_status_enum" USING "status"::"public"."fap_average_status_enum";`,
     );
     await queryRunner.query(
