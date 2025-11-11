@@ -1,13 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { AuthForm } from "@/components/auth/AuthForm";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
 
 const educationalPoints = [
   {
     title: "Email-based access",
-    description: "Send CSV log files from your FAP mobile app via.",
+    description: "Send CSV log files from your FAP mobile app with email.",
   },
   {
     title: "All-in-one dashboard",
