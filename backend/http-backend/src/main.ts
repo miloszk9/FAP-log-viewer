@@ -15,11 +15,13 @@ async function bootstrap() {
   // Enable validation for all incoming requests
   app.useGlobalPipes(new ValidationPipe());
 
-  // Enable CORS
-  app.enableCors({
-    origin: 'http://localhost:4321',
-    credentials: true,
-  });
+  // Enable CORS if NODE_ENV is not production
+  if (configService.get<string>('app.environment') !== 'production') {
+    app.enableCors({
+      origin: '*',
+      credentials: true,
+    });
+  }
 
   // Set global prefix for all routes, except for health and email routes
   app.setGlobalPrefix('/api/v1', {
