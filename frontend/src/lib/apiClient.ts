@@ -6,9 +6,7 @@ import type {
   UserAverageDto,
 } from "@/types";
 
-const normalizeBaseUrl = (baseUrl: string): string => baseUrl.replace(/\/+$/, "");
-
-const API_BASE_URL = normalizeBaseUrl(import.meta.env.PUBLIC_API_BASE_URL ?? "http://localhost:3000");
+// API calls now use relative paths - in dev they're proxied, in prod they're routed by nginx
 
 export class ApiError extends Error {
   readonly status: number;
@@ -62,7 +60,8 @@ export interface ApiRequestOptions {
 export const apiRequest = async <TResponse>(path: string, options: ApiRequestOptions = {}): Promise<TResponse> => {
   const { method = "GET", accessToken, body, query, signal } = options;
 
-  const url = new URL(`${API_BASE_URL}${path}`);
+  // Use relative paths - in dev they're proxied via Vite, in prod via nginx
+  const url = new URL(path, window.location.origin);
   appendQueryParams(url, query);
 
   const headers = new Headers({ Accept: "application/json" });
@@ -159,7 +158,7 @@ export interface DeleteAnalysisParams {
 }
 
 export const deleteAnalysis = async ({ id, accessToken }: DeleteAnalysisParams): Promise<void> => {
-  await apiRequest<void>(`/api/v1/analyses/${id}`, {
+  await apiRequest(`/api/v1/analyses/${id}`, {
     method: "DELETE",
     accessToken,
   });

@@ -1,12 +1,9 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { AuthTokenResponseDto, LoginUserDto, RegisterUserDto } from "@/types";
-
-const normalizeBaseUrl = (baseUrl: string): string => baseUrl.replace(/\/+$/, "");
-
-const API_BASE_URL = normalizeBaseUrl(import.meta.env.PUBLIC_API_BASE_URL ?? "http://localhost:3000");
+import { apiRequest } from "@/lib/apiClient";
+import type { AuthTokenResponseDto, LoginUserDto } from "@/types";
 
 interface AuthFormProps {
   mode: "login" | "register";
@@ -20,8 +17,6 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess }) => {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [generalError, setGeneralError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const endpoint = useMemo(() => `${API_BASE_URL}/api/v1/auth/${mode === "login" ? "login" : "register"}`, [mode]);
 
   const handleChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
@@ -54,32 +49,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onSuccess }) => {
 
   const submitToApi = useCallback(
     async (payload: LoginUserDto): Promise<AuthTokenResponseDto | undefined> => {
-      const requestBody: RegisterUserDto = payload;
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorBody = (await response.json().catch(() => null)) as { message?: string; error?: string } | null;
-        const errorMessage =
-          errorBody?.message ||
-          errorBody?.error ||
-          (mode === "login" ? "Unable to sign in with those credentials." : "Unable to complete registration.");
-        throw new Error(errorMessage);
-      }
+      const endpoint = `/api/v1/auth/${mode === "login" ? "login" : "register"}`;
 
       if (mode === "login") {
-        const tokenResponse = (await response.json()) as AuthTokenResponseDto;
-        return tokenResponse;
+        return await apiRequest<AuthTokenResponseDto>(endpoint, {
+          method: "POST",
+          body: payload,
+        });
+      } else {
+        // For registration, we make the request but don't return the response body
+        await apiRequest(endpoint, {
+          method: "POST",
+          body: payload,
+        });
+        return undefined;
       }
 
       return undefined;
     },
-    [endpoint, mode]
+    [mode]
   );
 
   const handleSubmit = useCallback(
