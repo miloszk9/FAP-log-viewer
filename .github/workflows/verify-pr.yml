@@ -1,0 +1,37 @@
+name: Verify Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  playwright-tests:
+    name: Playwright tests
+    uses: ./.github/workflows/playwright-tests.yml
+    secrets: inherit
+
+  build-frontend:
+    name: Build frontend image
+    needs: playwright-tests
+    uses: ./.github/workflows/build-frontend.yml
+    secrets: inherit
+
+  build-data-analyser:
+    name: Build data analyser image
+    needs: playwright-tests
+    uses: ./.github/workflows/build-data-analyser.yml
+    secrets: inherit
+
+  build-email-receiver:
+    name: Build email receiver image
+    needs: playwright-tests
+    uses: ./.github/workflows/build-email-receiver.yml
+    secrets: inherit
+
+  build-http-backend:
+    name: Build HTTP backend image
+    needs: playwright-tests
+    uses: ./.github/workflows/build-http-backend.yml
+    secrets: inherit
