@@ -16,4 +16,4 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: make docker-local
+        run: make docker-local tag=0.0.1
