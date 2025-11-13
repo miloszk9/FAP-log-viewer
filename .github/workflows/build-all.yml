@@ -1,0 +1,17 @@
+name: Build All Images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-frontend:
+    uses: ./.github/workflows/build-frontend.yml
+
+  build-http-backend:
+    uses: ./.github/workflows/build-http-backend.yml
+
+  build-data-analyser:
+    uses: ./.github/workflows/build-data-analyser.yml
+
+  build-email-receiver:
+    uses: ./.github/workflows/build-email-receiver.yml
