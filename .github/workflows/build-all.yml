@@ -6,12 +6,16 @@ on:
 jobs:
   build-frontend:
     uses: ./.github/workflows/build-frontend.yml
+    secrets: inherit
 
   build-http-backend:
     uses: ./.github/workflows/build-http-backend.yml
+    secrets: inherit
 
   build-data-analyser:
     uses: ./.github/workflows/build-data-analyser.yml
+    secrets: inherit
 
   build-email-receiver:
     uses: ./.github/workflows/build-email-receiver.yml
+    secrets: inherit
