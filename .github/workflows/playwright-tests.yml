@@ -20,9 +20,6 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
@@ -34,9 +31,6 @@ jobs:
 
       - name: Verify containers are running
         run: docker compose -f ../docker-compose-e2e.yml ps
-
-      - name: Check postgres logs
-        run: docker compose -f ../docker-compose-e2e.yml logs postgres
 
       - name: Wait for backend readiness
         run: |
