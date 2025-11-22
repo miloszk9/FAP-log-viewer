@@ -10,7 +10,7 @@ export interface SectionProps extends React.HTMLAttributes<HTMLElement> {
 export const Section: React.FC<SectionProps> = ({ title, description, actions, className, children, ...props }) => {
   return (
     <section
-      className={cn("space-y-5 rounded-xl border border-border/60 bg-background/70 p-6 shadow-sm", className)}
+      className={cn("space-y-5 rounded-xl border border-border/60 bg-card/70 p-6 shadow-sm", className)}
       {...props}
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
