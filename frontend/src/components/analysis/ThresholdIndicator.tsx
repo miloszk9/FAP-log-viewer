@@ -11,7 +11,7 @@ export type ThresholdMode =
   | "coolantMax"
   | "oilMax"
   | "additiveRemain"
-  | "lastRegenDistance"
+  | "last10RegenDistance"
   | "fapLifeLeft";
 
 interface ThresholdConfig {
@@ -60,10 +60,10 @@ const THRESHOLDS: Record<ThresholdMode, ThresholdConfig> = {
     unit: "mL",
     comparison: "below",
   },
-  lastRegenDistance: {
+  last10RegenDistance: {
     warning: 300,
     critical: 150,
-    label: "Last regeneration distance",
+    label: "Last 10 regenerations distance",
     unit: "km",
     comparison: "below",
   },

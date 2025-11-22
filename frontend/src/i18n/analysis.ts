@@ -123,11 +123,10 @@ const baseFieldOverrides: DefinitionMap = {
   "fap.temp.avg_c": { label: "Average temperature", unit: "°C" },
   "fap.temp.max_c": { label: "Max temperature", unit: "°C" },
   "fap.temp.min_c": { label: "Min temperature", unit: "°C" },
-  "fap.lastRegen_km": {
-    label: "Last regeneration distance",
+  "fap.last10Regen_km": {
     unit: "km",
     display: "thresholdIndicator",
-    thresholdMode: "lastRegenDistance",
+    thresholdMode: "last10RegenDistance",
   },
   "fapRegen.duration_sec": { label: "Duration", formatter: "duration" },
   "fapRegen.distance_km": { label: "Distance", unit: "km" },

@@ -19,7 +19,7 @@ export interface FieldDefinition {
     | "coolantMax"
     | "oilMax"
     | "additiveRemain"
-    | "lastRegenDistance"
+    | "last10RegenDistance"
     | "fapLifeLeft";
 }
 
