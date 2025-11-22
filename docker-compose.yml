@@ -12,24 +12,6 @@ services:
     networks:
       - fap-network
 
-  http-backend:
-    build:
-      context: ./backend/http-backend
-      dockerfile: Dockerfile
-    environment:
-      NODE_ENV: production
-      DB_HOST: postgres
-      NATS_URL: nats://nats:4222
-      UPLOAD_DIR: /data/uploads
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    volumes:
-      - uploads_data:/data/uploads
-    networks:
-      - fap-network
-
   nats:
     image: nats:latest
     ports:
