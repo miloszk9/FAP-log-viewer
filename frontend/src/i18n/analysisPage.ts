@@ -27,7 +27,6 @@ interface AnalysisMetricTranslations {
   fapRegenDetected: string;
   fapRegenNotDetected: string;
   fapRegenDescription: string;
-  versionLabel: string;
   autoRefreshLabel: string;
   autoRefreshPausedDescription: string;
   autoRefreshActiveDescription: string;
@@ -80,7 +79,6 @@ const analysisPageTranslations: Record<SupportedLanguage, AnalysisPageTranslatio
       fapRegenDetected: "Detected",
       fapRegenNotDetected: "Not detected",
       fapRegenDescription: "Flags whether FAP regeneration occurred in this drive.",
-      versionLabel: "Version",
       autoRefreshLabel: "Auto refresh duration",
       autoRefreshPausedDescription: "Automatic polling paused after 60 seconds.",
       autoRefreshActiveDescription: "Auto-refreshing while the analysis is processing.",
@@ -119,7 +117,6 @@ const analysisPageTranslations: Record<SupportedLanguage, AnalysisPageTranslatio
       fapRegenDetected: "Wykryto",
       fapRegenNotDetected: "Nie wykryto",
       fapRegenDescription: "Informuje, czy podczas tej jazdy wystąpiła regeneracja filtra FAP.",
-      versionLabel: "Wersja",
       autoRefreshLabel: "Czas automatycznego odświeżania",
       autoRefreshPausedDescription: "Automatyczne odpytywanie wstrzymane po 60 sekundach.",
       autoRefreshActiveDescription: "Automatyczne odświeżanie podczas przetwarzania analizy.",

@@ -49,10 +49,4 @@ export class GetAnalysisResponseDto {
     nullable: true,
   })
   analysis: Record<string, any> | null;
-
-  @ApiProperty({
-    description: 'Analysis version',
-    example: '1.0.0',
-  })
-  version: string;
 }
