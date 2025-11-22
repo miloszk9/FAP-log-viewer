@@ -148,6 +148,7 @@ export const MetricsTree: React.FC<MetricsTreeProps> = ({ data, dictionary }) =>
                 key={childPath.join(".")}
                 mode={fieldDefinition.thresholdMode ?? "driving"}
                 value={numericValue}
+                label={fieldDefinition.label}
                 helperText={fieldDefinition.description}
               />
             );

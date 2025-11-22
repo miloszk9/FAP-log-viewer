@@ -73,6 +73,18 @@ const sectionOverrides: Record<SupportedLanguage, DefinitionOverrides> = {
 };
 
 const baseFieldOverrides: DefinitionMap = {
+  "engine.coolantTemp.max_c": {
+    label: "Max coolant temperature",
+    unit: "°C",
+    display: "thresholdIndicator",
+    thresholdMode: "coolantMax",
+  },
+  "engine.oilTemp.max_c": {
+    label: "Max oil temperature",
+    unit: "°C",
+    display: "thresholdIndicator",
+    thresholdMode: "oilMax",
+  },
   "fap.pressure_idle.avg_mbar": {
     label: "Average idle pressure",
     unit: "mbar",
@@ -82,21 +94,41 @@ const baseFieldOverrides: DefinitionMap = {
   "fap.pressure.avg_mbar": {
     label: "Average driving pressure",
     unit: "mbar",
+  },
+  "fap.pressure.max_mbar": {
+    label: "Maximum pressure",
+    unit: "mbar",
     display: "thresholdIndicator",
-    thresholdMode: "driving",
+    thresholdMode: "fapMaxPressure",
   },
   "fap.additive.vol_ml": { label: "Additive volume", unit: "mL" },
-  "fap.additive.remain_ml": { label: "Additive remaining", unit: "mL" },
+  "fap.additive.remain_ml": {
+    label: "Additive remaining",
+    unit: "mL",
+    display: "thresholdIndicator",
+    thresholdMode: "additiveRemain",
+  },
   "fap.deposits.percentage_perc": { label: "Deposits", unit: "%" },
   "fap.deposits.weight_gram": { label: "Deposits weight", unit: "g" },
   "fap.life.life_km": { label: "Estimated lifetime", unit: "km" },
-  "fap.life.left_km": { label: "Remaining distance", unit: "km" },
+  "fap.life.left_km": {
+    label: "Remaining distance",
+    unit: "km",
+    display: "thresholdIndicator",
+    thresholdMode: "fapLifeLeft",
+  },
   "fap.soot.start_gl": { label: "Soot start", unit: "g/L" },
   "fap.soot.end_gl": { label: "Soot end", unit: "g/L" },
   "fap.soot.diff_gl": { label: "Soot difference", unit: "g/L" },
   "fap.temp.avg_c": { label: "Average temperature", unit: "°C" },
   "fap.temp.max_c": { label: "Max temperature", unit: "°C" },
   "fap.temp.min_c": { label: "Min temperature", unit: "°C" },
+  "fap.lastRegen_km": {
+    label: "Last regeneration distance",
+    unit: "km",
+    display: "thresholdIndicator",
+    thresholdMode: "lastRegenDistance",
+  },
   "fapRegen.duration_sec": { label: "Duration", formatter: "duration" },
   "fapRegen.distance_km": { label: "Distance", unit: "km" },
   "fapRegen.speed.avg_kmh": { label: "Average speed", unit: "km/h" },
@@ -116,14 +148,18 @@ const baseFieldOverrides: DefinitionMap = {
 const fieldOverridesByLanguage: Record<SupportedLanguage, DefinitionOverrides> = {
   en: {},
   pl: {
+    "engine.coolantTemp.max_c": { label: "Maksymalna temperatura płynu chłodzącego" },
+    "engine.oilTemp.max_c": { label: "Maksymalna temperatura oleju" },
     "fap.pressure_idle.avg_mbar": { label: "Średnie ciśnienie na biegu jałowym" },
     "fap.pressure.avg_mbar": { label: "Średnie ciśnienie podczas jazdy" },
+    "fap.pressure.max_mbar": { label: "Maksymalne ciśnienie" },
     "fap.additive.vol_ml": { label: "Objętość dodatku" },
     "fap.additive.remain_ml": { label: "Pozostało dodatku" },
     "fap.deposits.percentage_perc": { label: "Osady" },
     "fap.deposits.weight_gram": { label: "Masa osadów" },
     "fap.life.life_km": { label: "Szacowana żywotność" },
     "fap.life.left_km": { label: "Pozostały dystans" },
+    "fap.lastRegen_km": { label: "Dystans od ostatniej regeneracji" },
     "fap.soot.start_gl": { label: "Sadza na początku" },
     "fap.soot.end_gl": { label: "Sadza na końcu" },
     "fap.soot.diff_gl": { label: "Zmiana ilości sadzy" },

@@ -12,7 +12,15 @@ export interface FieldDefinition {
   formatter?: BuiltInFormatter | ((value: MetricValue) => React.ReactNode);
   order?: number;
   display?: "default" | "thresholdIndicator";
-  thresholdMode?: "idle" | "driving";
+  thresholdMode?:
+    | "idle"
+    | "driving"
+    | "fapMaxPressure"
+    | "coolantMax"
+    | "oilMax"
+    | "additiveRemain"
+    | "lastRegenDistance"
+    | "fapLifeLeft";
 }
 
 export interface MetricsDictionary {
