@@ -117,7 +117,7 @@ export const LoginView: React.FC = () => {
     <div className="relative min-h-screen w-full bg-background">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,_rgba(59,130,246,0.25),_transparent_55%)]" />
       <div className="mx-auto flex min-h-screen w-full flex-col lg:flex-row">
-        <aside className="flex flex-1 flex-col justify-between bg-sidebar px-8 py-10 text-sidebar-foreground">
+        <aside className="hidden flex-1 flex-col justify-between bg-sidebar px-8 py-10 text-sidebar-foreground lg:flex">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow">
               <span className="text-2xl font-bold">F</span>
@@ -130,9 +130,6 @@ export const LoginView: React.FC = () => {
           <div className="space-y-8">
             <header className="space-y-2">
               <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Welcome back</h1>
-              <p className="max-w-sm text-base text-muted-foreground">
-                Sign in to continue analysing your engine and FAP filter health.
-              </p>
             </header>
 
             <ul className="space-y-4 text-muted-foreground">
@@ -152,11 +149,18 @@ export const LoginView: React.FC = () => {
           </footer>
         </aside>
 
-        <main className="flex flex-1 items-center justify-center bg-background px-6 py-16 sm:px-12">
+        <main className="flex flex-1 flex-col items-center justify-center gap-6 bg-background px-6 py-16 sm:px-12">
+          <div className="flex items-center pb-6 gap-3 lg:hidden">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow">
+              <span className="text-2xl font-bold">F</span>
+            </div>
+            <p className="text-lg font-semibold text-foreground">FAP Log Viewer</p>
+          </div>
+
           <Card className="w-full max-w-md shadow-lg">
             <CardHeader className="space-y-3">
               <CardTitle>Sign in</CardTitle>
-              <CardDescription>Enter your email and password.</CardDescription>
+              <CardDescription>Sign in to continue analysing your engine and FAP filter health.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               {registrationToast}
@@ -186,6 +190,10 @@ export const LoginView: React.FC = () => {
               ) : null}
             </CardContent>
           </Card>
+
+          <footer className="text-center text-sm text-muted-foreground/80 lg:hidden">
+            © {new Date().getFullYear()} FAP Log Viewer. All rights reserved.
+          </footer>
         </main>
       </div>
     </div>

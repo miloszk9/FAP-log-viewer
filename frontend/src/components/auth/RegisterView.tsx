@@ -46,7 +46,14 @@ export const RegisterView: React.FC = () => {
     <div className="relative min-h-screen w-full bg-background">
       <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_center,_rgba(34,197,94,0.18),_transparent_55%)]" />
       <div className="mx-auto flex min-h-screen w-full flex-col lg:flex-row">
-        <main className="flex flex-1 items-center justify-center bg-background px-6 py-16 sm:px-12">
+        <main className="flex flex-1 flex-col items-center justify-center gap-6 bg-background px-6 py-16 sm:px-12">
+          <div className="flex items-center gap-3 pb-6 lg:hidden">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow">
+              <span className="text-2xl font-bold">F</span>
+            </div>
+            <p className="text-lg font-semibold text-foreground">FAP Log Viewer</p>
+          </div>
+
           <Card className="w-full max-w-md shadow-lg">
             <CardHeader className="space-y-3">
               <CardTitle>Create your account</CardTitle>
@@ -72,9 +79,13 @@ export const RegisterView: React.FC = () => {
               ) : null}
             </CardContent>
           </Card>
+
+          <footer className="text-center text-sm text-muted-foreground/80 lg:hidden">
+            © {new Date().getFullYear()} FAP Log Viewer. All rights reserved.
+          </footer>
         </main>
 
-        <aside className="flex flex-1 flex-col justify-between bg-sidebar px-8 py-10 text-sidebar-foreground">
+        <aside className="hidden flex-1 flex-col justify-between bg-sidebar px-8 py-10 text-sidebar-foreground lg:flex">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow">
               <span className="text-2xl font-bold">F</span>
