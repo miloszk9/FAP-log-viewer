@@ -6,7 +6,7 @@ services:
     environment:
       LOG_LEVEL: DEBUG
     volumes:
-      - uploads_data:/data/uploads:ro,z
+      - /tmp/uploads:/data/uploads:ro,z
     depends_on:
       - nats
     networks:
@@ -38,5 +38,4 @@ networks:
 
 volumes:
   postgres_data:
-  uploads_data:
   
