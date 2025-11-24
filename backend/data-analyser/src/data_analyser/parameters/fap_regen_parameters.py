@@ -103,9 +103,9 @@ class FapRegenParameters:
 
         speed = self.csv_regen["Speed"].dropna()
         return {
-            "min_kmh": float(round(speed.min(), 2)),
-            "max_kmh": float(round(speed.max(), 2)),
-            "avg_kmh": float(round(speed.mean(), 2)),
+            "min_kmh": int(round(speed.min())),
+            "max_kmh": int(round(speed.max())),
+            "avg_kmh": int(round(speed.mean())),
         }
 
     def _calculate_fap_temp(self):
@@ -118,9 +118,9 @@ class FapRegenParameters:
 
         temp = self.csv_regen["FAPtemp"].dropna()
         return {
-            "min_c": float(round(temp.min(), 2)),
-            "max_c": float(round(temp.max(), 2)),
-            "avg_c": float(round(temp.mean(), 2)),
+            "min_c": int(round(temp.min())),
+            "max_c": int(round(temp.max())),
+            "avg_c": int(round(temp.mean())),
         }
 
     def _calculate_fap_pressure(self):
@@ -138,9 +138,9 @@ class FapRegenParameters:
         if pressure.empty:
             return None
         return {
-            "min_mbar": float(round(pressure.min(), 2)),
-            "max_mbar": float(round(pressure.max(), 2)),
-            "avg_mbar": float(round(pressure.mean(), 2)),
+            "min_mbar": int(round(pressure.min())),
+            "max_mbar": int(round(pressure.max())),
+            "avg_mbar": int(round(pressure.mean())),
         }
 
     def _calculate_revs(self):
@@ -153,9 +153,9 @@ class FapRegenParameters:
 
         revs = self.csv_regen["Revs"].dropna()
         return {
-            "min": float(round(revs.min(), 2)),
-            "max": float(round(revs.max(), 2)),
-            "avg": float(round(revs.mean(), 2)),
+            "min": int(round(revs.min())),
+            "max": int(round(revs.max())),
+            "avg": int(round(revs.mean())),
         }
 
     def _calculate_fap_soot(self):

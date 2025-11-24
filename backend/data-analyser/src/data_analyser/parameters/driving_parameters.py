@@ -37,8 +37,8 @@ class DrivingParameters:
         avg_accel = non_zero_accel.mean() if not non_zero_accel.empty else None
 
         return {
-            "max_perc": float(round(max_accel, 2)) if max_accel is not None else None,
-            "avg_perc": float(round(avg_accel, 2)) if avg_accel is not None else None,
+            "max_perc": int(round(max_accel)) if max_accel is not None else None,
+            "avg_perc": int(round(avg_accel)) if avg_accel is not None else None,
         }
 
     def _calculate_fuel(self):
@@ -85,9 +85,9 @@ class DrivingParameters:
 
         speed = self.csv["Speed"].dropna()
         return {
-            "avg_kmh": float(round(speed.mean(), 2)),
-            "max_kmh": float(round(speed.max(), 2)),
-            "min_kmh": float(round(speed.min(), 2)),
+            "avg_kmh": int(round(speed.mean())),
+            "max_kmh": int(round(speed.max())),
+            "min_kmh": int(round(speed.min())),
         }
 
 

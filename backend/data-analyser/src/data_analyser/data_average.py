@@ -80,9 +80,7 @@ class DataAverage:
     def _calculate_driving(self):
         return {
             "acceleration": {
-                "max_perc": self._calculate(
-                    "driving.acceleration.max_perc", "max", None
-                ),
+                "max_perc": self._calculate("driving.acceleration.max_perc", "max"),
                 "avg_perc": self._weighted_average(
                     "driving.acceleration.avg_perc", "overall.duration.driving_sec"
                 ),
@@ -99,7 +97,7 @@ class DataAverage:
             },
             "speed": {
                 "avg_kmh": self._weighted_average(
-                    "driving.speed.avg_kmh", "overall.duration.driving_sec", 2
+                    "driving.speed.avg_kmh", "overall.duration.driving_sec"
                 ),
                 "max_kmh": self._calculate("driving.speed.max_kmh", "max"),
             },
@@ -121,7 +119,7 @@ class DataAverage:
                 "min_c": self._calculate("engine.coolantTemp.min_c", "min"),
                 "max_c": self._calculate("engine.coolantTemp.max_c", "max"),
                 "avg_c": self._weighted_average(
-                    "engine.coolantTemp.avg_c", "overall.duration.engineOn_sec", 2
+                    "engine.coolantTemp.avg_c", "overall.duration.engineOn_sec"
                 ),
             },
             "engineWarmup": {
@@ -146,7 +144,7 @@ class DataAverage:
                 "min_c": self._calculate("engine.oilTemp.min_c", "min"),
                 "max_c": self._calculate("engine.oilTemp.max_c", "max"),
                 "avg_c": self._weighted_average(
-                    "engine.oilTemp.avg_c", "overall.duration.engineOn_sec", 2
+                    "engine.oilTemp.avg_c", "overall.duration.engineOn_sec"
                 ),
             },
         }
@@ -157,19 +155,19 @@ class DataAverage:
                 "min_mbar": self._calculate("fap.pressure.min_mbar", "min"),
                 "max_mbar": self._calculate("fap.pressure.max_mbar", "max"),
                 "avg_mbar": self._weighted_average(
-                    "fap.pressure.avg_mbar", "overall.duration.engineOn_sec", 2
+                    "fap.pressure.avg_mbar", "overall.duration.engineOn_sec"
                 ),
             },
             "pressure_idle": {
                 "avg_mbar": self._weighted_average(
-                    "fap.pressure_idle.avg_mbar", "overall.duration.idle_sec", 2
+                    "fap.pressure_idle.avg_mbar", "overall.duration.idle_sec"
                 ),
             },
             "temp": {
                 "min_c": self._calculate("fap.temp.min_c", "min"),
                 "max_c": self._calculate("fap.temp.max_c", "max"),
                 "avg_c": self._weighted_average(
-                    "fap.temp.avg_c", "overall.duration.engineOn_sec", 2
+                    "fap.temp.avg_c", "overall.duration.engineOn_sec"
                 ),
             },
         }
@@ -190,21 +188,21 @@ class DataAverage:
                 "min_kmh": self._calculate("fapRegen.speed.min_kmh", "min"),
                 "max_kmh": self._calculate("fapRegen.speed.max_kmh", "max"),
                 "avg_kmh": self._weighted_average(
-                    "fapRegen.speed.avg_kmh", "fapRegen.duration_sec", 2
+                    "fapRegen.speed.avg_kmh", "fapRegen.duration_sec"
                 ),
             },
             "fapTemp": {
                 "min_c": self._calculate("fapRegen.fapTemp.min_c", "min"),
                 "max_c": self._calculate("fapRegen.fapTemp.max_c", "max"),
                 "avg_c": self._weighted_average(
-                    "fapRegen.fapTemp.avg_c", "fapRegen.duration_sec", 2
+                    "fapRegen.fapTemp.avg_c", "fapRegen.duration_sec"
                 ),
             },
             "fapPressure": {
                 "min_mbar": self._calculate("fapRegen.fapPressure.min_mbar", "min"),
                 "max_mbar": self._calculate("fapRegen.fapPressure.max_mbar", "max"),
                 "avg_mbar": self._weighted_average(
-                    "fapRegen.fapPressure.avg_mbar", "fapRegen.duration_sec", 2
+                    "fapRegen.fapPressure.avg_mbar", "fapRegen.duration_sec"
                 ),
             },
             "revs": {
