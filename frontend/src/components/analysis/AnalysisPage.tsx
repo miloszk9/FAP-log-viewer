@@ -215,9 +215,7 @@ const AnalysisDataView: React.FC<AnalysisDataViewProps> = ({
     </div>
   );
 
-  const infoCardItems: React.ReactNode[] = [
-    <MetricCard key="version" label={translations.metrics.versionLabel} value={detail.version} />,
-  ];
+  const infoCardItems: React.ReactNode[] = [];
 
   if (detail.status === "Processing") {
     infoCardItems.push(

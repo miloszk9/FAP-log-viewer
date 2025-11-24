@@ -199,7 +199,6 @@ export interface FapAnalysis {
   fapRegen: boolean;
   distance: number | null;
   analysis: FapAnalysisJson | null;
-  version: string;
   userId: string; // UUID
   createdAt: Date;
   updatedAt: Date;
@@ -441,7 +440,6 @@ export interface AnalysisDetailDto {
   fapRegen: boolean;
   distance: number | null;
   analysis: FapAnalysisJson | null;
-  version: string;
 }
 
 /**

@@ -100,7 +100,6 @@ export class AnalysisController {
       fapRegen: analysis.fapRegen,
       distance: analysis.distance,
       analysis: analysis.analysis,
-      version: analysis.version || '',
     };
   }
 

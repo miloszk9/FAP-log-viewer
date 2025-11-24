@@ -6,27 +6,9 @@ services:
     environment:
       LOG_LEVEL: DEBUG
     volumes:
-      - uploads_data:/data/uploads:ro,z
+      - /tmp/uploads:/data/uploads:ro,z
     depends_on:
       - nats
-    networks:
-      - fap-network
-
-  http-backend:
-    build:
-      context: ./backend/http-backend
-      dockerfile: Dockerfile
-    environment:
-      NODE_ENV: production
-      DB_HOST: postgres
-      NATS_URL: nats://nats:4222
-      UPLOAD_DIR: /data/uploads
-    ports:
-      - "3000:3000"
-    depends_on:
-      - postgres
-    volumes:
-      - uploads_data:/data/uploads
     networks:
       - fap-network
 
@@ -56,5 +38,4 @@ networks:
 
 volumes:
   postgres_data:
-  uploads_data:
   

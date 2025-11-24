@@ -36,9 +36,9 @@ class OverallParameters:
 
         temp = self.csv["ExternalTemp"].dropna()
         return {
-            "avg_c": float(round(temp.mean(), 1)),
-            "max_c": float(round(temp.max(), 1)),
-            "min_c": float(round(temp.min(), 1)),
+            "avg_c": int(round(temp.mean())),
+            "max_c": int(round(temp.max())),
+            "min_c": int(round(temp.min())),
         }
 
     def _calculate_duration(self):

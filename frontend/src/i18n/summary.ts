@@ -71,8 +71,24 @@ const baseFieldOverrides: DefinitionMap = {
   "fap.pressure.avg_mbar": {
     label: "Average driving pressure",
     unit: "mbar",
+  },
+  "fap.pressure.max_mbar": {
+    label: "Maximum pressure",
+    unit: "mbar",
     display: "thresholdIndicator",
-    thresholdMode: "driving",
+    thresholdMode: "fapMaxPressure",
+  },
+  "engine.coolantTemp.max_c": {
+    label: "Max coolant temperature",
+    unit: "°C",
+    display: "thresholdIndicator",
+    thresholdMode: "coolantMax",
+  },
+  "engine.oilTemp.max_c": {
+    label: "Max oil temperature",
+    unit: "°C",
+    display: "thresholdIndicator",
+    thresholdMode: "oilMax",
   },
 };
 
@@ -82,6 +98,9 @@ const fieldOverridesByLanguage: Record<SupportedLanguage, DefinitionOverrides> =
     "driving.fuelConsumption_l100km": { label: "Zużycie paliwa" },
     "fap.pressure_idle.avg_mbar": { label: "Średnie ciśnienie na biegu jałowym" },
     "fap.pressure.avg_mbar": { label: "Średnie ciśnienie podczas jazdy" },
+    "fap.pressure.max_mbar": { label: "Maksymalne ciśnienie" },
+    "engine.coolantTemp.max_c": { label: "Maksymalna temperatura płynu chłodzącego" },
+    "engine.oilTemp.max_c": { label: "Maksymalna temperatura oleju" },
   },
 };
 

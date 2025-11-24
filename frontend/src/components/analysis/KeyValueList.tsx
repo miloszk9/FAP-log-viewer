@@ -36,7 +36,7 @@ export const KeyValueList: React.FC<KeyValueListProps> = ({
         const isFallback = renderedValue === "N/A";
 
         return (
-          <div key={key} className="rounded-lg border border-border/50 bg-background/60 p-4">
+        <div key={key} className="rounded-lg border border-border/50 bg-card/60 p-4">
             <dt className="text-sm font-medium text-muted-foreground">{key}</dt>
             <dd className="mt-2 text-base font-semibold text-foreground">
               {renderedValue}
