@@ -105,6 +105,19 @@ export class AverageResultDto {
           max: 100,
           avg: 76,
         },
+        injector: {
+          injector1: 1.05,
+          injector2: 0.95,
+          injector3: 1.02,
+          injector4: 0.98,
+          average: 1.00,
+        },
+        fuelPressure: {
+          avg_diff_idle_mbar: 2.5,
+        },
+        boost: {
+          avg_diff_mbar: 15.4,
+        },
       },
       fap: {
         pressure: {

@@ -147,6 +147,35 @@ class DataAverage:
                     "engine.oilTemp.avg_c", "overall.duration.engineOn_sec"
                 ),
             },
+            "injector": {
+                "injector1": self._weighted_average(
+                    "engine.injector.injector1", "overall.duration.idle_sec", 2
+                ),
+                "injector2": self._weighted_average(
+                    "engine.injector.injector2", "overall.duration.idle_sec", 2
+                ),
+                "injector3": self._weighted_average(
+                    "engine.injector.injector3", "overall.duration.idle_sec", 2
+                ),
+                "injector4": self._weighted_average(
+                    "engine.injector.injector4", "overall.duration.idle_sec", 2
+                ),
+                "average": self._weighted_average(
+                    "engine.injector.average", "overall.duration.idle_sec", 2
+                ),
+            },
+            "fuelPressure": {
+                "avg_diff_idle_mbar": self._weighted_average(
+                    "engine.fuelPressure.avg_diff_idle_mbar",
+                    "overall.duration.idle_sec",
+                    2,
+                ),
+            },
+            "boost": {
+                "avg_diff_mbar": self._weighted_average(
+                    "engine.boost.avg_diff_mbar", "overall.duration.driving_sec", 2
+                ),
+            },
         }
 
     def _calculate_fap(self):
