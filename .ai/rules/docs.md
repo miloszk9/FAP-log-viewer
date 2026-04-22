@@ -1,0 +1,12 @@
+# Docs Rules
+
+---
+
+
+## CODING_PRACTICES
+
+### Guidelines for DOCUMENTATION
+
+#### DOC_UPDATES
+
+- Keep .md docs in the .ai/ directory in sync with the architecture changes.
