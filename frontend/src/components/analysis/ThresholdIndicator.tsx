@@ -12,14 +12,18 @@ export type ThresholdMode =
   | "oilMax"
   | "additiveRemain"
   | "last10RegenDistance"
-  | "fapLifeLeft";
+  | "fapLifeLeft"
+  | "injectorDeviation"
+  | "injectorAvg"
+  | "fuelPressureDiff"
+  | "boostDiff";
 
 interface ThresholdConfig {
-  warning: number;
-  critical: number;
+  warning: number | [number, number];
+  critical: number | [number, number];
   label: string;
   unit: string;
-  comparison?: "above" | "below";
+  comparison?: "above" | "below" | "outside";
 }
 
 const THRESHOLDS: Record<ThresholdMode, ThresholdConfig> = {
@@ -74,6 +78,32 @@ const THRESHOLDS: Record<ThresholdMode, ThresholdConfig> = {
     unit: "km",
     comparison: "below",
   },
+  injectorDeviation: {
+    warning: [0.90, 1.10],
+    critical: [0.80, 1.20],
+    label: "Injector Flow",
+    unit: "",
+    comparison: "outside",
+  },
+  injectorAvg: {
+    warning: [0.95, 1.05],
+    critical: [0.90, 1.10],
+    label: "Avg Injector Flow",
+    unit: "",
+    comparison: "outside",
+  },
+  fuelPressureDiff: {
+    warning: 5,
+    critical: 21,
+    label: "Fuel Pressure Diff (Idle)",
+    unit: "mbar",
+  },
+  boostDiff: {
+    warning: 50,
+    critical: 200,
+    label: "Boost Diff (>1200mbar)",
+    unit: "mbar",
+  },
 };
 
 type ThresholdState = "unknown" | "normal" | "warning" | "critical";
@@ -85,23 +115,38 @@ const determineState = (mode: ThresholdMode, value: number | null | undefined): 
 
   const { warning, critical, comparison = "above" } = THRESHOLDS[mode];
 
-  if (comparison === "below") {
-    if (value <= critical) {
+  if (comparison === "outside") {
+    const [warnMin, warnMax] = warning as [number, number];
+    const [critMin, critMax] = critical as [number, number];
+
+    if (value <= critMin || value >= critMax) {
       return "critical";
     }
 
-    if (value <= warning) {
+    if (value <= warnMin || value >= warnMax) {
       return "warning";
     }
 
     return "normal";
   }
 
-  if (value >= critical) {
+  if (comparison === "below") {
+    if (value <= (critical as number)) {
+      return "critical";
+    }
+
+    if (value <= (warning as number)) {
+      return "warning";
+    }
+
+    return "normal";
+  }
+
+  if (value >= (critical as number)) {
     return "critical";
   }
 
-  if (value >= warning) {
+  if (value >= (warning as number)) {
     return "warning";
   }
 
@@ -156,11 +201,18 @@ export const ThresholdIndicator: React.FC<ThresholdIndicatorProps> = ({
 
   const displayLabel = label ?? config.label;
   const unit = config.unit;
-  const comparisonSymbol = config.comparison === "below" ? "<" : ">";
   const severityLabels = SEVERITY_LABELS[language];
   const stateLabel = STATE_LABELS[language][state];
 
-  const defaultHelperText = `${severityLabels.warning} ${comparisonSymbol} ${config.warning.toLocaleString()} ${unit} · ${severityLabels.critical} ${comparisonSymbol} ${config.critical.toLocaleString()} ${unit}`;
+  let defaultHelperText = "";
+  if (config.comparison === "outside") {
+    const [warnMin, warnMax] = config.warning as [number, number];
+    const [critMin, critMax] = config.critical as [number, number];
+    defaultHelperText = `${severityLabels.warning} < ${warnMin} / > ${warnMax} ${unit} · ${severityLabels.critical} < ${critMin} / > ${critMax} ${unit}`;
+  } else {
+    const comparisonSymbol = config.comparison === "below" ? "<" : ">";
+    defaultHelperText = `${severityLabels.warning} ${comparisonSymbol} ${(config.warning as number).toLocaleString()} ${unit} · ${severityLabels.critical} ${comparisonSymbol} ${(config.critical as number).toLocaleString()} ${unit}`;
+  }
 
   return (
     <div

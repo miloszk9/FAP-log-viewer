@@ -112,6 +112,19 @@ export interface FapAnalysisJson {
       max_c?: number;
       avg_c?: number;
     };
+    injector?: {
+      injector1?: number;
+      injector2?: number;
+      injector3?: number;
+      injector4?: number;
+      average?: number;
+    };
+    fuelPressure?: {
+      avg_diff_idle_mbar?: number;
+    };
+    boost?: {
+      avg_diff_mbar?: number;
+    };
   };
   fap?: {
     additive?: {

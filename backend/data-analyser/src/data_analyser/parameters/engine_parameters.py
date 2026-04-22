@@ -14,6 +14,9 @@ class EngineParameters:
             "oilCarbonate_perc": self._calculate_oil_carbonate(),
             "oilDilution_perc": self._calculate_oil_dilution(),
             "oilTemp": self._calculate_oil_temp(),
+            "injector": self._calculate_injector(),
+            "fuelPressure": self._calculate_fuel_pressure(),
+            "boost": self._calculate_boost(),
         }
 
     def __str__(self):
@@ -147,9 +150,86 @@ class EngineParameters:
             return None
         return int(self.csv["Errors"].median())
 
+    def _calculate_injector(self):
+        result = {
+            "injector1": None,
+            "injector2": None,
+            "injector3": None,
+            "injector4": None,
+            "average": None,
+        }
+
+        required_cols = {"Revs", "Speed", "Inj.1FlowCorr", "Inj.2FlowCorr", "Inj.3FlowCorr", "Inj.4FlowCorr"}
+        if not required_cols.issubset(self.csv.columns):
+            return result
+
+        idle_csv = self.csv[(self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)]
+        if idle_csv.empty:
+            return result
+
+        inj1 = idle_csv["Inj.1FlowCorr"].dropna()
+        inj2 = idle_csv["Inj.2FlowCorr"].dropna()
+        inj3 = idle_csv["Inj.3FlowCorr"].dropna()
+        inj4 = idle_csv["Inj.4FlowCorr"].dropna()
+
+        if inj1.empty or inj2.empty or inj3.empty or inj4.empty:
+            return result
+
+        val1 = float(round(inj1.mean(), 2))
+        val2 = float(round(inj2.mean(), 2))
+        val3 = float(round(inj3.mean(), 2))
+        val4 = float(round(inj4.mean(), 2))
+        avg = float(round((val1 + val2 + val3 + val4) / 4, 2))
+
+        result["injector1"] = val1
+        result["injector2"] = val2
+        result["injector3"] = val3
+        result["injector4"] = val4
+        result["average"] = avg
+
+        return result
+
+    def _calculate_fuel_pressure(self):
+        result = {"avg_diff_idle_mbar": None}
+
+        required_cols = {"Revs", "Speed", "FuelPressInstr", "FuelPress"}
+        if not required_cols.issubset(self.csv.columns):
+            return result
+
+        idle_csv = self.csv[(self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)].copy()
+        if idle_csv.empty:
+            return result
+
+        idle_csv["diff"] = (idle_csv["FuelPressInstr"] - idle_csv["FuelPress"]).abs()
+        diffs = idle_csv["diff"].dropna()
+        if not diffs.empty:
+            result["avg_diff_idle_mbar"] = float(round(diffs.mean(), 2))
+
+        return result
+
+    def _calculate_boost(self):
+        result = {"avg_diff_mbar": None}
+
+        required_cols = {"TurboInstr", "Turbopress"}
+        if not required_cols.issubset(self.csv.columns):
+            return result
+
+        boost_csv = self.csv[(self.csv["TurboInstr"] > 1200) | (self.csv["Turbopress"] > 1200)].copy()
+        if boost_csv.empty:
+            return result
+
+        boost_csv["diff"] = (boost_csv["TurboInstr"] - boost_csv["Turbopress"]).abs()
+        diffs = boost_csv["diff"].dropna()
+        if not diffs.empty:
+            result["avg_diff_mbar"] = float(round(diffs.mean(), 2))
+
+        return result
+
 
 if __name__ == "__main__":
     # Run from "backend/data-analyser/src"
+    # Source venv first:
+    # source ~/venv/fap/bin/activate
     # Usage: python -m data_analyser.parameters.engine_parameters
     file_path = "../data/ds4/DCM62v2_20250326.csv"
     csv = pd.read_csv(file_path, delimiter=";", encoding="latin1")
@@ -158,10 +238,19 @@ if __name__ == "__main__":
         "Battery",
         "Coolant",
         "Errors",
+        "FuelPress",
+        "FuelPressInstr",
+        "Inj.1FlowCorr",
+        "Inj.2FlowCorr",
+        "Inj.3FlowCorr",
+        "Inj.4FlowCorr",
         "OilCarbon",
         "OilDilution",
         "OilTemp",
         "Revs",
+        "Speed",
+        "TurboInstr",
+        "Turbopress",
     ]
     for col in numeric_columns:
         if col in csv.columns:
@@ -170,7 +259,7 @@ if __name__ == "__main__":
     csv["Datetime"] = pd.to_datetime(csv["Date"] + " " + csv["Time"], errors="coerce")
     csv = csv.sort_values("Datetime")
 
-    engine_parameters = numeric_columns + ["Datetime"]
+    engine_parameters = [col for col in numeric_columns if col in csv.columns] + ["Datetime"]
     filtered_csv = csv[engine_parameters].copy()
 
     engineParameters = EngineParameters(filtered_csv)
