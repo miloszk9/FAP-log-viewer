@@ -40,7 +40,7 @@ export const averageKeys = {
   all: ["average"] as const,
 };
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 30;
 
 export interface UseAnalysesOptions extends Partial<GetAnalysesQueryDto> {
   pageSize?: number;
