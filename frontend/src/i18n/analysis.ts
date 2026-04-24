@@ -85,19 +85,7 @@ const baseFieldOverrides: DefinitionMap = {
     display: "thresholdIndicator",
     thresholdMode: "fuelPressureDiff",
   },
-  "engine.fuelPressure.avg_dev_idle_mbar": {
-    label: "Fuel pressure difference while idle (real vs instruction)",
-    unit: "mbar",
-    display: "thresholdIndicator",
-    thresholdMode: "fuelPressureDiff",
-  },
   "engine.boost.avg_diff_mbar": {
-    label: "Turbo boost difference while driving (real vs instruction)",
-    unit: "mbar",
-    display: "thresholdIndicator",
-    thresholdMode: "boostDiff",
-  },
-  "engine.boost.avg_dev_mbar": {
     label: "Turbo boost difference while driving (real vs instruction)",
     unit: "mbar",
     display: "thresholdIndicator",
