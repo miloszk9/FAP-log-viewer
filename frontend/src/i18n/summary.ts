@@ -19,6 +19,9 @@ const baseSectionDefinitions: DefinitionMap = {
   "engine.oilCarbonate": { label: "Oil carbonate" },
   "engine.oilDilution": { label: "Oil dilution" },
   "engine.oilTemp": { label: "Oil temperature" },
+  "engine.injector": { label: "Injector flow corrections" },
+  "engine.fuelPressure": { label: "Fuel pressure" },
+  "engine.boost": { label: "Turbo boost" },
   fap: { label: "FAP filter" },
   "fap.pressure": { label: "Pressure while driving" },
   "fap.pressure_idle": { label: "Pressure at idle" },
@@ -46,6 +49,9 @@ const sectionOverrides: Record<SupportedLanguage, DefinitionOverrides> = {
     "engine.oilCarbonate": { label: "Zawartość węglanów w oleju" },
     "engine.oilDilution": { label: "Rozcieńczenie oleju" },
     "engine.oilTemp": { label: "Temperatura oleju" },
+    "engine.injector": { label: "Korekty wtryskiwaczy" },
+    "engine.fuelPressure": { label: "Ciśnienie paliwa" },
+    "engine.boost": { label: "Doładowanie" },
     fap: { label: "Filtr FAP" },
     "fap.pressure": { label: "Ciśnienie podczas jazdy" },
     "fap.pressure_idle": { label: "Ciśnienie na biegu jałowym" },
@@ -90,6 +96,55 @@ const baseFieldOverrides: DefinitionMap = {
     display: "thresholdIndicator",
     thresholdMode: "oilMax",
   },
+  "engine.injector.average": {
+    label: "Average injector corrections",
+    display: "thresholdIndicator",
+    thresholdMode: "injectorAvg",
+  },
+  "engine.injector.injector1": {
+    label: "Injector 1",
+    display: "thresholdIndicator",
+    thresholdMode: "injectorDeviation",
+  },
+  "engine.injector.injector2": {
+    label: "Injector 2",
+    display: "thresholdIndicator",
+    thresholdMode: "injectorDeviation",
+  },
+  "engine.injector.injector3": {
+    label: "Injector 3",
+    display: "thresholdIndicator",
+    thresholdMode: "injectorDeviation",
+  },
+  "engine.injector.injector4": {
+    label: "Injector 4",
+    display: "thresholdIndicator",
+    thresholdMode: "injectorDeviation",
+  },
+  "engine.fuelPressure.avg_diff_idle_mbar": {
+    label: "Fuel pressure difference while idle (real vs instruction)",
+    unit: "mbar",
+    display: "thresholdIndicator",
+    thresholdMode: "fuelPressureDiff",
+  },
+  "engine.fuelPressure.avg_dev_idle_mbar": {
+    label: "Fuel pressure difference while idle (real vs instruction)",
+    unit: "mbar",
+    display: "thresholdIndicator",
+    thresholdMode: "fuelPressureDiff",
+  },
+  "engine.boost.avg_diff_mbar": {
+    label: "Turbo boost difference while driving (real vs instruction)",
+    unit: "mbar",
+    display: "thresholdIndicator",
+    thresholdMode: "boostDiff",
+  },
+  "engine.boost.avg_dev_mbar": {
+    label: "Turbo boost difference while driving (real vs instruction)",
+    unit: "mbar",
+    display: "thresholdIndicator",
+    thresholdMode: "boostDiff",
+  },
 };
 
 const fieldOverridesByLanguage: Record<SupportedLanguage, DefinitionOverrides> = {
@@ -101,6 +156,13 @@ const fieldOverridesByLanguage: Record<SupportedLanguage, DefinitionOverrides> =
     "fap.pressure.max_mbar": { label: "Maksymalne ciśnienie" },
     "engine.coolantTemp.max_c": { label: "Maksymalna temperatura płynu chłodzącego" },
     "engine.oilTemp.max_c": { label: "Maksymalna temperatura oleju" },
+    "engine.injector.average": { label: "Średnie korekty wtryskiwaczy" },
+    "engine.injector.injector1": { label: "Wtryskiwacz 1" },
+    "engine.injector.injector2": { label: "Wtryskiwacz 2" },
+    "engine.injector.injector3": { label: "Wtryskiwacz 3" },
+    "engine.injector.injector4": { label: "Wtryskiwacz 4" },
+    "engine.fuelPressure.avg_diff_idle_mbar": { label: "Odchylenie ciśnienia paliwa na biegu jałowym" },
+    "engine.boost.avg_diff_mbar": { label: "Odchylenie doładowania podczas jazdy" },
   },
 };
 

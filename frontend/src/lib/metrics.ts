@@ -3,6 +3,8 @@ import type { MetricValue } from "@/components/analysis/MetricCard";
 import { formatMetricValue } from "@/components/analysis/MetricCard";
 import { formatDuration, formatDate } from "@/components/analysis/formatters";
 
+import type { ThresholdMode } from "@/components/analysis/ThresholdIndicator";
+
 export type BuiltInFormatter = "duration" | "datetime" | "number" | "string";
 
 export interface FieldDefinition {
@@ -12,15 +14,7 @@ export interface FieldDefinition {
   formatter?: BuiltInFormatter | ((value: MetricValue) => React.ReactNode);
   order?: number;
   display?: "default" | "thresholdIndicator";
-  thresholdMode?:
-    | "idle"
-    | "driving"
-    | "fapMaxPressure"
-    | "coolantMax"
-    | "oilMax"
-    | "additiveRemain"
-    | "last10RegenDistance"
-    | "fapLifeLeft";
+  thresholdMode?: ThresholdMode;
 }
 
 export interface MetricsDictionary {

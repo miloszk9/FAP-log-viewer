@@ -200,7 +200,7 @@ class EngineParameters:
         if idle_csv.empty:
             return result
 
-        idle_csv["diff"] = (idle_csv["FuelPressInstr"] - idle_csv["FuelPress"]).abs()
+        idle_csv["diff"] = idle_csv["FuelPress"] - idle_csv["FuelPressInstr"]
         diffs = idle_csv["diff"].dropna()
         if not diffs.empty:
             result["avg_diff_idle_mbar"] = float(round(diffs.mean(), 2))
@@ -218,7 +218,7 @@ class EngineParameters:
         if boost_csv.empty:
             return result
 
-        boost_csv["diff"] = (boost_csv["TurboInstr"] - boost_csv["Turbopress"]).abs()
+        boost_csv["diff"] = boost_csv["Turbopress"] - boost_csv["TurboInstr"]
         diffs = boost_csv["diff"].dropna()
         if not diffs.empty:
             result["avg_diff_mbar"] = float(round(diffs.mean(), 2))

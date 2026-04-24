@@ -93,16 +93,18 @@ const THRESHOLDS: Record<ThresholdMode, ThresholdConfig> = {
     comparison: "outside",
   },
   fuelPressureDiff: {
-    warning: 5,
-    critical: 21,
+    warning: [-5, 5],
+    critical: [-21, 21],
     label: "Fuel Pressure Diff (Idle)",
     unit: "mbar",
+    comparison: "outside",
   },
   boostDiff: {
-    warning: 50,
-    critical: 200,
+    warning: [-50, 50],
+    critical: [-200, 200],
     label: "Boost Diff (>1200mbar)",
     unit: "mbar",
+    comparison: "outside",
   },
 };
 
