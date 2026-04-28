@@ -159,7 +159,14 @@ class EngineParameters:
             "average": None,
         }
 
-        required_cols = {"Revs", "Speed", "Inj.1FlowCorr", "Inj.2FlowCorr", "Inj.3FlowCorr", "Inj.4FlowCorr"}
+        required_cols = {
+            "Revs",
+            "Speed",
+            "Inj.1FlowCorr",
+            "Inj.2FlowCorr",
+            "Inj.3FlowCorr",
+            "Inj.4FlowCorr",
+        }
         if not required_cols.issubset(self.csv.columns):
             return result
 
@@ -210,11 +217,15 @@ class EngineParameters:
     def _calculate_boost(self):
         result = {"avg_diff_mbar": None}
 
-        required_cols = {"TurboInstr", "Turbopress"}
+        required_cols = {"TurboInstr", "Turbopress", "REGEN"}
         if not required_cols.issubset(self.csv.columns):
             return result
 
-        boost_csv = self.csv[(self.csv["TurboInstr"] > 1200) | (self.csv["Turbopress"] > 1200)].copy()
+        boost_csv = self.csv[
+            (self.csv["TurboInstr"] > 1200)
+            | (self.csv["Turbopress"] > 1200)
+            | (self.csv["REGEN"] != 1)
+        ].copy()
         if boost_csv.empty:
             return result
 
@@ -247,6 +258,7 @@ if __name__ == "__main__":
         "OilCarbon",
         "OilDilution",
         "OilTemp",
+        "REGEN",
         "Revs",
         "Speed",
         "TurboInstr",
@@ -259,7 +271,9 @@ if __name__ == "__main__":
     csv["Datetime"] = pd.to_datetime(csv["Date"] + " " + csv["Time"], errors="coerce")
     csv = csv.sort_values("Datetime")
 
-    engine_parameters = [col for col in numeric_columns if col in csv.columns] + ["Datetime"]
+    engine_parameters = [col for col in numeric_columns if col in csv.columns] + [
+        "Datetime"
+    ]
     filtered_csv = csv[engine_parameters].copy()
 
     engineParameters = EngineParameters(filtered_csv)

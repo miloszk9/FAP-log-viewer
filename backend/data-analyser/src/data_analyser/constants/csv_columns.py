@@ -21,6 +21,7 @@ engine_parameters = [
     "OilCarbon",
     "OilDilution",
     "OilTemp",
+    "REGEN",
     "Revs",
     "Speed",
     "TurboInstr",
