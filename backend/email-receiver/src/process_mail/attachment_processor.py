@@ -1,7 +1,7 @@
 import base64
 
 import requests
-from setup.config import BACKEND_URL
+from setup.config import BACKEND_URL, EMAIL_ENDPOINT
 from setup.logger_setup import setup_logger
 
 logger = setup_logger(__name__)
@@ -28,27 +28,20 @@ def get_attachment_data(service, message_id, attachment_id):
 
 def send_file_to_endpoint(filename, file_data, email):
     """Send file to the local endpoint."""
-    try:
-        files = {"file": (filename, file_data)}
-        data = {"email": email}
+    files = {"file": (filename, file_data)}
+    data = {"email": email}
 
-        logger.info(
-            f"Sending POST request with {filename} from {email}",
-        )
+    logger.info(
+        f"Sending POST request with {filename} from {email}",
+    )
 
-        response = requests.post(f"{BACKEND_URL}/api/email", files=files, data=data)
+    response = requests.post(f"{BACKEND_URL}/{EMAIL_ENDPOINT}", files=files, data=data)
 
-        if response.status_code == 201:
-            logger.info(f"Successfully processed {filename} from {email}")
-            return True
-        else:
-            logger.error(
-                f"Failed to process {filename} from {email}: {response.status_code}"
-            )
-            return False
-    except Exception as e:
-        logger.error(f"Error sending to local endpoint: {e}", exc_info=True)
-        return False
+    if response.status_code == 201:
+        logger.info(f"Successfully processed {filename} from {email}")
+        return True
+    else:
+        raise Exception(f"Failed to process {filename} from {email}: {response.text}")
 
 
 def process_attachments(msg_data, service):

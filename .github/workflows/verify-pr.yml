@@ -1,0 +1,13 @@
+name: Verify Pull Request
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  playwright-tests:
+    name: Playwright tests
+    uses: ./.github/workflows/playwright-tests.yml
+    secrets: inherit

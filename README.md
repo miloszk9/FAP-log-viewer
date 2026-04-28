@@ -1,6 +1,6 @@
 # FAP Log Viewer
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/your-username/your-repo/ci.yml?branch=main)](https://github.com/your-username/your-repo/actions)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/miloszk9/FAP-log-viewer/build-all.yml?branch=main)](https://github.com/miloszk9/FAP-log-viewer/actions/workflows/build-all.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A web application for uploading and analyzing `.csv` log files from the FAP mobile app, providing insights into vehicle engine and FAP filter health.
