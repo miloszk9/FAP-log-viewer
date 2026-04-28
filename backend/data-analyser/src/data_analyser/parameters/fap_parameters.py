@@ -102,7 +102,11 @@ class FapParameters:
         max_pressure = None
         avg_pressure = None
 
-        idle_csv = self.csv[(self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)]
+        idle_csv = self.csv[
+            (self.csv["Revs"] > 0)
+            & (self.csv["Revs"] < 1000)
+            & (self.csv["Speed"] == 0)
+        ]
         if (
             "FAPpressure" in idle_csv.columns
             and not idle_csv["FAPpressure"].dropna().empty

@@ -170,7 +170,11 @@ class EngineParameters:
         if not required_cols.issubset(self.csv.columns):
             return result
 
-        mask = (self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)
+        mask = (
+            (self.csv["Revs"] > 0)
+            & (self.csv["Revs"] < 1000)
+            & (self.csv["Speed"] == 0)
+        )
         if "OilTemp" in self.csv.columns:
             mask &= self.csv["OilTemp"] >= 80
         elif "Coolant" in self.csv.columns:
