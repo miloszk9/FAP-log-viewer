@@ -131,7 +131,7 @@ class EngineParameters:
         after_start = csv_valid[csv_valid["Datetime"] >= start_time]
 
         coolant_warm_time = after_start[after_start["Coolant"] >= 80]["Datetime"].min()
-        oil_warm_time = after_start[after_start["OilTemp"] >= 90]["Datetime"].min()
+        oil_warm_time = after_start[after_start["OilTemp"] >= 80]["Datetime"].min()
 
         if pd.notna(coolant_warm_time):
             coolant_sec = (coolant_warm_time - start_time).total_seconds()
