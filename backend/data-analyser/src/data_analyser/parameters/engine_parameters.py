@@ -170,7 +170,13 @@ class EngineParameters:
         if not required_cols.issubset(self.csv.columns):
             return result
 
-        idle_csv = self.csv[(self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)]
+        mask = (self.csv["Revs"] < 1000) & (self.csv["Speed"] == 0)
+        if "OilTemp" in self.csv.columns:
+            mask &= self.csv["OilTemp"] >= 80
+        elif "Coolant" in self.csv.columns:
+            mask &= self.csv["Coolant"] >= 80
+
+        idle_csv = self.csv[mask]
         if idle_csv.empty:
             return result
 
@@ -222,9 +228,8 @@ class EngineParameters:
             return result
 
         boost_csv = self.csv[
-            (self.csv["TurboInstr"] > 1200)
-            | (self.csv["Turbopress"] > 1200)
-            | (self.csv["REGEN"] != 1)
+            ((self.csv["TurboInstr"] > 1200) | (self.csv["Turbopress"] > 1200))
+            & (self.csv["REGEN"] == 0)
         ].copy()
         if boost_csv.empty:
             return result
