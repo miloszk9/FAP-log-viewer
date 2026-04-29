@@ -6,7 +6,7 @@ import {
   IsObject,
   IsNotEmptyObject,
 } from 'class-validator';
-import { FapAverageStatusEnum } from 'src/database/entities/enums';
+import { FapAverageStatusEnum, FapAverageTypeEnum } from 'src/database/entities/enums';
 
 export class AverageResultDto {
   @ApiProperty({
@@ -15,6 +15,30 @@ export class AverageResultDto {
   })
   @IsString()
   userId: string;
+
+  @ApiProperty({
+    description: 'Type of average',
+    example: 'MONTHLY',
+    enum: FapAverageTypeEnum,
+  })
+  @IsEnum(FapAverageTypeEnum)
+  type: FapAverageTypeEnum;
+
+  @ApiProperty({
+    description: 'Year for YEARLY or MONTHLY type',
+    example: 2024,
+    required: false,
+  })
+  @IsOptional()
+  year?: number;
+
+  @ApiProperty({
+    description: 'Month for MONTHLY type (1-12)',
+    example: 5,
+    required: false,
+  })
+  @IsOptional()
+  month?: number;
 
   @ApiProperty({
     description:

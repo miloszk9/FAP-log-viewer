@@ -17,6 +17,22 @@ export type AnalysisStatus = "Processing" | "Success" | "Failed";
 export type FapAverageStatus = "CALCULATING" | "SUCCESS" | "FAILED";
 
 /**
+ * Represents the type of average calculation.
+ * Based on the `fap_average_type_enum` PostgreSQL ENUM type.
+ */
+export type SummaryType = "OVERALL" | "MONTHLY" | "YEARLY";
+
+/**
+ * Represents an available summary period for a user.
+ */
+export interface AvailableSummary {
+  type: SummaryType;
+  year: number | null;
+  month: number | null;
+  status: FapAverageStatus;
+}
+
+/**
  * ===================================================================================
  *                                 BASE ENTITIES
  * ===================================================================================

@@ -2,15 +2,17 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
-  OneToOne,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { User } from './user.entity';
-import { FapAverageStatusEnum } from './enums';
+import { FapAverageStatusEnum, FapAverageTypeEnum } from './enums';
 
 @Entity({ name: 'fap_average' })
+@Index(['user', 'type', 'year', 'month'], { unique: true })
 export class FapAverage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -22,6 +24,20 @@ export class FapAverage {
     nullable: false,
   })
   status: FapAverageStatusEnum;
+
+  @Column({
+    type: 'enum',
+    enum: FapAverageTypeEnum,
+    default: FapAverageTypeEnum.OVERALL,
+    nullable: false,
+  })
+  type: FapAverageTypeEnum;
+
+  @Column({ type: 'int', nullable: true })
+  year: number | null;
+
+  @Column({ type: 'int', nullable: true })
+  month: number | null;
 
   @Column({ type: 'jsonb', nullable: true })
   average: Record<string, any> | null;
@@ -48,7 +64,7 @@ export class FapAverage {
   })
   updatedAt: Date;
 
-  @OneToOne(() => User, (user) => user.average, {
+  @ManyToOne(() => User, (user) => user.averages, {
     nullable: false,
     onDelete: 'CASCADE',
   })

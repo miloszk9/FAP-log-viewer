@@ -3,7 +3,6 @@ import {
   CreateDateColumn,
   Entity,
   OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -53,6 +52,6 @@ export class User {
   @OneToMany(() => FapAnalysis, (analysis) => analysis.user)
   analyses: FapAnalysis[];
 
-  @OneToOne(() => FapAverage, (average) => average.user, { cascade: true })
-  average: FapAverage;
+  @OneToMany(() => FapAverage, (average) => average.user, { cascade: true })
+  averages: FapAverage[];
 }

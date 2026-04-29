@@ -13,6 +13,7 @@ import {
   fetchAnalyses,
   fetchAnalysisDetail,
   fetchUserAverage,
+  fetchAvailableSummaries,
   uploadAnalysis,
   type FetchAnalysesParams,
   ApiError,
@@ -24,6 +25,8 @@ import type {
   GetAnalysesResponseDto,
   UploadAnalysisResponseDto,
   UserAverageDto,
+  AvailableSummary,
+  SummaryType,
 } from "@/types";
 
 export const analysesKeys = {
@@ -38,6 +41,8 @@ export const analysisKeys = {
 
 export const averageKeys = {
   all: ["average"] as const,
+  detail: (type?: SummaryType, year?: number, month?: number) => ["average", type, year, month] as const,
+  available: () => ["average", "available"] as const,
 };
 
 const DEFAULT_PAGE_SIZE = 30;
@@ -155,6 +160,9 @@ export const useAnalysisDetail = (
 };
 
 export interface UseUserAverageOptions {
+  type?: SummaryType;
+  year?: number;
+  month?: number;
   enabled?: boolean;
   staleTime?: number;
   refetchOnWindowFocus?: boolean;
@@ -163,6 +171,9 @@ export interface UseUserAverageOptions {
 export type UseUserAverageResult = UseQueryResult<UserAverageDto, ApiError>;
 
 export const useUserAverage = ({
+  type,
+  year,
+  month,
   enabled = true,
   staleTime = 30_000,
   refetchOnWindowFocus = false,
@@ -170,8 +181,26 @@ export const useUserAverage = ({
   const { accessToken } = useAuth();
 
   return useQuery<UserAverageDto, ApiError>({
-    queryKey: averageKeys.all,
-    queryFn: ({ signal }) => fetchUserAverage({ accessToken, signal }),
+    queryKey: averageKeys.detail(type, year, month),
+    queryFn: ({ signal }) => fetchUserAverage({ accessToken, signal, type, year, month }),
+    enabled: Boolean(accessToken) && enabled,
+    staleTime,
+    refetchOnWindowFocus,
+  });
+};
+
+export type UseAvailableSummariesResult = UseQueryResult<AvailableSummary[], ApiError>;
+
+export const useAvailableSummaries = ({
+  enabled = true,
+  staleTime = 30_000,
+  refetchOnWindowFocus = false,
+} = {}): UseAvailableSummariesResult => {
+  const { accessToken } = useAuth();
+
+  return useQuery<AvailableSummary[], ApiError>({
+    queryKey: averageKeys.available(),
+    queryFn: ({ signal }) => fetchAvailableSummaries({ accessToken, signal }),
     enabled: Boolean(accessToken) && enabled,
     staleTime,
     refetchOnWindowFocus,

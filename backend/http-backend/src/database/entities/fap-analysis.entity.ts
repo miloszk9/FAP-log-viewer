@@ -41,6 +41,12 @@ export class FapAnalysis {
   })
   logDate: Date | null;
 
+  @Column({ type: 'int', name: 'log_year', nullable: true })
+  logYear: number | null;
+
+  @Column({ type: 'int', name: 'log_month', nullable: true })
+  logMonth: number | null;
+
   @Column({
     type: 'boolean',
     name: 'fap_regen',

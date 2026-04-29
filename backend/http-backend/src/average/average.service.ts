@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { FapAnalysisService } from '../database/services/fap-analysis.service';
 import { FapAverageService } from '../database/services/fap-average.service';
 import { NatsService } from '../nats/nats.service';
-import { AnalysisStatusEnum } from 'src/database/entities/enums';
+import { AnalysisStatusEnum, FapAverageStatusEnum, FapAverageTypeEnum } from 'src/database/entities/enums';
 
 @Injectable()
 export class AverageService {
@@ -16,50 +16,61 @@ export class AverageService {
   ) {}
 
   async update(userId: string): Promise<void> {
-    this.logger.log(`Updating average for user ${userId}`);
+    this.logger.log(`Updating averages for user ${userId}`);
 
-    // Get all analyses for the user
-    const analyses = await this.fapAnalysisService.findAllByUserId(userId);
 
-    // Check if any analysis is pending
-    const hasPending = analyses.some(
-      (analysis) => analysis.status === AnalysisStatusEnum.PROCESSING,
-    );
-    if (hasPending) {
-      this.logger.log(
-        `Found pending analysis for user ${userId}, skipping average update`,
-      );
+    // Check pending analyses efficiently
+    const allAnalyses = await this.fapAnalysisService.findAllByUserId(userId);
+    if (allAnalyses.some((a) => a.status === AnalysisStatusEnum.PROCESSING)) {
+      this.logger.log(`Found pending analysis for user ${userId}, skipping average update`);
       return;
     }
 
-    // Build array of successful analyses
-    const successfulAnalyses = analyses
-      .filter((analysis) => analysis.status === AnalysisStatusEnum.SUCCESS)
-      .map((analysis) => analysis.analysis);
+    // OVERALL
+    const overallAnalyses = allAnalyses.filter(a => a.status === AnalysisStatusEnum.SUCCESS);
+    await this.processGroup(userId, FapAverageTypeEnum.OVERALL, undefined, undefined, overallAnalyses);
 
-    if (successfulAnalyses.length === 0) {
-      this.logger.warn(`No successful analyses found for user ${userId}`);
-      return;
+    // Get distinct periods
+    const periods = await this.fapAnalysisService.getDistinctPeriods(userId);
+    
+    // Group periods by year to process YEARLY
+    const years = [...new Set(periods.map(p => p.logYear))];
+    for (const year of years) {
+      const yearlyAnalyses = await this.fapAnalysisService.findSuccessfulByPeriod(userId, year);
+      await this.processGroup(userId, FapAverageTypeEnum.YEARLY, year, undefined, yearlyAnalyses);
     }
 
-    // Calculate SHA256 of the array
-    const analysisString = JSON.stringify(successfulAnalyses);
+    // Process MONTHLY
+    for (const period of periods) {
+      const monthlyAnalyses = await this.fapAnalysisService.findSuccessfulByPeriod(userId, period.logYear, period.logMonth);
+      await this.processGroup(userId, FapAverageTypeEnum.MONTHLY, period.logYear, period.logMonth, monthlyAnalyses);
+    }
+  }
+
+  private async processGroup(userId: string, type: FapAverageTypeEnum, year: number | undefined, month: number | undefined, analyses: any[]) {
+    if (analyses.length === 0) return;
+
+    const analysisData = analyses.map(a => a.analysis);
+    const analysisString = JSON.stringify(analysisData);
     const sha256 = createHash('sha256').update(analysisString).digest('hex');
 
-    // Check if current average has the same SHA256
-    const currentAverage = await this.fapAverageService.findOne(userId);
-    if (currentAverage?.sha256 === sha256) {
-      this.logger.log(`Average for user ${userId} is up to date`);
+    const currentAverage = await this.fapAverageService.findOne(userId, type, year, month);
+    if (currentAverage?.sha256 === sha256 && currentAverage?.status === FapAverageStatusEnum.SUCCESS) {
+      this.logger.log(`Average for user ${userId} [${type} ${year || ''} ${month || ''}] is up to date`);
       return;
     }
 
-    // Send average request
+    await this.fapAverageService.upsert(userId, type, { status: FapAverageStatusEnum.CALCULATING }, year, month);
+
     await this.natsService.sendAverageRequest({
       userId,
+      type,
+      year,
+      month,
       analysisSha: sha256,
-      analysis: successfulAnalyses as Record<string, any>[],
+      analysis: analysisData,
     });
 
-    this.logger.log(`Average request sent for user ${userId}`);
+    this.logger.log(`Average request sent for user ${userId} [${type} ${year || ''} ${month || ''}]`);
   }
 }

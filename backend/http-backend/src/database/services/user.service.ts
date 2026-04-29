@@ -46,7 +46,7 @@ export class UserService {
     const user = this.userRepository.create({
       email,
       passwordHash: hashedPassword,
-      average: fapAverage,
+      averages: [fapAverage],
     });
     await this.userRepository.save(user);
     this.logger.log(`Successfully created user with email: ${email}`);

@@ -25,6 +25,11 @@ export interface SummaryPageTranslations {
     retrying: string;
     upload: string;
   };
+  periodSelector: {
+    label: string;
+    overall: string;
+    months: string[];
+  };
 }
 
 const summaryPageTranslations: Record<SupportedLanguage, SummaryPageTranslations> = {
@@ -59,6 +64,14 @@ const summaryPageTranslations: Record<SupportedLanguage, SummaryPageTranslations
       retrying: "Retrying…",
       upload: "Upload new log",
     },
+    periodSelector: {
+      label: "Period",
+      overall: "Overall",
+      months: [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ],
+    },
   },
   pl: {
     title: "Podsumowanie",
@@ -91,6 +104,14 @@ const summaryPageTranslations: Record<SupportedLanguage, SummaryPageTranslations
       retry: "Spróbuj ponownie",
       retrying: "Ponawianie…",
       upload: "Prześlij nowy log",
+    },
+    periodSelector: {
+      label: "Okres",
+      overall: "Całość",
+      months: [
+        "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
+        "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
+      ],
     },
   },
 };

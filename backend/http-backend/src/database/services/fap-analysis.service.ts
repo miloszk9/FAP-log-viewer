@@ -36,6 +36,42 @@ export class FapAnalysisService {
     });
   }
 
+  async getDistinctPeriods(userId: string): Promise<{ logYear: number; logMonth: number }[]> {
+    this.logger.log(`Finding distinct periods for user ${userId}`);
+    const result = await this.fapAnalysisRepository
+      .createQueryBuilder('fap_analysis')
+      .select('fap_analysis.log_year', 'logYear')
+      .addSelect('fap_analysis.log_month', 'logMonth')
+      .where('fap_analysis.user_id = :userId', { userId })
+      .andWhere('fap_analysis.status = :status', { status: 'Success' })
+      .andWhere('fap_analysis.log_year IS NOT NULL')
+      .andWhere('fap_analysis.log_month IS NOT NULL')
+      .groupBy('fap_analysis.log_year')
+      .addGroupBy('fap_analysis.log_month')
+      .getRawMany();
+
+    return result.map((r) => ({
+      logYear: Number(r.logYear),
+      logMonth: Number(r.logMonth),
+    }));
+  }
+
+  async findSuccessfulByPeriod(userId: string, year?: number, month?: number): Promise<FapAnalysis[]> {
+    this.logger.log(`Finding successful analyses for user ${userId}, year ${year}, month ${month}`);
+    const qb = this.fapAnalysisRepository.createQueryBuilder('fap_analysis')
+      .where('fap_analysis.user_id = :userId', { userId })
+      .andWhere('fap_analysis.status = :status', { status: 'Success' });
+    
+    if (year) {
+      qb.andWhere('fap_analysis.log_year = :year', { year });
+    }
+    if (month) {
+      qb.andWhere('fap_analysis.log_month = :month', { month });
+    }
+    
+    return qb.getMany();
+  }
+
   async findAndCountByUserId(
     userId: string,
     options: {

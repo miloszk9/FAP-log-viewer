@@ -17,6 +17,8 @@ export class NatsController {
   @MessagePattern('analysis.result')
   async handleAnalysisResult(@Payload() data: AnalysisResultDto) {
     const logDate = data.logDate ? new Date(data.logDate) : null;
+    const logYear = logDate ? logDate.getUTCFullYear() : null;
+    const logMonth = logDate ? logDate.getUTCMonth() + 1 : null;
 
     const updatedAnalysis = await this.fapAnalysisService.update(
       data.analysisId,
@@ -26,6 +28,8 @@ export class NatsController {
         analysis: data.analysis,
         fapRegen: Boolean(data.fapRegen),
         logDate: logDate,
+        logYear: logYear,
+        logMonth: logMonth,
         distance: data.distance ?? data.analysis?.overall?.distance ?? null,
       },
     );
@@ -37,11 +41,17 @@ export class NatsController {
 
   @MessagePattern('average.result')
   async handleAverageResult(@Payload() data: AverageResultDto) {
-    await this.fapAverageService.update(data.userId, {
-      sha256: data.analysisSha,
-      status: data.status,
-      message: data.message,
-      average: data.average,
-    });
+    await this.fapAverageService.upsert(
+      data.userId,
+      data.type,
+      {
+        sha256: data.analysisSha,
+        status: data.status,
+        message: data.message,
+        average: data.average,
+      },
+      data.year,
+      data.month,
+    );
   }
 }

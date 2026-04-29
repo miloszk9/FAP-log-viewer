@@ -4,6 +4,8 @@ import type {
   GetAnalysesResponseDto,
   UploadAnalysisResponseDto,
   UserAverageDto,
+  SummaryType,
+  AvailableSummary,
 } from "@/types";
 
 // API calls now use relative paths - in dev they're proxied, in prod they're routed by nginx
@@ -185,13 +187,36 @@ export const fetchAnalysisDetail = async ({
 export interface FetchUserAverageParams {
   accessToken?: string | null;
   signal?: AbortSignal;
+  type?: SummaryType;
+  year?: number;
+  month?: number;
 }
 
 export const fetchUserAverage = async ({
   accessToken,
   signal,
+  type,
+  year,
+  month,
 }: FetchUserAverageParams = {}): Promise<UserAverageDto> => {
   return apiRequest<UserAverageDto>("/api/v1/average", {
+    method: "GET",
+    accessToken,
+    signal,
+    query: { type, year, month },
+  });
+};
+
+export interface FetchAvailableSummariesParams {
+  accessToken?: string | null;
+  signal?: AbortSignal;
+}
+
+export const fetchAvailableSummaries = async ({
+  accessToken,
+  signal,
+}: FetchAvailableSummariesParams = {}): Promise<AvailableSummary[]> => {
+  return apiRequest<AvailableSummary[]>("/api/v1/average/available", {
     method: "GET",
     accessToken,
     signal,

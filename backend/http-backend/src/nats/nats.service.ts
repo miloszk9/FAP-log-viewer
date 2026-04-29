@@ -19,6 +19,9 @@ export class NatsService {
 
   async sendAverageRequest(data: {
     userId: string;
+    type: string;
+    year?: number;
+    month?: number;
     analysisSha: string;
     analysis: Record<string, any>[];
   }): Promise<void> {

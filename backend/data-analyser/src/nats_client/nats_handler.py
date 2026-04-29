@@ -79,6 +79,9 @@ class NatsHandler:
         try:
             payload = payload["data"]
             user_id = payload["userId"]
+            avg_type = payload.get("type", "OVERALL")
+            avg_year = payload.get("year")
+            avg_month = payload.get("month")
             sha = payload["analysisSha"]
             analysis = self._ensure_analysis_list(payload["analysis"])
 
@@ -87,6 +90,9 @@ class NatsHandler:
             response = json.dumps(
                 {
                     "userId": user_id,
+                    "type": avg_type,
+                    "year": avg_year,
+                    "month": avg_month,
                     "analysisSha": sha,
                     "status": "SUCCESS",
                     "message": "Average calculated successfully.",
@@ -98,11 +104,11 @@ class NatsHandler:
             logger.info(f"Replied with average result for user {user_id}")
 
         except DataAverageException as e:
-            await self._publish_average_failure(user_id, sha, str(e))
+            await self._publish_average_failure(user_id, avg_type, avg_year, avg_month, sha, str(e))
             logger.warning(f"Replied with failed status for average request: {str(e)}")
         except Exception as e:
             logger.error(f"Average error: {e}", exc_info=True)
-            await self._publish_average_failure(user_id, sha, str(e))
+            await self._publish_average_failure(user_id, avg_type, avg_year, avg_month, sha, str(e))
 
     async def data_analyser_async(self, file_id):
         loop = asyncio.get_event_loop()
@@ -142,10 +148,13 @@ class NatsHandler:
 
         return raw_analysis
 
-    async def _publish_average_failure(self, user_id, sha, message):
+    async def _publish_average_failure(self, user_id, avg_type, avg_year, avg_month, sha, message):
         response = json.dumps(
             {
                 "userId": user_id,
+                "type": avg_type,
+                "year": avg_year,
+                "month": avg_month,
                 "analysisSha": sha,
                 "status": "FAILED",
                 "message": message,

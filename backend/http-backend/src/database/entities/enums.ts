@@ -9,3 +9,9 @@ export enum FapAverageStatusEnum {
   SUCCESS = 'SUCCESS',
   FAILED = 'FAILED',
 }
+
+export enum FapAverageTypeEnum {
+  OVERALL = 'OVERALL',
+  MONTHLY = 'MONTHLY',
+  YEARLY = 'YEARLY',
+}
