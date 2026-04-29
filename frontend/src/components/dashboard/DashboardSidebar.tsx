@@ -194,7 +194,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                         {item.label}
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56" align="start" side="right">
+                    <DropdownMenuContent className="w-56" align="start">
                       <DropdownMenuItem onClick={() => handleNavigate("/summary?type=OVERALL")}>
                         {translations.nav.summaryOverall}
                       </DropdownMenuItem>
