@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type SupportedLanguage = "en" | "pl";
+export type LanguagePreference = SupportedLanguage | "system";
 
 interface LanguageMetadata {
   code: SupportedLanguage;
@@ -9,13 +10,15 @@ interface LanguageMetadata {
 
 interface LanguageContextValue {
   language: SupportedLanguage;
+  preference: LanguagePreference;
   supportedLanguages: readonly LanguageMetadata[];
-  setLanguage: (language: SupportedLanguage) => void;
+  setPreference: (preference: LanguagePreference) => void;
   toggleLanguage: () => void;
   getLanguageLabel: (language: SupportedLanguage) => string;
 }
 
 const LANGUAGE_STORAGE_KEY = "fap-log-viewer-language";
+const LANGUAGE_COOKIE_KEY = "fap-log-viewer-language-preference";
 
 const SUPPORTED_LANGUAGES: readonly LanguageMetadata[] = [
   { code: "en", label: "English" },
@@ -28,24 +31,8 @@ const LANGUAGE_DISPLAY_NAMES: Record<SupportedLanguage, Record<SupportedLanguage
 };
 
 const isSupportedLanguage = (value: unknown): value is SupportedLanguage => value === "en" || value === "pl";
-
-const readStoredLanguage = (): SupportedLanguage | null => {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  try {
-    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
-
-    if (isSupportedLanguage(stored)) {
-      return stored;
-    }
-  } catch {
-    // Ignore storage access errors (e.g., private mode)
-  }
-
-  return null;
-};
+const isLanguagePreference = (value: unknown): value is LanguagePreference =>
+  value === "en" || value === "pl" || value === "system";
 
 const detectNavigatorLanguage = (): SupportedLanguage => {
   if (typeof navigator === "undefined") {
@@ -65,70 +52,117 @@ const detectNavigatorLanguage = (): SupportedLanguage => {
   return "en";
 };
 
-const readDatasetLanguage = (): SupportedLanguage | null => {
-  if (typeof document === "undefined") {
+const resolveLanguage = (preference: LanguagePreference): SupportedLanguage => {
+  if (preference === "system") {
+    return detectNavigatorLanguage();
+  }
+  return preference;
+};
+
+const readStoredPreference = (): LanguagePreference | null => {
+  if (typeof window === "undefined") {
     return null;
   }
 
-  const { lang, dataset } = document.documentElement;
+  try {
+    const stored = window.localStorage.getItem(LANGUAGE_STORAGE_KEY);
 
-  if (isSupportedLanguage(lang)) {
-    return lang;
-  }
-
-  const datasetLanguage = dataset.language;
-
-  if (isSupportedLanguage(datasetLanguage)) {
-    return datasetLanguage;
+    if (isLanguagePreference(stored)) {
+      return stored;
+    }
+  } catch {
+    // Ignore storage access errors (e.g., private mode)
   }
 
   return null;
 };
 
-const readInitialLanguage = (): SupportedLanguage => {
-  const datasetLanguage = readDatasetLanguage();
-  if (datasetLanguage) {
-    return datasetLanguage;
+const readInitialPreference = (explicitPreference?: LanguagePreference): LanguagePreference => {
+  if (explicitPreference) {
+    return explicitPreference;
   }
 
-  const storedLanguage = readStoredLanguage();
-  if (storedLanguage) {
-    return storedLanguage;
+  if (typeof document !== "undefined") {
+    const datasetPreference = document.documentElement.dataset.languagePreference;
+    if (isLanguagePreference(datasetPreference)) {
+      return datasetPreference;
+    }
   }
 
-  return detectNavigatorLanguage();
+  const stored = readStoredPreference();
+  if (stored) {
+    return stored;
+  }
+
+  return "system";
 };
 
-const persistLanguage = (language: SupportedLanguage) => {
+const readInitialResolvedLanguage = (preference: LanguagePreference, explicitLanguage?: SupportedLanguage): SupportedLanguage => {
+  if (explicitLanguage) {
+    return explicitLanguage;
+  }
+
+  if (typeof document !== "undefined") {
+    const lang = document.documentElement.lang;
+    if (isSupportedLanguage(lang)) {
+      return lang;
+    }
+  }
+
+  return resolveLanguage(preference);
+};
+
+const persistPreference = (preference: LanguagePreference) => {
   if (typeof window === "undefined") {
     return;
   }
 
   try {
-    window.localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
+    if (preference === "system") {
+      window.localStorage.removeItem(LANGUAGE_STORAGE_KEY);
+      document.cookie = `${LANGUAGE_COOKIE_KEY}=system; path=/; max-age=31536000; SameSite=Lax`;
+    } else {
+      window.localStorage.setItem(LANGUAGE_STORAGE_KEY, preference);
+      document.cookie = `${LANGUAGE_COOKIE_KEY}=${preference}; path=/; max-age=31536000; SameSite=Lax`;
+    }
   } catch {
-    // Ignore storage write errors (e.g., private mode)
+    // Ignore storage/cookie write errors
   }
 };
 
-const updateDocumentLanguage = (language: SupportedLanguage) => {
+const updateDocumentLanguage = (language: SupportedLanguage, preference: LanguagePreference) => {
   if (typeof document === "undefined") {
     return;
   }
 
   document.documentElement.lang = language;
-  document.documentElement.dataset.language = language;
+  document.documentElement.dataset.languagePreference = preference;
 };
 
 const LanguageContext = createContext<LanguageContextValue | undefined>(undefined);
 
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [language, setLanguageState] = useState<SupportedLanguage>(readInitialLanguage);
+interface LanguageProviderProps {
+  children: React.ReactNode;
+  initialPreference?: LanguagePreference;
+  initialLanguage?: SupportedLanguage;
+}
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({
+  children,
+  initialPreference: explicitPreference,
+  initialLanguage: explicitLanguage,
+}) => {
+  const [preference, setPreferenceState] = useState<LanguagePreference>(() => readInitialPreference(explicitPreference));
+  const [language, setLanguageState] = useState<SupportedLanguage>(() =>
+    readInitialResolvedLanguage(preference, explicitLanguage)
+  );
 
   useEffect(() => {
-    updateDocumentLanguage(language);
-    persistLanguage(language);
-  }, [language]);
+    const resolved = resolveLanguage(preference);
+    setLanguageState(resolved);
+    updateDocumentLanguage(resolved, preference);
+    persistPreference(preference);
+  }, [preference]);
 
   useEffect(() => {
     if (typeof window === "undefined") {
@@ -140,13 +174,13 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         return;
       }
 
-      if (isSupportedLanguage(event.newValue)) {
-        setLanguageState(event.newValue);
+      if (isLanguagePreference(event.newValue)) {
+        setPreferenceState(event.newValue);
         return;
       }
 
       if (event.newValue === null) {
-        setLanguageState(detectNavigatorLanguage());
+        setPreferenceState("system");
       }
     };
 
@@ -157,12 +191,16 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     };
   }, []);
 
-  const setLanguage = useCallback((next: SupportedLanguage) => {
-    setLanguageState((current) => (current === next ? current : next));
+  const setPreference = useCallback((next: LanguagePreference) => {
+    setPreferenceState((current) => (current === next ? current : next));
   }, []);
 
   const toggleLanguage = useCallback(() => {
-    setLanguageState((current) => (current === "en" ? "pl" : "en"));
+    setPreferenceState((current) => {
+      if (current === "en") return "pl";
+      if (current === "pl") return "system";
+      return "en";
+    });
   }, []);
 
   const getLanguageLabel = useCallback(
@@ -171,8 +209,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   );
 
   const value = useMemo<LanguageContextValue>(
-    () => ({ language, supportedLanguages: SUPPORTED_LANGUAGES, setLanguage, toggleLanguage, getLanguageLabel }),
-    [getLanguageLabel, language, setLanguage, toggleLanguage]
+    () => ({
+      language,
+      preference,
+      supportedLanguages: SUPPORTED_LANGUAGES,
+      setPreference,
+      toggleLanguage,
+      getLanguageLabel,
+    }),
+    [getLanguageLabel, language, preference, setPreference, toggleLanguage]
   );
 
   return React.createElement(LanguageContext.Provider, { value }, children);
@@ -193,3 +238,5 @@ export const getLanguageDisplayName = (language: SupportedLanguage, inLanguage: 
 };
 
 export const availableLanguages = SUPPORTED_LANGUAGES;
+
+

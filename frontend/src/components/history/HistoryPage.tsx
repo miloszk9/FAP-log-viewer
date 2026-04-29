@@ -9,10 +9,20 @@ import { useAuth } from "@/lib/auth";
 import { ApiError, deleteAnalysis } from "@/lib/apiClient";
 import type { GetAnalysesResponseDto } from "@/types";
 import { useHistoryTranslations, type HistoryTranslations } from "@/i18n/history";
+import { type LanguagePreference, type SupportedLanguage } from "@/lib/i18n";
+import type { ThemePreference } from "@/components/hooks/useThemePreference";
 
-export const HistoryPage: React.FC = () => {
+export const HistoryPage: React.FC<{
+  initialLanguagePreference?: LanguagePreference;
+  initialLanguage?: SupportedLanguage;
+  initialThemePreference?: ThemePreference;
+}> = ({ initialLanguagePreference, initialLanguage, initialThemePreference }) => {
   return (
-    <AppProviders>
+    <AppProviders
+      initialLanguagePreference={initialLanguagePreference}
+      initialLanguage={initialLanguage}
+      initialThemePreference={initialThemePreference}
+    >
       <HistoryPageContent />
     </AppProviders>
   );

@@ -3,9 +3,20 @@ import { AppShell } from "@/components/AppShell";
 import { AppProviders } from "@/components/AppProviders";
 import { UploadCard } from "@/components/upload/UploadCard";
 
-export const UploadPage: React.FC = () => {
+import { type LanguagePreference, type SupportedLanguage } from "@/lib/i18n";
+import type { ThemePreference } from "@/components/hooks/useThemePreference";
+
+export const UploadPage: React.FC<{
+  initialLanguagePreference?: LanguagePreference;
+  initialLanguage?: SupportedLanguage;
+  initialThemePreference?: ThemePreference;
+}> = ({ initialLanguagePreference, initialLanguage, initialThemePreference }) => {
   return (
-    <AppProviders>
+    <AppProviders
+      initialLanguagePreference={initialLanguagePreference}
+      initialLanguage={initialLanguage}
+      initialThemePreference={initialThemePreference}
+    >
       <UploadPageContent />
     </AppProviders>
   );

@@ -1,8 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { UploadPage } from "@/components/upload";
+import { getInitialState } from "../lib/server-i18n";
+
+const { initialLanguagePreference, serverResolvedLang, initialThemePreference } = getInitialState(
+  Astro.cookies,
+  Astro.request
+);
 ---
 
 <Layout title="Upload · FAP Log Viewer">
-  <UploadPage client:load />
+  <UploadPage
+    client:load
+    initialLanguagePreference={initialLanguagePreference}
+    initialLanguage={serverResolvedLang}
+    initialThemePreference={initialThemePreference}
+  />
 </Layout>

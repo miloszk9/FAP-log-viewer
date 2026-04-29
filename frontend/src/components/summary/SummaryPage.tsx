@@ -9,9 +9,19 @@ import { useAuth } from "@/lib/auth";
 import { useUserAverage } from "@/lib/queries";
 import type { FapAverageStatus } from "@/types";
 import { useSummaryPageTranslations } from "@/i18n/summaryPage";
+import { type LanguagePreference, type SupportedLanguage } from "@/lib/i18n";
+import type { ThemePreference } from "@/components/hooks/useThemePreference";
 
-export const SummaryPage: React.FC = () => (
-  <AppProviders>
+export const SummaryPage: React.FC<{
+  initialLanguagePreference?: LanguagePreference;
+  initialLanguage?: SupportedLanguage;
+  initialThemePreference?: ThemePreference;
+}> = ({ initialLanguagePreference, initialLanguage, initialThemePreference }) => (
+  <AppProviders
+    initialLanguagePreference={initialLanguagePreference}
+    initialLanguage={initialLanguage}
+    initialThemePreference={initialThemePreference}
+  >
     <SummaryPageContent />
   </AppProviders>
 );

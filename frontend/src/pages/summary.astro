@@ -1,8 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { SummaryPage } from "@/components/summary";
+import { getInitialState } from "../lib/server-i18n";
+
+const { initialLanguagePreference, serverResolvedLang, initialThemePreference } = getInitialState(
+  Astro.cookies,
+  Astro.request
+);
 ---
 
 <Layout title="Summary · FAP Log Viewer">
-  <SummaryPage client:load />
+  <SummaryPage
+    client:load
+    initialLanguagePreference={initialLanguagePreference}
+    initialLanguage={serverResolvedLang}
+    initialThemePreference={initialThemePreference}
+  />
 </Layout>

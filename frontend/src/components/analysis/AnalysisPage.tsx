@@ -16,14 +16,28 @@ import { useAuth } from "@/lib/auth";
 import { useAnalysisDetail } from "@/lib/queries";
 import type { AnalysisDetailDto } from "@/types";
 import { useAnalysisPageTranslations, type AnalysisPageTranslations } from "@/i18n/analysisPage";
+import { type LanguagePreference, type SupportedLanguage } from "@/lib/i18n";
+import type { ThemePreference } from "@/components/hooks/useThemePreference";
 
 interface AnalysisPageProps {
   analysisId: string;
+  initialLanguagePreference?: LanguagePreference;
+  initialLanguage?: SupportedLanguage;
+  initialThemePreference?: ThemePreference;
 }
 
-export const AnalysisPage: React.FC<AnalysisPageProps> = ({ analysisId }) => {
+export const AnalysisPage: React.FC<AnalysisPageProps> = ({
+  analysisId,
+  initialLanguagePreference,
+  initialLanguage,
+  initialThemePreference,
+}) => {
   return (
-    <AppProviders>
+    <AppProviders
+      initialLanguagePreference={initialLanguagePreference}
+      initialLanguage={initialLanguage}
+      initialThemePreference={initialThemePreference}
+    >
       <AnalysisPageContent analysisId={analysisId} />
     </AppProviders>
   );

@@ -1,8 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { HistoryPage } from "@/components/history";
+import { getInitialState } from "../lib/server-i18n";
+
+const { initialLanguagePreference, serverResolvedLang, initialThemePreference } = getInitialState(
+  Astro.cookies,
+  Astro.request
+);
 ---
 
 <Layout title="Log history · FAP Log Viewer">
-  <HistoryPage client:load />
+  <HistoryPage
+    client:load
+    initialLanguagePreference={initialLanguagePreference}
+    initialLanguage={serverResolvedLang}
+    initialThemePreference={initialThemePreference}
+  />
 </Layout>

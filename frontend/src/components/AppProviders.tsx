@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/lib/auth";
-import { LanguageProvider } from "@/lib/i18n";
+import { LanguageProvider, type LanguagePreference, type SupportedLanguage } from "@/lib/i18n";
 import { ApiError } from "@/lib/apiClient";
+import { ThemeProvider, type ThemePreference } from "@/components/hooks/useThemePreference";
 
 interface AppProvidersProps {
   children: React.ReactNode;
+  initialLanguagePreference?: LanguagePreference;
+  initialLanguage?: SupportedLanguage;
+  initialThemePreference?: ThemePreference;
 }
 
-export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
+export const AppProviders: React.FC<AppProvidersProps> = ({
+  children,
+  initialLanguagePreference,
+  initialLanguage,
+  initialThemePreference,
+}) => {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -32,9 +41,11 @@ export const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <LanguageProvider>
-        <AuthProvider>{children}</AuthProvider>
-      </LanguageProvider>
+      <ThemeProvider initialPreference={initialThemePreference}>
+        <LanguageProvider initialPreference={initialLanguagePreference} initialLanguage={initialLanguage}>
+          <AuthProvider>{children}</AuthProvider>
+        </LanguageProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };

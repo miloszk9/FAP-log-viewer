@@ -33,7 +33,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
 }) => {
   const { clearSession } = useAuth();
   const { preference, resolvedTheme, setPreference } = useThemePreference();
-  const { language, toggleLanguage, getLanguageLabel } = useLanguage();
+  const { language, preference: languagePreference, toggleLanguage } = useLanguage();
   const translations = useDashboardSidebarTranslations();
 
   const cycleThemePreference = () => {
@@ -74,12 +74,13 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const themeStatus = translations.theme.status(themeOptionLabel, resolvedLabelOrNull);
 
   const languageLabel = translations.language.label;
-  const nextLanguage: SupportedLanguage = language === "en" ? "pl" : "en";
-  const nextLanguageLabel = getLanguageLabel(nextLanguage);
-  const currentLanguageLabel = getLanguageLabel(language);
-  const languageAriaLabel = translations.language.switchText(nextLanguageLabel);
-  const languageStatus = translations.language.statusText(currentLanguageLabel);
-  const languageTitle = translations.language.title(nextLanguageLabel);
+  const languageOptionLabel = translations.language.options[languagePreference];
+  const resolvedLanguageLabel = language.toUpperCase();
+  const languageResolvedLabelOrNull = languagePreference === "system" ? resolvedLanguageLabel : null;
+
+  const languageAriaLabel = translations.language.ariaLabel(languageOptionLabel, languageResolvedLabelOrNull);
+  const languageTitle = translations.language.title(languageOptionLabel, languageResolvedLabelOrNull);
+  const languageStatus = translations.language.statusText(languageOptionLabel, languageResolvedLabelOrNull);
 
   const handleNavigate = (href: string) => {
     if (onNavigate) {
@@ -189,7 +190,7 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           >
             <span className="flex items-center gap-2">{languageLabel}</span>
             <span className="flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] uppercase">
-              {language.toUpperCase()}
+              {languageOptionLabel}
             </span>
             <span className="sr-only" aria-live="polite">
               {languageStatus}

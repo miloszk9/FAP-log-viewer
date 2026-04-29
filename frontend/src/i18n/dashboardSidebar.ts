@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useLanguage, type SupportedLanguage } from "@/lib/i18n";
+import { useLanguage, type SupportedLanguage, type LanguagePreference } from "@/lib/i18n";
 import type { ThemePreference, ResolvedTheme } from "@/components/hooks/useThemePreference";
 
 interface ThemeTranslations {
@@ -13,9 +13,10 @@ interface ThemeTranslations {
 
 interface LanguageTranslations {
   label: string;
-  switchText: (targetLabel: string) => string;
-  statusText: (currentLabel: string) => string;
-  title: (targetLabel: string) => string;
+  options: Record<LanguagePreference, string>;
+  ariaLabel: (currentOption: string, resolvedLabel: string | null) => string;
+  statusText: (currentOption: string, resolvedLabel: string | null) => string;
+  title: (currentOption: string, resolvedLabel: string | null) => string;
 }
 
 export interface DashboardSidebarTranslations {
@@ -64,9 +65,23 @@ const dashboardSidebarTranslations: Record<SupportedLanguage, DashboardSidebarTr
     },
     language: {
       label: "Language",
-      switchText: (targetLabel) => `Switch language to ${targetLabel}`,
-      statusText: (currentLabel) => `Current language ${currentLabel}`,
-      title: (targetLabel) => `Switch language to ${targetLabel}`,
+      options: {
+        en: "English",
+        pl: "Polski",
+        system: "Auto",
+      },
+      ariaLabel: (currentOption, resolvedLabel) =>
+        resolvedLabel
+          ? `Cycle language preference (current: ${currentOption}, resolves to ${resolvedLabel})`
+          : `Cycle language preference (current: ${currentOption})`,
+      title: (currentOption, resolvedLabel) =>
+        resolvedLabel
+          ? `Language: ${currentOption} (system preference: ${resolvedLabel})`
+          : `Language: ${currentOption}`,
+      statusText: (currentOption, resolvedLabel) =>
+        resolvedLabel
+          ? `Language preference ${currentOption}, currently ${resolvedLabel}`
+          : `Language preference ${currentOption}`,
     },
     overlay: {
       close: "Close navigation",
@@ -103,9 +118,21 @@ const dashboardSidebarTranslations: Record<SupportedLanguage, DashboardSidebarTr
     },
     language: {
       label: "Język",
-      switchText: (targetLabel) => `Przełącz język na ${targetLabel}`,
-      statusText: (currentLabel) => `Bieżący język ${currentLabel}`,
-      title: (targetLabel) => `Przełącz język na ${targetLabel}`,
+      options: {
+        en: "Angielski",
+        pl: "Polski",
+        system: "Automatyczny",
+      },
+      ariaLabel: (currentOption, resolvedLabel) =>
+        resolvedLabel
+          ? `Zmień preferencję języka (obecnie: ${currentOption}, wynik: ${resolvedLabel})`
+          : `Zmień preferencję języka (obecnie: ${currentOption})`,
+      title: (currentOption, resolvedLabel) =>
+        resolvedLabel ? `Język: ${currentOption} (system: ${resolvedLabel})` : `Język: ${currentOption}`,
+      statusText: (currentOption, resolvedLabel) =>
+        resolvedLabel
+          ? `Preferencja języka ${currentOption}, aktualnie ${resolvedLabel}`
+          : `Preferencja języka ${currentOption}`,
     },
     overlay: {
       close: "Zamknij nawigację",
@@ -121,3 +148,4 @@ export const useDashboardSidebarTranslations = (): DashboardSidebarTranslations 
 
   return useMemo(() => getDashboardSidebarTranslations(language), [language]);
 };
+

@@ -1,8 +1,19 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { LoginPage } from "@/components/auth";
+import { getInitialState } from "../lib/server-i18n";
+
+const { initialLanguagePreference, serverResolvedLang, initialThemePreference } = getInitialState(
+  Astro.cookies,
+  Astro.request
+);
 ---
 
 <Layout title="Sign in · FAP Log Viewer">
-  <LoginPage client:load />
+  <LoginPage
+    client:load
+    initialLanguagePreference={initialLanguagePreference}
+    initialLanguage={serverResolvedLang}
+    initialThemePreference={initialThemePreference}
+  />
 </Layout>

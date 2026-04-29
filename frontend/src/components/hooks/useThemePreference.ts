@@ -1,15 +1,25 @@
-import { useCallback, useLayoutEffect, useMemo, useState } from "react";
+import React, { createContext, useCallback, useContext, useLayoutEffect, useMemo, useState } from "react";
 
 export type ThemePreference = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
 const THEME_STORAGE_KEY = "fap-log-viewer-theme";
+const THEME_COOKIE_KEY = "fap-log-viewer-theme-preference";
 const MEDIA_QUERY = "(prefers-color-scheme: dark)";
 
 interface ThemeOption {
   value: ThemePreference;
   label: "Light" | "Dark" | "Auto";
 }
+
+interface ThemeContextValue {
+  preference: ThemePreference;
+  resolvedTheme: ResolvedTheme;
+  setPreference: (preference: ThemePreference) => void;
+  themeOptions: ThemeOption[];
+}
+
+const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 const isThemePreference = (value: unknown): value is ThemePreference =>
   value === "light" || value === "dark" || value === "system";
@@ -57,16 +67,21 @@ const persistPreference = (preference: ThemePreference) => {
   try {
     if (preference === "system") {
       window.localStorage.removeItem(THEME_STORAGE_KEY);
-      return;
+      document.cookie = `${THEME_COOKIE_KEY}=system; path=/; max-age=31536000; SameSite=Lax`;
+    } else {
+      window.localStorage.setItem(THEME_STORAGE_KEY, preference);
+      document.cookie = `${THEME_COOKIE_KEY}=${preference}; path=/; max-age=31536000; SameSite=Lax`;
     }
-
-    window.localStorage.setItem(THEME_STORAGE_KEY, preference);
   } catch (error) {
-    // Ignore storage write errors (e.g., in private mode)
+    // Ignore storage write errors
   }
 };
 
-const readInitialPreference = (): ThemePreference => {
+const readInitialPreference = (explicitPreference?: ThemePreference): ThemePreference => {
+  if (explicitPreference) {
+    return explicitPreference;
+  }
+
   const datasetPreference =
     typeof document !== "undefined" ? document.documentElement.dataset.themePreference : undefined;
 
@@ -82,7 +97,7 @@ const readInitialPreference = (): ThemePreference => {
   return "system";
 };
 
-const readInitialResolvedTheme = (): ResolvedTheme => {
+const readInitialResolvedTheme = (preference: ThemePreference): ResolvedTheme => {
   if (typeof document !== "undefined") {
     const datasetTheme = document.documentElement.dataset.theme;
     if (datasetTheme === "dark" || datasetTheme === "light") {
@@ -94,12 +109,15 @@ const readInitialResolvedTheme = (): ResolvedTheme => {
     return window.matchMedia(MEDIA_QUERY).matches ? "dark" : "light";
   }
 
-  return "light";
+  return resolveTheme(preference, false);
 };
 
-export const useThemePreference = () => {
-  const [preference, setPreference] = useState<ThemePreference>(readInitialPreference);
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(readInitialResolvedTheme);
+export const ThemeProvider: React.FC<{ children: React.ReactNode; initialPreference?: ThemePreference }> = ({
+  children,
+  initialPreference: explicitPreference,
+}) => {
+  const [preference, setPreferenceState] = useState<ThemePreference>(() => readInitialPreference(explicitPreference));
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => readInitialResolvedTheme(preference));
 
   useLayoutEffect(() => {
     if (typeof window === "undefined") {
@@ -147,8 +165,8 @@ export const useThemePreference = () => {
     return undefined;
   }, [preference]);
 
-  const setThemePreference = useCallback((next: ThemePreference) => {
-    setPreference(next);
+  const setPreference = useCallback((next: ThemePreference) => {
+    setPreferenceState(next);
   }, []);
 
   const themeOptions = useMemo<ThemeOption[]>(
@@ -160,10 +178,25 @@ export const useThemePreference = () => {
     []
   );
 
-  return {
-    preference,
-    resolvedTheme,
-    setPreference: setThemePreference,
-    themeOptions,
-  };
+  const value = useMemo(
+    () => ({
+      preference,
+      resolvedTheme,
+      setPreference,
+      themeOptions,
+    }),
+    [preference, resolvedTheme, setPreference, themeOptions]
+  );
+
+  return React.createElement(ThemeContext.Provider, { value }, children);
 };
+
+export const useThemePreference = () => {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error("useThemePreference must be used within a ThemeProvider");
+  }
+  return context;
+};
+
+

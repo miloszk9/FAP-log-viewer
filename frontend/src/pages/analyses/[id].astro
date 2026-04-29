@@ -1,8 +1,13 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import { AnalysisPage } from "@/components/analysis/AnalysisPage";
+import { getInitialState } from "../../lib/server-i18n";
 
 const { id } = Astro.params;
+const { initialLanguagePreference, serverResolvedLang, initialThemePreference } = getInitialState(
+  Astro.cookies,
+  Astro.request
+);
 
 if (!id) {
   throw new Error("Missing analysis id parameter");
@@ -10,5 +15,11 @@ if (!id) {
 ---
 
 <Layout title={`Analysis ${id} · FAP Log Viewer`}>
-  <AnalysisPage analysisId={id} client:load />
+  <AnalysisPage
+    analysisId={id}
+    client:load
+    initialLanguagePreference={initialLanguagePreference}
+    initialLanguage={serverResolvedLang}
+    initialThemePreference={initialThemePreference}
+  />
 </Layout>
