@@ -44,7 +44,7 @@ class DataAverage:
             return None
         if round_digits:
             return float(round(value, round_digits))
-        return int(value)
+        return int(round(value))
 
     def _calculate_result(self):
         overall = self._calculate_overall()
@@ -286,17 +286,22 @@ class DataAverage:
         if values is None or weights is None or values.empty or weights.empty:
             return None
 
-        total_weight = weights.sum()
+        # Filter out rows where either value or weight is missing
+        mask = values.notna() & weights.notna()
+        v = values[mask]
+        w = weights[mask]
+
+        total_weight = w.sum()
         if total_weight == 0:
             return None
 
-        value = (values * weights).sum() / total_weight
+        value = (v * w).sum() / total_weight
         if pd.isna(value):
             return None
 
         if round_digits:
             return float(round(value, round_digits))
-        return int(value)
+        return int(round(value))
 
 
 if __name__ == "__main__":
