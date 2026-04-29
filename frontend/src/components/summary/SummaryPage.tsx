@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { AppProviders } from "@/components/AppProviders";
 import { AppShell } from "@/components/AppShell";
 import { EmptyState, ErrorState } from "@/components/shared";
@@ -6,7 +6,7 @@ import { SummaryGrid } from "@/components/summary/SummaryGrid";
 import { Button } from "@/components/ui/button";
 import { ApiError } from "@/lib/apiClient";
 import { useAuth } from "@/lib/auth";
-import { useUserAverage, useAvailableSummaries } from "@/lib/queries";
+import { useUserAverage } from "@/lib/queries";
 import type { FapAverageStatus } from "@/types";
 import { useSummaryPageTranslations } from "@/i18n/summaryPage";
 import { type LanguagePreference, type SupportedLanguage } from "@/lib/i18n";
@@ -34,17 +34,21 @@ const STATUS_BADGE_CLASSES: Record<FapAverageStatus, string> = {
 
 const SummaryPageContent: React.FC = () => {
   const { clearSession } = useAuth();
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("OVERALL");
-  const availableSummariesQuery = useAvailableSummaries();
-  const availableSummaries = availableSummariesQuery.data || [];
+  const [searchParams, setSearchParams] = React.useState<URLSearchParams | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setSearchParams(new URLSearchParams(window.location.search));
+    }
+  }, []);
 
   const parsedPeriod = useMemo(() => {
-    if (selectedPeriod === "OVERALL") return { type: "OVERALL" as const, year: undefined, month: undefined };
-    const parts = selectedPeriod.split("_");
-    if (parts[0] === "YEARLY") return { type: "YEARLY" as const, year: parseInt(parts[1], 10), month: undefined };
-    if (parts[0] === "MONTHLY") return { type: "MONTHLY" as const, year: parseInt(parts[1], 10), month: parseInt(parts[2], 10) };
+    if (!searchParams) return { type: "OVERALL" as const, year: undefined, month: undefined };
+    const typeParam = searchParams.get("type");
+    if (typeParam === "YEARLY") return { type: "YEARLY" as const, year: parseInt(searchParams.get("year") || "0", 10) || undefined, month: undefined };
+    if (typeParam === "MONTHLY") return { type: "MONTHLY" as const, year: parseInt(searchParams.get("year") || "0", 10) || undefined, month: parseInt(searchParams.get("month") || "0", 10) || undefined };
     return { type: "OVERALL" as const, year: undefined, month: undefined };
-  }, [selectedPeriod]);
+  }, [searchParams]);
 
   const averageQuery = useUserAverage({ ...parsedPeriod, staleTime: 60_000 });
   const t = useSummaryPageTranslations();
@@ -152,37 +156,9 @@ const SummaryPageContent: React.FC = () => {
   return (
     <AppShell>
       <section className="space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
-            <p className="text-sm text-muted-foreground">{t.subtitle}</p>
-          </div>
-          
-          {availableSummaries.length > 0 && (
-            <div className="flex items-center gap-3">
-              <label htmlFor="period-selector" className="text-sm font-medium whitespace-nowrap">
-                {t.periodSelector.label}
-              </label>
-              <select
-                id="period-selector"
-                value={selectedPeriod}
-                onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="flex h-10 w-full sm:w-auto items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <option value="OVERALL">{t.periodSelector.overall}</option>
-                {availableSummaries.filter(s => s.type === "YEARLY").map(s => (
-                  <option key={`YEARLY_${s.year}`} value={`YEARLY_${s.year}`}>
-                    {s.year}
-                  </option>
-                ))}
-                {availableSummaries.filter(s => s.type === "MONTHLY").map(s => (
-                  <option key={`MONTHLY_${s.year}_${s.month}`} value={`MONTHLY_${s.year}_${s.month}`}>
-                    {s.month ? t.periodSelector.months[s.month - 1] : ''} {s.year}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+        <div className="space-y-2">
+          <h1 className="text-2xl font-semibold tracking-tight">{t.title}</h1>
+          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
         </div>
         {statusBlock}
         {renderContent()}

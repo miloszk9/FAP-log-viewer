@@ -8,6 +8,17 @@ import { useAuth } from "@/lib/auth";
 import { useLanguage } from "@/lib/i18n";
 import type { SupportedLanguage } from "@/lib/i18n";
 import { useDashboardSidebarTranslations } from "@/i18n/dashboardSidebar";
+import { useAvailableSummaries } from "@/lib/queries";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuPortal,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type DashboardSidebarVariant = "desktop" | "overlay";
 
@@ -35,6 +46,37 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const { preference, resolvedTheme, setPreference } = useThemePreference();
   const { language, preference: languagePreference, toggleLanguage } = useLanguage();
   const translations = useDashboardSidebarTranslations();
+
+  const availableSummariesQuery = useAvailableSummaries();
+  const availableSummaries = availableSummariesQuery.data || [];
+
+  const availableYears = useMemo(() => {
+    const years = availableSummaries
+      .filter((s) => s.type === "YEARLY" && s.year !== null)
+      .map((s) => s.year as number);
+    return Array.from(new Set(years)).sort((a, b) => b - a);
+  }, [availableSummaries]);
+
+  const availableMonths = useMemo(() => {
+    const months = availableSummaries
+      .filter((s) => s.type === "MONTHLY" && s.year !== null && s.month !== null)
+      .map((s) => ({ year: s.year as number, month: s.month as number }));
+    
+    const unique = [];
+    const seen = new Set();
+    for (const m of months) {
+      const key = `${m.year}-${m.month}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(m);
+      }
+    }
+
+    return unique.sort((a, b) => {
+      if (a.year !== b.year) return b.year - a.year;
+      return b.month - a.month;
+    });
+  }, [availableSummaries]);
 
   const cycleThemePreference = () => {
     const order: ThemePreference[] = ["light", "dark", "system"];
@@ -138,18 +180,74 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           </div>
 
           <nav className="space-y-1">
-            {navItems.map((item) => (
-              <Button
-                key={item.href}
-                type="button"
-                variant="ghost"
-                className="w-full justify-start text-sm"
-                onClick={() => handleNavigate(item.href)}
-                data-testid={navTestIds[item.href]}
-              >
-                {item.label}
-              </Button>
-            ))}
+            {navItems.map((item) => {
+              if (item.href === "/summary") {
+                return (
+                  <DropdownMenu key={item.href}>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full justify-start text-sm"
+                        data-testid={navTestIds[item.href]}
+                      >
+                        {item.label}
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56" align="start" side="right">
+                      <DropdownMenuItem onClick={() => handleNavigate("/summary?type=OVERALL")}>
+                        {translations.nav.summaryOverall}
+                      </DropdownMenuItem>
+                      {availableYears.length > 0 && (
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            {translations.nav.summaryByYear}
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent>
+                              {availableYears.map((year) => (
+                                <DropdownMenuItem key={year} onClick={() => handleNavigate(`/summary?type=YEARLY&year=${year}`)}>
+                                  {year}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                      )}
+                      {availableMonths.length > 0 && (
+                        <DropdownMenuSub>
+                          <DropdownMenuSubTrigger>
+                            {translations.nav.summaryByMonth}
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuPortal>
+                            <DropdownMenuSubContent className="max-h-[300px] overflow-y-auto">
+                              {availableMonths.map(({ year, month }) => (
+                                <DropdownMenuItem key={`${year}-${month}`} onClick={() => handleNavigate(`/summary?type=MONTHLY&year=${year}&month=${month}`)}>
+                                  {translations.nav.months[month - 1]} {year}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuPortal>
+                        </DropdownMenuSub>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                );
+              }
+
+              return (
+                <Button
+                  key={item.href}
+                  type="button"
+                  variant="ghost"
+                  className="w-full justify-start text-sm"
+                  onClick={() => handleNavigate(item.href)}
+                  data-testid={navTestIds[item.href]}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
             <Button
               type="button"
               variant="outline"

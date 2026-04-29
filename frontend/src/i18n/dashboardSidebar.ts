@@ -23,6 +23,10 @@ export interface DashboardSidebarTranslations {
   nav: {
     history: string;
     summary: string;
+    summaryOverall: string;
+    summaryByYear: string;
+    summaryByMonth: string;
+    months: string[];
     upload: string;
     signOut: string;
   };
@@ -38,6 +42,13 @@ const dashboardSidebarTranslations: Record<SupportedLanguage, DashboardSidebarTr
     nav: {
       history: "History",
       summary: "Summary",
+      summaryOverall: "Overall",
+      summaryByYear: "By Year",
+      summaryByMonth: "By Month",
+      months: [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ],
       upload: "Upload new log",
       signOut: "Sign out",
     },
@@ -91,6 +102,13 @@ const dashboardSidebarTranslations: Record<SupportedLanguage, DashboardSidebarTr
     nav: {
       history: "Historia",
       summary: "Podsumowanie",
+      summaryOverall: "Całość",
+      summaryByYear: "Po latach",
+      summaryByMonth: "Po miesiącach",
+      months: [
+        "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
+        "Lipiec", "Sierpień", "Wrzesień", "Październik", "Listopad", "Grudzień"
+      ],
       upload: "Prześlij nowy log",
       signOut: "Wyloguj",
     },

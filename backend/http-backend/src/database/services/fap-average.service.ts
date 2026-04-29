@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { FapAverage } from '../entities/fap-average.entity';
 import { FapAverageTypeEnum } from '../entities/enums';
 
@@ -16,8 +16,10 @@ export class FapAverageService {
   async findOne(userId: string, type: FapAverageTypeEnum = FapAverageTypeEnum.OVERALL, year?: number, month?: number): Promise<FapAverage | null> {
     this.logger.log(`Finding FapAverage for user ${userId}, type ${type}, year ${year}, month ${month}`);
     const whereClause: any = { user: { id: userId }, type };
-    if (year !== undefined) whereClause.year = year;
-    if (month !== undefined) whereClause.month = month;
+    if (year !== undefined && year !== null) whereClause.year = year;
+    else whereClause.year = IsNull();
+    if (month !== undefined && month !== null) whereClause.month = month;
+    else whereClause.month = IsNull();
 
     const result = await this.fapAverageRepository.findOne({
       where: whereClause,
